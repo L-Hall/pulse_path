@@ -87,13 +87,16 @@ LazyDatabase _openConnection() {
     const password = 'temporary_key_replace_with_secure_key';
     
     return DatabaseConnection(
-      NativeDatabase(file, setup: (Database database) {
-        database.execute("PRAGMA key = '$password'");
-        database.execute('PRAGMA cipher_page_size = 4096');
-        database.execute('PRAGMA kdf_iter = 64000');
-        database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA1');
-        database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1');
-      }),
+      NativeDatabase(
+        file,
+        setup: (Database database) {
+          database.execute("PRAGMA key = '$password'");
+          database.execute('PRAGMA cipher_page_size = 4096');
+          database.execute('PRAGMA kdf_iter = 64000');
+          database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA1');
+          database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1');
+        },
+      ),
     );
   });
 }

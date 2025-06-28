@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../features/hrv/domain/services/hrv_calculation_service.dart';
+import '../../features/hrv/domain/services/hrv_scoring_service.dart';
 
 final sl = GetIt.instance;
 
@@ -26,7 +28,15 @@ Future<void> _initCore() async {
 }
 
 Future<void> _initHrv() async {
-  // HRV feature dependencies will be registered here
+  // HRV calculation service - singleton since it's stateless
+  sl.registerLazySingleton<HrvCalculationService>(
+    () => HrvCalculationService(),
+  );
+  
+  // HRV scoring service - singleton since it's stateless  
+  sl.registerLazySingleton<HrvScoringService>(
+    () => HrvScoringService(),
+  );
 }
 
 Future<void> _initDashboard() async {
