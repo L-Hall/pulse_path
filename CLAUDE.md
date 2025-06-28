@@ -30,6 +30,18 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 - **Check dependencies**: `flutter pub deps`
 - **Upgrade dependencies**: `flutter pub upgrade`
 - **Run coverage**: `flutter test --coverage && genhtml coverage/lcov.info -o coverage/html`
+- **Update golden tests**: `flutter test --update-goldens`
+
+### Code Generation & Build
+- **Generate code**: `flutter packages pub run build_runner build`
+- **Watch for changes**: `flutter packages pub run build_runner watch`
+- **Clean generated files**: `flutter packages pub run build_runner clean`
+- **Force rebuild**: `flutter packages pub run build_runner build --delete-conflicting-outputs`
+
+### Advanced Quality Analysis
+- **Run dart_code_metrics**: `dart run dart_code_metrics:metrics analyze lib`
+- **Check anti-patterns**: `dart run dart_code_metrics:metrics check-anti-patterns lib`
+- **Full quality report**: `flutter analyze && dart run dart_code_metrics:metrics analyze lib`
 
 ### Setup Commands
 - **Get dependencies**: `flutter pub get`

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/di/injection_container.dart';
+import 'features/hrv/presentation/pages/hrv_capture_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +49,7 @@ class HomePage extends StatelessWidget {
         title: const Text(AppConstants.appName),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -87,6 +88,22 @@ class HomePage extends StatelessWidget {
                       '• Adaptive Pacing Mode\n'
                       '• Encrypted cloud sync',
                       textAlign: TextAlign.left,
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const HrvCapturePage(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.camera_alt),
+                      label: Text('Try HRV Capture'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF6B73FF),
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ],
                 ),

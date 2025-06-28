@@ -3,6 +3,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../features/hrv/domain/services/hrv_calculation_service.dart';
 import '../../features/hrv/domain/services/hrv_scoring_service.dart';
+import '../../features/hrv/domain/services/ppg_processing_service.dart';
+import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 
 final sl = GetIt.instance;
 
@@ -36,6 +38,16 @@ Future<void> _initHrv() async {
   // HRV scoring service - singleton since it's stateless  
   sl.registerLazySingleton<HrvScoringService>(
     () => HrvScoringService(),
+  );
+  
+  // PPG processing service - singleton for signal processing
+  sl.registerLazySingleton<PpgProcessingService>(
+    () => PpgProcessingService(),
+  );
+  
+  // Camera PPG data source - singleton for camera management
+  sl.registerLazySingleton<CameraPpgDataSource>(
+    () => CameraPpgDataSource(),
   );
 }
 
