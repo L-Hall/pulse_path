@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/liquid_glass_container.dart';
+import '../../../../core/theme/liquid_glass_theme.dart';
 
 /// Widget displaying a single HRV score with visual indicators
 class ScoreCard extends StatefulWidget {
@@ -75,22 +77,11 @@ class _ScoreCardState extends State<ScoreCard>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Container(
+    // Use Liquid Glass container for modern glass effect
+    return LiquidGlassContainer(
+      elevation: 2,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
+      borderRadius: BorderRadius.circular(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -287,18 +278,109 @@ class _AnimatedScoreCardState extends State<AnimatedScoreCard>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
         return Transform.scale(
           scale: widget.isPrimary ? _pulseAnimation.value : 1.0,
-          child: ScoreCard(
-            title: widget.title,
-            score: widget.score,
-            maxScore: widget.maxScore,
-            color: widget.color,
-            icon: widget.icon,
-            subtitle: widget.subtitle,
+          child: LiquidGlassContainer(
+            elevation: widget.isPrimary ? 3 : 2, // Higher elevation for primary
+            padding: const EdgeInsets.all(16),
+            borderRadius: BorderRadius.circular(16),
+            color: widget.isPrimary 
+                ? widget.color.withValues(alpha: 0.05)
+                : null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon and title
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      widget.icon,
+                      color: widget.color,
+                      size: 24,
+                    ),
+                    Text(
+                      widget.title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Circular progress indicator with score
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: AnimatedBuilder(
+                    animation: _scoreAnimation,
+                    builder: (context, child) {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Background circle
+                          SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: CircularProgressIndicator(
+                              value: 1.0,
+                              strokeWidth: 6,
+                              backgroundColor: widget.color.withValues(alpha: 0.1),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                widget.color.withValues(alpha: 0.1),
+                              ),
+                            ),
+                          ),
+                          // Progress circle
+                          SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: CircularProgressIndicator(
+                              value: _scoreAnimation.value,
+                              strokeWidth: 6,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation<Color>(widget.color),
+                            ),
+                          ),
+                          // Score text
+                          AnimatedBuilder(
+                            animation: _scoreAnimation,
+                            builder: (context, child) {
+                              final animatedScore = (_scoreAnimation.value * widget.score).round();
+                              return Text(
+                                '$animatedScore',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Subtitle
+                Text(
+                  widget.subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         );
       },

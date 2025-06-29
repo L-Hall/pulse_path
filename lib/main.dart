@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/di/injection_container.dart';
+import 'core/theme/liquid_glass_theme.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 
 void main() async {
@@ -19,20 +20,18 @@ class PulsePathApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final seedColor = const Color(0xFF6B73FF); // PulsePath brand color
+    
     return MaterialApp(
       title: AppConstants.appName,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B73FF), // PulsePath brand color
-        ),
-        useMaterial3: true,
+      theme: LiquidGlassMaterial3Theme.lightTheme(
+        ColorScheme.fromSeed(seedColor: seedColor),
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B73FF),
+      darkTheme: LiquidGlassMaterial3Theme.darkTheme(
+        ColorScheme.fromSeed(
+          seedColor: seedColor,
           brightness: Brightness.dark,
         ),
-        useMaterial3: true,
       ),
       home: const DashboardPage(),
     );

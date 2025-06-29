@@ -7,6 +7,8 @@ import '../widgets/enhanced_hrv_chart.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
 import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
+import '../../../liquid_glass/presentation/pages/liquid_glass_demo_page.dart';
+import '../../../settings/presentation/pages/settings_page.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -579,11 +581,28 @@ class DashboardPage extends ConsumerWidget {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.auto_awesome),
+              title: const Text('Liquid Glass Demo'),
+              subtitle: const Text('Experience iOS 26+ UI effects'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LiquidGlassDemoPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navigate to settings
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -591,7 +610,7 @@ class DashboardPage extends ConsumerWidget {
               title: const Text('About'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Show about dialog
+                _showAboutDialog(context);
               },
             ),
           ],
@@ -668,5 +687,26 @@ class DashboardPage extends ConsumerWidget {
         SnackBar(content: Text('Export failed: $e')),
       );
     }
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AboutDialog(
+        applicationName: 'PulsePath',
+        applicationVersion: '1.0.0 (Alpha)',
+        applicationIcon: const Icon(Icons.favorite, size: 48, color: Colors.red),
+        applicationLegalese: '© 2024 PulsePath. All rights reserved.\n\nHRV-based wellbeing tracking with privacy-first design.',
+        children: const [
+          SizedBox(height: 16),
+          Text('Features:'),
+          Text('• 3-minute HRV capture via camera PPG or BLE'),
+          Text('• Stress, Recovery, and Energy scores'),
+          Text('• Adaptive Pacing for chronic illness support'),
+          Text('• End-to-end encrypted cloud sync'),
+          Text('• Liquid Glass UI for iOS 26+'),
+        ],
+      ),
+    );
   }
 }
