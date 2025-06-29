@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/metric_info.dart';
 import 'metric_tile.dart';
+import '../../../../shared/models/hrv_reading.dart';
 
 /// Widget displaying a category of HRV metrics
 class MetricCategorySection extends StatelessWidget {
   final MetricCategory category;
   final List<MapEntry<String, MetricInfo>> metrics;
+  final List<HrvReading> readings;
   final void Function(String metricKey) onMetricTap;
 
   const MetricCategorySection({
     super.key,
     required this.category,
     required this.metrics,
+    required this.readings,
     required this.onMetricTap,
   });
 
@@ -121,39 +124,44 @@ class MetricCategorySection extends StatelessWidget {
   }
 
   double _getCurrentValue(String metricKey) {
-    // TODO: Get actual current value from data provider
-    // For now, return mock values based on metric type
+    if (readings.isEmpty) return 0.0;
+    
+    // Get the most recent reading
+    final mostRecentReading = readings.last;
+    final metrics = mostRecentReading.metrics;
+    
+    // Extract the value based on metric key
     switch (metricKey) {
       case 'rmssd':
-        return 35.2;
+        return metrics.rmssd;
       case 'meanRr':
-        return 892.0;
+        return metrics.meanRr;
       case 'sdnn':
-        return 45.3;
+        return metrics.sdnn;
       case 'lowFrequency':
-        return 245.0;
+        return metrics.lowFrequency;
       case 'highFrequency':
-        return 187.0;
+        return metrics.highFrequency;
       case 'lfHfRatio':
-        return 1.31;
+        return metrics.lfHfRatio;
       case 'baevsky':
-        return 89.0;
+        return metrics.baevsky;
       case 'coefficientOfVariance':
-        return 5.1;
+        return metrics.coefficientOfVariance;
       case 'mxdmn':
-        return 234.0;
+        return metrics.mxdmn;
       case 'moda':
-        return 885.0;
+        return metrics.moda;
       case 'amo50':
-        return 32.0;
+        return metrics.amo50;
       case 'pnn50':
-        return 18.5;
+        return metrics.pnn50;
       case 'pnn20':
-        return 45.2;
+        return metrics.pnn20;
       case 'totalPower':
-        return 1876.0;
+        return metrics.totalPower;
       case 'dfaAlpha1':
-        return 1.12;
+        return metrics.dfaAlpha1;
       default:
         return 0.0;
     }

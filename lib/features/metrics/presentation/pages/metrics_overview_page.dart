@@ -139,6 +139,7 @@ class MetricsOverviewPage extends ConsumerWidget {
         MetricCategorySection(
           category: category,
           metrics: metrics,
+          readings: trendReadings.cast<HrvReading>(),
           onMetricTap: (metricKey) => _navigateToMetricDetail(context, metricKey, trendReadings),
         ),
         const SizedBox(height: 16),
