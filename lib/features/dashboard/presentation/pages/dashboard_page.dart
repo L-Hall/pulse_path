@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/dashboard_providers.dart';
 import '../widgets/score_card.dart';
 import '../widgets/hrv_trend_chart.dart';
+import '../widgets/enhanced_hrv_chart.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
 import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
@@ -82,6 +83,11 @@ class DashboardPage extends ConsumerWidget {
 
             // Trend chart section
             _buildTrendSection(context, data),
+            
+            const SizedBox(height: 24),
+            
+            // Enhanced chart section
+            _buildEnhancedChartSection(context, data),
             const SizedBox(height: 32),
 
             // Quick stats
@@ -223,6 +229,44 @@ class DashboardPage extends ConsumerWidget {
                 )
               : _buildEmptyTrendState(context),
         ),
+      ],
+    );
+  }
+
+  Widget _buildEnhancedChartSection(BuildContext context, DashboardData data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.auto_graph,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Advanced Analytics',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Interactive charts with multiple visualization modes',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 16),
+        data.trendReadings.isNotEmpty
+            ? EnhancedHrvChart(
+                trendPoints: data.getTrendPoints(),
+                readings: data.trendReadings,
+                days: 7,
+              )
+            : _buildEmptyTrendState(context),
       ],
     );
   }
