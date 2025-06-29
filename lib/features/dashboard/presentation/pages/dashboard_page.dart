@@ -431,9 +431,55 @@ class DashboardPage extends ConsumerWidget {
   }
 
   void _navigateToCapture(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const HrvCapturePage(),
+    // Show capture method selection dialog
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Choose Capture Method',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Select how you\'d like to capture your HRV reading',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, size: 28),
+              title: const Text('Camera (PPG)'),
+              subtitle: const Text('Use phone camera for 3-minute capture'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const HrvCapturePage(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.bluetooth, size: 28),
+              title: const Text('Heart Rate Monitor'),
+              subtitle: const Text('Connect to BLE chest strap or watch'),
+              onTap: () {
+                Navigator.pop(context);
+                _navigateToBleDiscovery(context);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
