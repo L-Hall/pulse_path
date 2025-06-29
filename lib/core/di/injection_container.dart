@@ -7,6 +7,7 @@ import '../../features/hrv/domain/services/hrv_scoring_service.dart';
 import '../../features/hrv/domain/services/ppg_processing_service.dart';
 import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 import '../../features/ble/domain/services/ble_heart_rate_service.dart';
+import '../../features/ble/domain/services/ble_hrv_integration_service.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -88,6 +89,16 @@ Future<void> _initHrv() async {
   // BLE Heart Rate service - singleton for BLE management
   sl.registerLazySingleton<BleHeartRateService>(
     () => BleHeartRateService(),
+  );
+  
+  // BLE HRV Integration service - singleton for BLE-HRV pipeline
+  sl.registerLazySingleton<BleHrvIntegrationService>(
+    () => BleHrvIntegrationService(
+      bleService: sl<BleHeartRateService>(),
+      calculationService: sl<HrvCalculationService>(),
+      scoringService: sl<HrvScoringService>(),
+      repository: sl<HrvRepositoryInterface>(),
+    ),
   );
 }
 

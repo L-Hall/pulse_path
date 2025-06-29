@@ -5,6 +5,7 @@ import '../providers/ble_providers.dart';
 import '../widgets/device_list_tile.dart';
 import '../widgets/connection_status_widget.dart';
 import '../../domain/services/ble_heart_rate_service.dart';
+import 'ble_hrv_capture_page.dart';
 
 /// BLE Device Discovery Page for finding and connecting to heart rate monitors
 class BleDeviceDiscoveryPage extends ConsumerStatefulWidget {
@@ -79,7 +80,12 @@ class _BleDeviceDiscoveryPageState extends ConsumerState<BleDeviceDiscoveryPage>
       
       if (success && mounted) {
         _showSuccessSnackBar('Connected to ${device.platformName}');
-        Navigator.of(context).pop(device);
+        // Navigate to HRV capture page instead of just returning
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (context) => const BleHrvCapturePage(),
+          ),
+        );
       } else if (mounted) {
         _showErrorSnackBar('Failed to connect to ${device.platformName}');
       }
