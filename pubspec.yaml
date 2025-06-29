@@ -52,13 +52,13 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_secure_storage: ^9.0.0
 
-  # Cloud Services (Firebase)
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
-  firebase_storage: ^11.5.6
-  firebase_crashlytics: ^3.4.9
-  firebase_messaging: ^14.7.10
+  # Cloud Services (Firebase) - Updated for Xcode 16.3 compatibility
+  firebase_core: ^3.14.0
+  firebase_auth: ^5.6.0
+  cloud_firestore: ^5.6.9
+  firebase_storage: ^12.4.7
+  firebase_crashlytics: ^4.3.7
+  firebase_messaging: ^15.2.7
   
   # Encryption
   pointycastle: ^3.7.3
