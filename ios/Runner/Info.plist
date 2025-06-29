@@ -45,5 +45,35 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Camera permission for PPG capture -->
+	<key>NSCameraUsageDescription</key>
+	<string>PulsePath uses the camera to measure your heart rate variability through photoplethysmography (PPG). This enables 3-minute HRV readings for stress, recovery, and energy monitoring.</string>
+	
+	<!-- Health data access -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>PulsePath reads your health data to provide comprehensive wellbeing insights by combining HRV measurements with steps, workouts, and menstrual cycle data.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>PulsePath saves your HRV readings to HealthKit to enable data sharing with other health apps and provide long-term trend analysis.</string>
+	
+	<!-- Bluetooth for heart rate monitors -->
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>PulsePath connects to Bluetooth heart rate monitors (like Polar H10 or Garmin HRM-Pro) for precise HRV measurements and enhanced data accuracy.</string>
+	
+	<!-- Motion data for adaptive pacing -->
+	<key>NSMotionUsageDescription</key>
+	<string>PulsePath uses motion data to track activity levels and provide adaptive pacing recommendations for chronic illness management.</string>
+	
+	<!-- Notifications for HRV reminders -->
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>PulsePath sends reminders for daily HRV measurements and notifications about your recovery status to help maintain consistent health monitoring.</string>
+	
+	<!-- Background app refresh for data sync -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>background-fetch</string>
+		<string>background-processing</string>
+		<string>bluetooth-central</string>
+	</array>
 </dict>
 </plist>
