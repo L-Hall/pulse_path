@@ -50,7 +50,10 @@ class SyncQueue extends Table {
 
 @DriftDatabase(tables: [HrvReadings, Settings, SyncQueue])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(connection.createConnection());
+  AppDatabase([String? encryptionKey]) : super(connection.createConnection(encryptionKey));
+
+  /// Factory constructor for creating database with specific encryption key
+  AppDatabase.withEncryptionKey(String encryptionKey) : super(connection.createConnection(encryptionKey));
 
   @override
   int get schemaVersion => 1;

@@ -7,7 +7,10 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 /// Native platform database connection using SQLCipher
-LazyDatabase createConnection() {
+/// 
+/// This will be initialized with proper encryption key from DatabaseKeyManager
+/// during app startup through dependency injection
+LazyDatabase createConnection([String? encryptionKey]) {
   return LazyDatabase(() async {
     // Initialize SQLCipher for encrypted database on mobile/desktop
     try {
@@ -20,20 +23,26 @@ LazyDatabase createConnection() {
     final dbFolder = await getDatabasesPath();
     final file = File(path.join(dbFolder, 'pulse_path_encrypted.db'));
     
-    // Get encryption key from DatabaseKeyManager (will be injected later)
-    // For now, use a temporary key - this will be replaced with proper key management
-    const password = 'temporary_key_replace_with_secure_key';
+    // Use provided encryption key or fallback to temporary key
+    // Note: In production, this should always be called with a secure key
+    final password = encryptionKey ?? 'temporary_key_replace_with_secure_key';
     
     return DatabaseConnection(
       NativeDatabase(
         file,
         setup: (Database database) {
           try {
+            // Configure SQLCipher with enterprise-grade security settings
             database.execute("PRAGMA key = '$password'");
             database.execute('PRAGMA cipher_page_size = 4096');
-            database.execute('PRAGMA kdf_iter = 64000');
-            database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA1');
-            database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1');
+            database.execute('PRAGMA kdf_iter = 100000'); // Increased from 64000 for better security
+            database.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA256'); // Upgraded from SHA1
+            database.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA256'); // Upgraded from SHA1
+            database.execute('PRAGMA cipher_memory_security = ON');
+            database.execute('PRAGMA cipher_default_use_hmac = ON');
+            
+            // Test database access to ensure encryption is working
+            database.execute('SELECT name FROM sqlite_master WHERE type="table"');
           } catch (e) {
             // SQLCipher not available, continue with unencrypted
             print('SQLCipher not available, using unencrypted database: $e');

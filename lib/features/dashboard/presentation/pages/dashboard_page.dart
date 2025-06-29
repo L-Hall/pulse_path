@@ -4,6 +4,7 @@ import '../providers/dashboard_providers.dart';
 import '../widgets/score_card.dart';
 import '../widgets/hrv_trend_chart.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
+import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -436,6 +437,14 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
+  void _navigateToBleDiscovery(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => const BleDeviceDiscoveryPage(),
+      ),
+    );
+  }
+
   void _showSettingsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -450,6 +459,15 @@ class DashboardPage extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 _exportData(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bluetooth),
+              title: const Text('Heart Rate Monitor'),
+              subtitle: const Text('Connect to BLE device'),
+              onTap: () {
+                Navigator.pop(context);
+                _navigateToBleDiscovery(context);
               },
             ),
             ListTile(

@@ -6,13 +6,16 @@ import '../../features/hrv/domain/services/hrv_calculation_service.dart';
 import '../../features/hrv/domain/services/hrv_scoring_service.dart';
 import '../../features/hrv/domain/services/ppg_processing_service.dart';
 import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
+import '../../features/ble/domain/services/ble_heart_rate_service.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../shared/repositories/database/app_database.dart';
+import '../../shared/repositories/database/database_factory.dart';
 import '../security/database_key_manager.dart';
 import '../services/data_migration_service.dart';
+import '../services/enhanced_data_migration_service.dart';
 
 final sl = GetIt.instance;
 
@@ -30,6 +33,12 @@ Future<void> initializeDependencies() async {
   await _initDashboard();
   await _initSettings();
   await _initSync();
+  
+  // Ensure all async singletons are ready on mobile/desktop
+  if (!kIsWeb) {
+    // Pre-initialize async dependencies
+    await sl.allReady();
+  }
 }
 
 Future<void> _initCore() async {
@@ -41,9 +50,17 @@ Future<void> _initCore() async {
     () => DatabaseKeyManager(sl<FlutterSecureStorage>()),
   );
   
-  // Database instance
-  sl.registerLazySingleton<AppDatabase>(
-    () => AppDatabase(),
+  // Database factory for secure database creation
+  sl.registerLazySingleton<DatabaseFactory>(
+    () => DatabaseFactory(sl<DatabaseKeyManager>()),
+  );
+  
+  // Database instance with proper encryption
+  sl.registerLazySingletonAsync<AppDatabase>(
+    () async {
+      final factory = sl<DatabaseFactory>();
+      return await factory.getDatabase();
+    },
   );
 }
 
@@ -67,12 +84,21 @@ Future<void> _initHrv() async {
   sl.registerLazySingleton<CameraPpgDataSource>(
     () => CameraPpgDataSource(),
   );
+  
+  // BLE Heart Rate service - singleton for BLE management
+  sl.registerLazySingleton<BleHeartRateService>(
+    () => BleHeartRateService(),
+  );
 }
 
 Future<void> _initDashboard() async {
-  // Register data migration service
+  // Register data migration services
   sl.registerLazySingleton<DataMigrationService>(
     () => DataMigrationService(),
+  );
+  
+  sl.registerLazySingleton<EnhancedDataMigrationService>(
+    () => EnhancedDataMigrationService(sl<DatabaseKeyManager>()),
   );
 
   // Platform-specific repository selection
@@ -83,15 +109,19 @@ Future<void> _initDashboard() async {
     );
   } else {
     // Use DatabaseHrvRepository for mobile/desktop platforms
-    final databaseRepository = DatabaseHrvRepository(sl<AppDatabase>());
-    
-    // Initialize with sample data if empty
-    sl.registerLazySingleton<HrvRepositoryInterface>(
-      () => databaseRepository,
+    // Register as async since database is async
+    sl.registerLazySingletonAsync<HrvRepositoryInterface>(
+      () async {
+        final database = await sl.getAsync<AppDatabase>();
+        final databaseRepository = DatabaseHrvRepository(database);
+        
+        // Initialize with sample data if empty using enhanced migration service
+        final migrationService = sl<EnhancedDataMigrationService>();
+        await migrationService.initializeWithSampleDataIfEmpty(databaseRepository);
+        
+        return databaseRepository;
+      },
     );
-    
-    // Initialize sample data asynchronously
-    _initializeDatabaseWithSampleData(databaseRepository);
     
     // Keep SimpleHrvRepository for potential data migration
     sl.registerLazySingleton<SimpleHrvRepository>(
@@ -99,23 +129,21 @@ Future<void> _initDashboard() async {
     );
   }
   
-  sl.registerLazySingleton<DashboardRepository>(
-    () => DashboardRepository(sl<HrvRepositoryInterface>()),
-  );
-}
-
-/// Initialize database repository with sample data if empty
-Future<void> _initializeDatabaseWithSampleData(DatabaseHrvRepository repository) async {
-  try {
-    // Use the migration service to initialize with sample data if needed
-    final migrationService = DataMigrationService();
-    await migrationService.initializeWithSampleDataIfEmpty(repository);
-  } catch (e) {
-    if (kDebugMode) {
-      print('Error initializing database with sample data: $e');
-    }
+  // Dashboard repository - also async on mobile/desktop
+  if (kIsWeb) {
+    sl.registerLazySingleton<DashboardRepository>(
+      () => DashboardRepository(sl<HrvRepositoryInterface>()),
+    );
+  } else {
+    sl.registerLazySingletonAsync<DashboardRepository>(
+      () async {
+        final repository = await sl.getAsync<HrvRepositoryInterface>();
+        return DashboardRepository(repository);
+      },
+    );
   }
 }
+
 
 Future<void> _initSettings() async {
   // Settings feature dependencies will be registered here
