@@ -17,6 +17,8 @@ import '../../shared/repositories/database/database_factory.dart';
 import '../security/database_key_manager.dart';
 import '../services/data_migration_service.dart';
 import '../services/enhanced_data_migration_service.dart';
+import '../services/error_handling_service.dart';
+import '../services/logging_service.dart';
 
 final sl = GetIt.instance;
 
@@ -63,6 +65,15 @@ Future<void> _initCore() async {
       return await factory.getDatabase();
     },
   );
+  
+  // Error handling and logging services
+  sl.registerLazySingleton<ErrorHandlingService>(
+    () => ErrorHandlingService(),
+  );
+  
+  sl.registerLazySingleton<LoggingService>(
+    () => LoggingService(),
+  );
 }
 
 Future<void> _initHrv() async {
@@ -98,6 +109,8 @@ Future<void> _initHrv() async {
       calculationService: sl<HrvCalculationService>(),
       scoringService: sl<HrvScoringService>(),
       repository: sl<HrvRepositoryInterface>(),
+      errorHandler: sl<ErrorHandlingService>(),
+      logger: sl<LoggingService>(),
     ),
   );
 }

@@ -5,6 +5,8 @@ import '../../../hrv/domain/services/hrv_calculation_service.dart';
 import '../../../hrv/domain/services/hrv_scoring_service.dart';
 import '../../../dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../../../shared/models/hrv_reading.dart';
+import '../../../../core/services/error_handling_service.dart';
+import '../../../../core/services/logging_service.dart';
 
 /// Service that integrates BLE heart rate data with HRV analysis
 /// 
@@ -14,6 +16,8 @@ class BleHrvIntegrationService {
   final HrvCalculationService _calculationService;
   final HrvScoringService _scoringService;
   final HrvRepositoryInterface _repository;
+  final ErrorHandlingService _errorHandler;
+  final LoggingService _logger;
 
   StreamSubscription<HeartRateReading>? _heartRateSubscription;
   final List<double> _rrIntervalBuffer = [];
@@ -29,10 +33,14 @@ class BleHrvIntegrationService {
     required HrvCalculationService calculationService,
     required HrvScoringService scoringService,
     required HrvRepositoryInterface repository,
+    required ErrorHandlingService errorHandler,
+    required LoggingService logger,
   })  : _bleService = bleService,
         _calculationService = calculationService,
         _scoringService = scoringService,
-        _repository = repository;
+        _repository = repository,
+        _errorHandler = errorHandler,
+        _logger = logger;
 
   /// Stream of capture progress updates
   Stream<BleHrvCaptureProgress> get progressStream => _progressController.stream;
@@ -55,9 +63,11 @@ class BleHrvIntegrationService {
       _captureStartTime = DateTime.now();
       _rrIntervalBuffer.clear();
 
-      if (kDebugMode) {
-        debugPrint('🫀 Starting BLE HRV capture for ${duration.inSeconds} seconds');
-      }
+      _logger.logHrvCaptureStart(
+        method: 'ble',
+        deviceName: _bleService.connectedDeviceInfo?.name,
+        expectedDuration: duration,
+      );
 
       // Start progress updates
       _progressController.add(const BleHrvCaptureProgress(
@@ -72,9 +82,11 @@ class BleHrvIntegrationService {
       _heartRateSubscription = _bleService.heartRateStream.listen(
         _processHeartRateReading,
         onError: (Object error) {
-          if (kDebugMode) {
-            debugPrint('❌ Error in heart rate stream: $error');
-          }
+          _errorHandler.handleBleError(
+            'heart_rate_stream',
+            error,
+            deviceName: _bleService.connectedDeviceInfo?.name,
+          );
           _stopCapture();
           _progressController.add(BleHrvCaptureProgress(
             status: BleHrvCaptureStatus.error,
@@ -209,9 +221,16 @@ class BleHrvIntegrationService {
       // Save to repository
       await _repository.saveReading(reading);
 
-      if (kDebugMode) {
-        debugPrint('✅ HRV analysis complete - RMSSD: ${metrics.rmssd.toStringAsFixed(1)}ms');
-      }
+      _logger.logHrvCaptureComplete(
+        method: 'ble',
+        actualDuration: _getElapsedDuration(),
+        rrIntervalCount: _rrIntervalBuffer.length,
+        metrics: {
+          'rmssd': metrics.rmssd,
+          'meanRr': metrics.meanRr,
+          'sdnn': metrics.sdnn,
+        },
+      );
 
       _progressController.add(BleHrvCaptureProgress(
         status: BleHrvCaptureStatus.completed,
@@ -222,10 +241,13 @@ class BleHrvIntegrationService {
         hrvReading: reading,
       ),);
 
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ Error during HRV analysis: $e');
-      }
+    } catch (e, stackTrace) {
+      _errorHandler.handleHrvError(
+        'analysis',
+        e,
+        stackTrace: stackTrace,
+        rrIntervalCount: _rrIntervalBuffer.length,
+      );
       
       _progressController.add(BleHrvCaptureProgress(
         status: BleHrvCaptureStatus.error,

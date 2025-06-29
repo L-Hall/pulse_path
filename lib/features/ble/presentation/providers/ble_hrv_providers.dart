@@ -5,6 +5,8 @@ import '../../../hrv/domain/services/hrv_calculation_service.dart';
 import '../../../hrv/domain/services/hrv_scoring_service.dart';
 import '../../../dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/error_handling_service.dart';
+import '../../../../core/services/logging_service.dart';
 
 /// Provider for BLE HRV integration service
 final bleHrvIntegrationProvider = Provider<BleHrvIntegrationService>((ref) {
@@ -13,6 +15,8 @@ final bleHrvIntegrationProvider = Provider<BleHrvIntegrationService>((ref) {
     calculationService: sl<HrvCalculationService>(),
     scoringService: sl<HrvScoringService>(),
     repository: sl<HrvRepositoryInterface>(),
+    errorHandler: sl<ErrorHandlingService>(),
+    logger: sl<LoggingService>(),
   );
 });
 
