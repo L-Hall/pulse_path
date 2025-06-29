@@ -62,6 +62,7 @@ dependencies:
   
   # Encryption
   pointycastle: ^3.7.3
+  crypto: ^3.0.3
 
   # UI & Charts
   fl_chart: ^0.66.0

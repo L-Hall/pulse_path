@@ -8,6 +8,9 @@ import '../../features/hrv/domain/services/ppg_processing_service.dart';
 import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
+import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
+import '../../shared/repositories/database/app_database.dart';
+import '../security/database_key_manager.dart';
 
 final sl = GetIt.instance;
 
@@ -30,6 +33,16 @@ Future<void> initializeDependencies() async {
 Future<void> _initCore() async {
   // Initialize Hive for caching
   await Hive.initFlutter();
+  
+  // Database key manager for secure encryption
+  sl.registerLazySingleton<DatabaseKeyManager>(
+    () => DatabaseKeyManager(sl<FlutterSecureStorage>()),
+  );
+  
+  // Database instance
+  sl.registerLazySingleton<AppDatabase>(
+    () => AppDatabase(),
+  );
 }
 
 Future<void> _initHrv() async {
@@ -55,7 +68,8 @@ Future<void> _initHrv() async {
 }
 
 Future<void> _initDashboard() async {
-  // Simple HRV repository for demo (works on all platforms)
+  // For now, use SimpleHrvRepository for all platforms to maintain compatibility
+  // TODO: Switch to DatabaseHrvRepository for mobile/desktop in next iteration
   sl.registerLazySingleton<SimpleHrvRepository>(
     () => SimpleHrvRepository()..addSampleData(),
   );
@@ -63,6 +77,13 @@ Future<void> _initDashboard() async {
   sl.registerLazySingleton<DashboardRepository>(
     () => DashboardRepository(sl<SimpleHrvRepository>()),
   );
+  
+  // Also register the database repository for future migration
+  if (!kIsWeb) {
+    sl.registerLazySingleton<DatabaseHrvRepository>(
+      () => DatabaseHrvRepository(sl<AppDatabase>()),
+    );
+  }
 }
 
 Future<void> _initSettings() async {

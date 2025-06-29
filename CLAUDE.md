@@ -56,7 +56,7 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 - **Swift/SwiftUI**: Native watch extensions when Flutter widgets too heavy
 
 ### State Management & DI
-- **riverpod ^3.0.0**: Async selectors & DevTools timeline support
+- **riverpod ^2.4.9**: Async selectors & DevTools timeline support
 - **freezed**: Immutable data classes with code generation
 - **get_it**: Dependency injection for repositories and services
 
@@ -64,7 +64,7 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 - **camera ^0.10.5+5**: Rear camera PPG capture with adaptive flash control
 - **flutter_blue_plus ^1.10.0**: BLE heart-rate belts (100Hz stream, Heart Rate Service 0x180D)
 - **watch_connectivity ^1.2.0** (iOS) / **wear kits** (Android): Bidirectional watch sync
-- **health ^11.3.0**: HealthKit + Health Connect (HRV, steps, workouts, menstrual cycle)
+- **health ^10.2.0**: HealthKit + Health Connect (HRV, steps, workouts, menstrual cycle)
 - **activity_recognition_flutter + pedometer**: Fallback step counting
 
 ### Storage & Encryption
@@ -78,8 +78,8 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 - **Optional Supabase**: Alternative with Postgres + row-level security
 
 ### UI & Charts
-- **fl_chart + syncfusion_flutter_charts**: HRV trends with 60fps animations
-- **material_you + cupertino + flutter_adaptive_scaffold**: Material 3 + Apple HIG compliance
+- **fl_chart**: HRV trends with 60fps animations
+- **cupertino_icons**: Material 3 + Apple HIG compliance
 
 ### Monetization & Analytics
 - **in_app_purchase**: StoreKit 2 + Play Billing v6 for subscriptions

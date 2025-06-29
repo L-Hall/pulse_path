@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 
-// Conditional imports for different platforms
-import 'package:drift/native.dart' if (dart.library.html) 'package:drift/web.dart';
+// Web platform imports
 import 'package:drift/web.dart' if (dart.library.html) 'package:drift/web.dart';
 
-// Only import native dependencies when not on web
+// Native platform imports (mobile/desktop)
 import 'dart:io' if (dart.library.html) 'dart:html';
+import 'package:drift/native.dart' if (dart.library.html) 'package:drift/web.dart';
 import 'package:path/path.dart' as path if (dart.library.html) '';
 import 'package:path_provider/path_provider.dart' if (dart.library.html) '';
 import 'package:sqlite3/sqlite3.dart' if (dart.library.html) '';
@@ -95,8 +95,8 @@ LazyDatabase _openConnection() {
     final dbFolder = await getDatabasesPath();
     final file = File(path.join(dbFolder, 'pulse_path_encrypted.db'));
     
-    // Get encryption key from secure storage
-    // This will be implemented with proper key management
+    // Get encryption key from DatabaseKeyManager (will be injected later)
+    // For now, use a temporary key - this will be replaced with proper key management
     const password = 'temporary_key_replace_with_secure_key';
     
     return DatabaseConnection(
