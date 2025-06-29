@@ -133,6 +133,15 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 
 ## Development Guidelines
 
+### 🚨 CRITICAL DEVELOPMENT WORKFLOW 🚨
+**ALWAYS follow these steps after making changes:**
+1. **Build Verification**: Run `flutter build web` or `flutter build apk --debug` to check for configuration errors
+2. **Test Compilation**: Run `flutter analyze --no-fatal-infos` to verify no critical errors
+3. **Git Commit**: Commit changes after each feature increment with descriptive messages
+4. **Git Push**: Push to remote repository to maintain backup and enable collaboration
+
+**Remember**: Configuration errors may not appear until build time. Always verify builds before considering a feature complete!
+
 ### Architecture Patterns
 - **Offline-first**: Full feature parity offline with queued sync
 - **Repository pattern**: Use get_it for DI, Riverpod for state management
@@ -151,17 +160,23 @@ PulsePath is a cross-platform Flutter app (iOS & Android) for HRV-based wellbein
 - **CI verification**: iPhone 14 sim, Pixel 8 emulator, Apple Watch Series 9 sim
 
 ### Current State (Updated December 2024)
-**Phase 1 Foundation Complete** - The project has moved beyond initial setup:
+**Phase 5 Database Migration Complete** - Production-ready encrypted database infrastructure:
 
-✅ **Architecture Established**: Feature-based structure with core/, features/, and shared/ directories
-✅ **Dependencies Configured**: All required packages installed and working (Riverpod, Drift, Firebase stack)
-✅ **Database Ready**: Encrypted SQLCipher database with HRV data models and schema
-✅ **State Management**: Riverpod providers and dependency injection (get_it) configured
-✅ **Code Generation**: Freezed models and Drift database code generated successfully
-✅ **Quality Gates**: Strict linting rules, analysis options, and basic tests passing
-✅ **Version Control**: GitHub repository created at https://github.com/L-Hall/pulse_path
+✅ **Phase 1**: Foundation Setup - Architecture, dependencies, and project structure
+✅ **Phase 2A**: HRV Metrics Engine - All 14 metrics implemented with unit tests
+✅ **Phase 2B**: Camera PPG Capture - Working 3-minute HRV capture system
+✅ **Phase 3**: Dashboard UI - Beautiful Material 3 dashboard with charts and export
+✅ **Phase 4**: Database Infrastructure - Enterprise-grade encrypted storage
+✅ **Phase 5**: Platform Migration - DatabaseHrvRepository for mobile/desktop, SimpleHrvRepository for web
 
-**Ready for Phase 2**: HRV metrics engine and camera PPG capture implementation
+**Current Architecture**:
+- **Web Platform**: Uses SimpleHrvRepository with in-memory storage
+- **Mobile/Desktop**: Uses DatabaseHrvRepository with SQLCipher encryption
+- **Clean Interface**: HrvRepositoryInterface enables seamless platform switching
+- **Data Migration**: DataMigrationService for repository transitions
+- **Sample Data**: Automatic initialization for new users
+
+**Ready for Phase 6**: BLE wearable integration or advanced features
 
 ### Key Implementation Details
 - **Database**: `/lib/shared/repositories/database/app_database.dart` - Encrypted local storage ready

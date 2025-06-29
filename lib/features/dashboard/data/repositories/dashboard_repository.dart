@@ -1,10 +1,10 @@
 import '../../domain/models/dashboard_data.dart';
-import 'simple_hrv_repository.dart';
+import 'hrv_repository_interface.dart';
 import '../../../../shared/models/hrv_reading.dart';
 
 /// Repository for dashboard-specific data operations
 class DashboardRepository {
-  final SimpleHrvRepository _hrvRepository;
+  final HrvRepositoryInterface _hrvRepository;
 
   DashboardRepository(this._hrvRepository);
 

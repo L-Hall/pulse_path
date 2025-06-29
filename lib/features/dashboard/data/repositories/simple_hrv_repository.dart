@@ -1,10 +1,12 @@
 import '../../../../shared/models/hrv_reading.dart';
+import 'hrv_repository_interface.dart';
 
 /// Simple HRV repository for dashboard demo (in-memory storage)
-class SimpleHrvRepository {
+class SimpleHrvRepository implements HrvRepositoryInterface {
   final List<HrvReading> _readings = [];
 
   /// Add a new reading
+  @override
   Future<void> saveReading(HrvReading reading) async {
     _readings.add(reading);
     // Keep only the last 100 readings for memory efficiency
@@ -14,6 +16,7 @@ class SimpleHrvRepository {
   }
 
   /// Get the most recent reading
+  @override
   Future<HrvReading?> getLatestReading() async {
     if (_readings.isEmpty) return null;
     _readings.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -21,6 +24,7 @@ class SimpleHrvRepository {
   }
 
   /// Get readings for the last N days
+  @override
   Future<List<HrvReading>> getTrendReadings({int days = 7}) async {
     final cutoff = DateTime.now().subtract(Duration(days: days));
     final filtered = _readings.where((r) => r.timestamp.isAfter(cutoff)).toList();
@@ -29,6 +33,7 @@ class SimpleHrvRepository {
   }
 
   /// Get basic statistics
+  @override
   Future<DashboardStatistics> getStatistics({int days = 30}) async {
     final readings = await getTrendReadings(days: days);
     
@@ -97,6 +102,7 @@ class SimpleHrvRepository {
   }
 
   /// Add sample data for demo
+  @override
   Future<void> addSampleData() async {
     final now = DateTime.now();
     

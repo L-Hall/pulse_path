@@ -9,8 +9,10 @@ import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
+import '../../features/dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../shared/repositories/database/app_database.dart';
 import '../security/database_key_manager.dart';
+import '../services/data_migration_service.dart';
 
 final sl = GetIt.instance;
 
@@ -68,21 +70,50 @@ Future<void> _initHrv() async {
 }
 
 Future<void> _initDashboard() async {
-  // For now, use SimpleHrvRepository for all platforms to maintain compatibility
-  // TODO: Switch to DatabaseHrvRepository for mobile/desktop in next iteration
-  sl.registerLazySingleton<SimpleHrvRepository>(
-    () => SimpleHrvRepository()..addSampleData(),
+  // Register data migration service
+  sl.registerLazySingleton<DataMigrationService>(
+    () => DataMigrationService(),
   );
+
+  // Platform-specific repository selection
+  if (kIsWeb) {
+    // Use SimpleHrvRepository for web platform
+    sl.registerLazySingleton<HrvRepositoryInterface>(
+      () => SimpleHrvRepository()..addSampleData(),
+    );
+  } else {
+    // Use DatabaseHrvRepository for mobile/desktop platforms
+    final databaseRepository = DatabaseHrvRepository(sl<AppDatabase>());
+    
+    // Initialize with sample data if empty
+    sl.registerLazySingleton<HrvRepositoryInterface>(
+      () => databaseRepository,
+    );
+    
+    // Initialize sample data asynchronously
+    _initializeDatabaseWithSampleData(databaseRepository);
+    
+    // Keep SimpleHrvRepository for potential data migration
+    sl.registerLazySingleton<SimpleHrvRepository>(
+      () => SimpleHrvRepository(),
+    );
+  }
   
   sl.registerLazySingleton<DashboardRepository>(
-    () => DashboardRepository(sl<SimpleHrvRepository>()),
+    () => DashboardRepository(sl<HrvRepositoryInterface>()),
   );
-  
-  // Also register the database repository for future migration
-  if (!kIsWeb) {
-    sl.registerLazySingleton<DatabaseHrvRepository>(
-      () => DatabaseHrvRepository(sl<AppDatabase>()),
-    );
+}
+
+/// Initialize database repository with sample data if empty
+Future<void> _initializeDatabaseWithSampleData(DatabaseHrvRepository repository) async {
+  try {
+    // Use the migration service to initialize with sample data if needed
+    final migrationService = DataMigrationService();
+    await migrationService.initializeWithSampleDataIfEmpty(repository);
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error initializing database with sample data: $e');
+    }
   }
 }
 

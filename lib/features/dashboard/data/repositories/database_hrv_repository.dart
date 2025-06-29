@@ -16,6 +16,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
   DatabaseHrvRepository(this._database);
 
   /// Add a new reading to the database
+  @override
   Future<void> saveReading(models.HrvReading reading) async {
     try {
       final companion = HrvReadingsCompanion.insert(
@@ -40,6 +41,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
   }
 
   /// Get the most recent reading
+  @override
   Future<models.HrvReading?> getLatestReading() async {
     try {
       final query = _database.select(_database.hrvReadings)
@@ -57,6 +59,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
   }
 
   /// Get readings for the last N days
+  @override
   Future<List<models.HrvReading>> getTrendReadings({int days = 7}) async {
     try {
       final cutoff = DateTime.now().subtract(Duration(days: days));
@@ -76,6 +79,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
   }
 
   /// Get basic statistics
+  @override
   Future<DashboardStatistics> getStatistics({int days = 30}) async {
     try {
       final readings = await getTrendReadings(days: days);
@@ -159,6 +163,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
   }
 
   /// Add sample data for demo (only if database is empty)
+  @override
   Future<void> addSampleData() async {
     try {
       // Check if we already have data
