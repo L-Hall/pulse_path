@@ -60,7 +60,7 @@ class BleHrvIntegrationService {
       }
 
       // Start progress updates
-      _progressController.add(BleHrvCaptureProgress(
+      _progressController.add(const BleHrvCaptureProgress(
         status: BleHrvCaptureStatus.starting,
         progress: 0.0,
         duration: Duration.zero,
@@ -82,7 +82,7 @@ class BleHrvIntegrationService {
             duration: Duration.zero,
             rrIntervalsCollected: _rrIntervalBuffer.length,
             message: 'Error reading heart rate data: $error',
-          ));
+          ),);
         },
       );
 
@@ -125,7 +125,7 @@ class BleHrvIntegrationService {
       duration: _getElapsedDuration(),
       rrIntervalsCollected: _rrIntervalBuffer.length,
       message: 'Capture cancelled by user',
-    ));
+    ),);
   }
 
   /// Process incoming heart rate reading
@@ -161,7 +161,7 @@ class BleHrvIntegrationService {
         duration: elapsed,
         rrIntervalsCollected: _rrIntervalBuffer.length,
         message: 'Capturing HRV data... ${elapsed.inSeconds}s',
-      ));
+      ),);
 
       // Check if we have enough data early
       if (_rrIntervalBuffer.length >= 100 && elapsed.inSeconds >= 60) {
@@ -182,7 +182,7 @@ class BleHrvIntegrationService {
         duration: _getElapsedDuration(),
         rrIntervalsCollected: _rrIntervalBuffer.length,
         message: 'Analyzing HRV data...',
-      ));
+      ),);
 
       if (_rrIntervalBuffer.length < 30) {
         throw Exception('Insufficient RR intervals for analysis (${_rrIntervalBuffer.length} < 30)');
@@ -220,7 +220,7 @@ class BleHrvIntegrationService {
         rrIntervalsCollected: _rrIntervalBuffer.length,
         message: 'HRV capture completed successfully!',
         hrvReading: reading,
-      ));
+      ),);
 
     } catch (e) {
       if (kDebugMode) {
@@ -233,7 +233,7 @@ class BleHrvIntegrationService {
         duration: _getElapsedDuration(),
         rrIntervalsCollected: _rrIntervalBuffer.length,
         message: 'Analysis failed: $e',
-      ));
+      ),);
     } finally {
       _stopCapture();
     }

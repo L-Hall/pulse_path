@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 
 // Platform-specific database connections
 import 'connection/database_connection_stub.dart'

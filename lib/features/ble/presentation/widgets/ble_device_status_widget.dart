@@ -142,7 +142,7 @@ class BleDeviceStatusWidget extends StatelessWidget {
     if (!stats.isConnected) {
       return Row(
         children: [
-          Icon(
+          const Icon(
             Icons.warning_amber,
             size: 16,
             color: Colors.orange,
@@ -160,7 +160,7 @@ class BleDeviceStatusWidget extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.check_circle,
           size: 16,
           color: Colors.green,

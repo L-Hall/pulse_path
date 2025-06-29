@@ -105,7 +105,7 @@ class DashboardPage extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             theme.colorScheme.primaryContainer,
-            theme.colorScheme.primaryContainer.withOpacity(0.7),
+            theme.colorScheme.primaryContainer.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -126,7 +126,7 @@ class DashboardPage extends ConsumerWidget {
                 ? 'Your latest HRV reading shows ${_getWellbeingMessage(data.currentScores)}'
                 : 'Ready for your next HRV reading?',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
           ),
           if (!data.hasRecentData) ...[
@@ -134,7 +134,7 @@ class DashboardPage extends ConsumerWidget {
             Text(
               'Take a 3-minute reading to see your stress, recovery, and energy scores.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+                color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -317,7 +317,7 @@ class DashboardPage extends ConsumerWidget {
             Icon(
               Icons.timeline,
               size: 48,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -330,7 +330,7 @@ class DashboardPage extends ConsumerWidget {
             Text(
               'Take a few readings to see your trend',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),

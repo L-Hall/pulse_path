@@ -4,6 +4,7 @@ import '../providers/ble_hrv_providers.dart';
 import '../widgets/ble_capture_progress_widget.dart';
 import '../widgets/ble_device_status_widget.dart';
 import '../../domain/services/ble_hrv_integration_service.dart';
+import '../../../../shared/models/hrv_reading.dart';
 
 /// Page for capturing HRV data from connected BLE device
 class BleHrvCapturePage extends ConsumerStatefulWidget {
@@ -237,7 +238,7 @@ class _BleHrvCapturePageState extends ConsumerState<BleHrvCapturePage> {
     }
   }
 
-  void _showSuccessDialog(dynamic reading) {
+  void _showSuccessDialog(HrvReading reading) {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(

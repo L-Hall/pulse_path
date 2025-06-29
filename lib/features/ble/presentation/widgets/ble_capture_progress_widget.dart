@@ -225,7 +225,7 @@ class BleCaptureProgressWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.analytics,
                   color: Colors.green,
                 ),

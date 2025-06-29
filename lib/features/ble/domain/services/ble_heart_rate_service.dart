@@ -17,7 +17,8 @@ class BleHeartRateService {
 
   BluetoothDevice? _connectedDevice;
   BluetoothCharacteristic? _heartRateCharacteristic;
-  BluetoothCharacteristic? _batteryCharacteristic;
+  // TODO: Implement battery level monitoring
+  // BluetoothCharacteristic? _batteryCharacteristic;
   
   StreamSubscription<List<int>>? _heartRateSubscription;
   final StreamController<HeartRateReading> _heartRateController = 
@@ -180,7 +181,7 @@ class BleHeartRateService {
       await _connectedDevice?.disconnect();
       _connectedDevice = null;
       _heartRateCharacteristic = null;
-      _batteryCharacteristic = null;
+      // _batteryCharacteristic = null;
       
       _connectionController.add(BleConnectionState.disconnected);
       
@@ -222,7 +223,7 @@ class BleHeartRateService {
         if (service.uuid.toString().toLowerCase() == batteryServiceUuid) {
           for (final characteristic in service.characteristics) {
             if (characteristic.uuid.toString().toLowerCase() == batteryLevelUuid) {
-              _batteryCharacteristic = characteristic;
+              // _batteryCharacteristic = characteristic;
               
               // Read initial battery level
               final batteryData = await characteristic.read();

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 /// Widget displaying a single HRV score with visual indicators
 class ScoreCard extends StatefulWidget {
@@ -43,7 +42,7 @@ class _ScoreCardState extends State<ScoreCard>
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
-    ));
+    ),);
 
     // Start animation after a short delay
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -61,7 +60,7 @@ class _ScoreCardState extends State<ScoreCard>
       ).animate(CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeOutCubic,
-      ));
+      ),);
       _animationController.forward(from: 0);
     }
   }
@@ -83,13 +82,13 @@ class _ScoreCardState extends State<ScoreCard>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: theme.shadowColor.withOpacity(0.1),
+            color: theme.shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.1),
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -132,9 +131,9 @@ class _ScoreCardState extends State<ScoreCard>
                       child: CircularProgressIndicator(
                         value: 1.0,
                         strokeWidth: 6,
-                        backgroundColor: widget.color.withOpacity(0.1),
+                        backgroundColor: widget.color.withValues(alpha: 0.1),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          widget.color.withOpacity(0.1),
+                          widget.color.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -237,7 +236,7 @@ class _AnimatedScoreCardState extends State<AnimatedScoreCard>
     ).animate(CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
-    ));
+    ),);
 
     _scoreAnimation = Tween<double>(
       begin: 0.0,
@@ -245,7 +244,7 @@ class _AnimatedScoreCardState extends State<AnimatedScoreCard>
     ).animate(CurvedAnimation(
       parent: _scoreController,
       curve: Curves.easeOutCubic,
-    ));
+    ),);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scoreController.forward();
@@ -265,7 +264,7 @@ class _AnimatedScoreCardState extends State<AnimatedScoreCard>
       ).animate(CurvedAnimation(
         parent: _scoreController,
         curve: Curves.easeOutCubic,
-      ));
+      ),);
       _scoreController.forward(from: 0);
     }
 
