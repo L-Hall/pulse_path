@@ -30,8 +30,12 @@ mixin _$HrvReading {
   List<String>? get tags => throw _privateConstructorUsedError;
   bool get isSynced => throw _privateConstructorUsedError;
 
+  /// Serializes this HrvReading to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $HrvReadingCopyWith<HrvReading> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -67,6 +71,8 @@ class _$HrvReadingCopyWithImpl<$Res, $Val extends HrvReading>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -120,6 +126,8 @@ class _$HrvReadingCopyWithImpl<$Res, $Val extends HrvReading>
     ) as $Val);
   }
 
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $HrvMetricsCopyWith<$Res> get metrics {
@@ -128,6 +136,8 @@ class _$HrvReadingCopyWithImpl<$Res, $Val extends HrvReading>
     });
   }
 
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $HrvScoresCopyWith<$Res> get scores {
@@ -170,6 +180,8 @@ class __$$HrvReadingImplCopyWithImpl<$Res>
       _$HrvReadingImpl _value, $Res Function(_$HrvReadingImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -302,7 +314,7 @@ class _$HrvReadingImpl implements _HrvReading {
                 other.isSynced == isSynced));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -316,7 +328,9 @@ class _$HrvReadingImpl implements _HrvReading {
       const DeepCollectionEquality().hash(_tags),
       isSynced);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$HrvReadingImplCopyWith<_$HrvReadingImpl> get copyWith =>
@@ -363,8 +377,11 @@ abstract class _HrvReading implements HrvReading {
   List<String>? get tags;
   @override
   bool get isSynced;
+
+  /// Create a copy of HrvReading
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$HrvReadingImplCopyWith<_$HrvReadingImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -391,8 +408,12 @@ mixin _$HrvMetrics {
   double get totalPower => throw _privateConstructorUsedError;
   double get dfaAlpha1 => throw _privateConstructorUsedError;
 
+  /// Serializes this HrvMetrics to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of HrvMetrics
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $HrvMetricsCopyWith<HrvMetrics> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -431,6 +452,8 @@ class _$HrvMetricsCopyWithImpl<$Res, $Val extends HrvMetrics>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of HrvMetrics
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -549,6 +572,8 @@ class __$$HrvMetricsImplCopyWithImpl<$Res>
       _$HrvMetricsImpl _value, $Res Function(_$HrvMetricsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of HrvMetrics
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -720,7 +745,7 @@ class _$HrvMetricsImpl implements _HrvMetrics {
                 other.dfaAlpha1 == dfaAlpha1));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -740,7 +765,9 @@ class _$HrvMetricsImpl implements _HrvMetrics {
       totalPower,
       dfaAlpha1);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of HrvMetrics
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$HrvMetricsImplCopyWith<_$HrvMetricsImpl> get copyWith =>
@@ -805,8 +832,11 @@ abstract class _HrvMetrics implements HrvMetrics {
   double get totalPower;
   @override
   double get dfaAlpha1;
+
+  /// Create a copy of HrvMetrics
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$HrvMetricsImplCopyWith<_$HrvMetricsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -822,8 +852,12 @@ mixin _$HrvScores {
   int get energy => throw _privateConstructorUsedError;
   double get confidence => throw _privateConstructorUsedError;
 
+  /// Serializes this HrvScores to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of HrvScores
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $HrvScoresCopyWith<HrvScores> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -846,6 +880,8 @@ class _$HrvScoresCopyWithImpl<$Res, $Val extends HrvScores>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of HrvScores
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -894,6 +930,8 @@ class __$$HrvScoresImplCopyWithImpl<$Res>
       _$HrvScoresImpl _value, $Res Function(_$HrvScoresImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of HrvScores
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -962,12 +1000,14 @@ class _$HrvScoresImpl implements _HrvScores {
                 other.confidence == confidence));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, stress, recovery, energy, confidence);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of HrvScores
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$HrvScoresImplCopyWith<_$HrvScoresImpl> get copyWith =>
@@ -999,8 +1039,11 @@ abstract class _HrvScores implements HrvScores {
   int get energy;
   @override
   double get confidence;
+
+  /// Create a copy of HrvScores
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$HrvScoresImplCopyWith<_$HrvScoresImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

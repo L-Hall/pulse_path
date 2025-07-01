@@ -45,7 +45,7 @@ dependencies:
   sensors_plus: ^4.0.2
 
   # Storage & Encryption
-  drift: ^2.14.1
+  drift: ^2.26.1
   drift_sqflite: ^2.0.0
   sqlcipher_flutter_libs: ^0.6.1
   sqlite3: ^2.4.5
@@ -80,13 +80,12 @@ dev_dependencies:
 
   # Linting & Analysis
   flutter_lints: ^5.0.0
-  dart_code_metrics: ^5.7.6
 
   # Code Generation
-  build_runner: ^2.4.7
+  build_runner: ^2.4.15
   freezed: ^2.4.6
   json_serializable: ^6.7.1
-  drift_dev: ^2.14.1
+  drift_dev: ^2.26.1
 
   # Testing
   mocktail: ^1.0.2

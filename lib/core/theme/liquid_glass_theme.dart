@@ -124,7 +124,7 @@ class LiquidGlassMaterial3Theme {
       useMaterial3: true,
       colorScheme: scheme,
       // Enhanced glass-like surfaces
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: scheme.glassSurface,
         surfaceTintColor: scheme.liquidPrimary,
@@ -167,7 +167,7 @@ class LiquidGlassMaterial3Theme {
       useMaterial3: true,
       colorScheme: scheme,
       // Enhanced glass-like surfaces for dark mode
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: scheme.glassSurface,
         surfaceTintColor: scheme.liquidPrimary,

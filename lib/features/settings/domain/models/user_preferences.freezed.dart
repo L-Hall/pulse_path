@@ -78,8 +78,12 @@ mixin _$UserPreferences {
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   int get version => throw _privateConstructorUsedError;
 
+  /// Serializes this UserPreferences to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserPreferencesCopyWith<UserPreferences> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -151,6 +155,8 @@ class _$UserPreferencesCopyWithImpl<$Res, $Val extends UserPreferences>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -389,6 +395,8 @@ class _$UserPreferencesCopyWithImpl<$Res, $Val extends UserPreferences>
     ) as $Val);
   }
 
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $TimeOfDayCopyWith<$Res> get dailyReminderTime {
@@ -466,6 +474,8 @@ class __$$UserPreferencesImplCopyWithImpl<$Res>
       _$UserPreferencesImpl _value, $Res Function(_$UserPreferencesImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1012,7 +1022,7 @@ class _$UserPreferencesImpl implements _UserPreferences {
             (identical(other.version, version) || other.version == version));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
         runtimeType,
@@ -1064,7 +1074,9 @@ class _$UserPreferencesImpl implements _UserPreferences {
         version
       ]);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserPreferencesImplCopyWith<_$UserPreferencesImpl> get copyWith =>
@@ -1131,7 +1143,8 @@ abstract class _UserPreferences implements UserPreferences {
   factory _UserPreferences.fromJson(Map<String, dynamic> json) =
       _$UserPreferencesImpl.fromJson;
 
-  @override // Profile Information
+// Profile Information
+  @override
   String get userName;
   @override
   String? get userEmail;
@@ -1148,20 +1161,20 @@ abstract class _UserPreferences implements UserPreferences {
   @override
   bool get hasChronicConditions;
   @override
-  List<String> get medications;
-  @override // HRV Capture Preferences
+  List<String> get medications; // HRV Capture Preferences
+  @override
   CaptureMethod get preferredCaptureMethod;
   @override
-  int get captureTimeSeconds;
-  @override // 3 minutes default
+  int get captureTimeSeconds; // 3 minutes default
+  @override
   bool get enableCaptureSound;
   @override
   bool get enableHapticFeedback;
   @override
   bool get enableFlashlight;
   @override
-  bool get autoStartCapture;
-  @override // Data & Privacy
+  bool get autoStartCapture; // Data & Privacy
+  @override
   bool get enableCloudSync;
   @override
   bool get enableDataExport;
@@ -1170,8 +1183,8 @@ abstract class _UserPreferences implements UserPreferences {
   @override
   bool get enableCrashReporting;
   @override
-  DataRetentionPeriod get dataRetention;
-  @override // Notifications
+  DataRetentionPeriod get dataRetention; // Notifications
+  @override
   bool get enableDailyReminders;
   @override
   TimeOfDay get dailyReminderTime;
@@ -1180,8 +1193,8 @@ abstract class _UserPreferences implements UserPreferences {
   @override
   bool get enableTrendAlerts;
   @override
-  bool get enableOvertrainingAlerts;
-  @override // Display Preferences
+  bool get enableOvertrainingAlerts; // Display Preferences
+  @override
   ThemeMode get themeMode;
   @override
   bool get use24HourFormat;
@@ -1194,37 +1207,40 @@ abstract class _UserPreferences implements UserPreferences {
   @override
   bool get showAdvancedMetrics;
   @override
-  bool get showConfidenceScores;
-  @override // Adaptive Pacing (Chronic Illness)
+  bool get showConfidenceScores; // Adaptive Pacing (Chronic Illness)
+  @override
   bool get enableAdaptivePacing;
   @override
   PemRiskLevel get pemRiskThreshold;
   @override
   bool get showPemWarnings;
   @override
-  int get restDayThresholdScore;
-  @override // Data Backup
+  int get restDayThresholdScore; // Data Backup
+  @override
   BackupFrequency get autoBackupFrequency;
   @override
   bool get enableAutomaticBackup;
   @override
-  DateTime? get lastBackupDate;
-  @override // Advanced Settings
+  DateTime? get lastBackupDate; // Advanced Settings
+  @override
   bool get enableDeveloperMode;
   @override
   bool get enableDebugLogging;
   @override
   SyncFrequency get syncFrequency;
   @override
-  bool get enableDataValidation;
-  @override // Metadata
+  bool get enableDataValidation; // Metadata
+  @override
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
   @override
   int get version;
+
+  /// Create a copy of UserPreferences
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserPreferencesImplCopyWith<_$UserPreferencesImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1238,8 +1254,12 @@ mixin _$TimeOfDay {
   int get hour => throw _privateConstructorUsedError;
   int get minute => throw _privateConstructorUsedError;
 
+  /// Serializes this TimeOfDay to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TimeOfDay
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TimeOfDayCopyWith<TimeOfDay> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1262,6 +1282,8 @@ class _$TimeOfDayCopyWithImpl<$Res, $Val extends TimeOfDay>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TimeOfDay
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1300,6 +1322,8 @@ class __$$TimeOfDayImplCopyWithImpl<$Res>
       _$TimeOfDayImpl _value, $Res Function(_$TimeOfDayImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TimeOfDay
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1346,11 +1370,13 @@ class _$TimeOfDayImpl implements _TimeOfDay {
             (identical(other.minute, minute) || other.minute == minute));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, hour, minute);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TimeOfDay
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TimeOfDayImplCopyWith<_$TimeOfDayImpl> get copyWith =>
@@ -1375,8 +1401,11 @@ abstract class _TimeOfDay implements TimeOfDay {
   int get hour;
   @override
   int get minute;
+
+  /// Create a copy of TimeOfDay
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TimeOfDayImplCopyWith<_$TimeOfDayImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

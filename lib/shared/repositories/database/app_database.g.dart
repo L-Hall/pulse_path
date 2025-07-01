@@ -332,6 +332,28 @@ class HrvReading extends DataClass implements Insertable<HrvReading> {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
+  HrvReading copyWithCompanion(HrvReadingsCompanion data) {
+    return HrvReading(
+      id: data.id.present ? data.id.value : this.id,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
+      rrIntervalsJson: data.rrIntervalsJson.present
+          ? data.rrIntervalsJson.value
+          : this.rrIntervalsJson,
+      metricsJson:
+          data.metricsJson.present ? data.metricsJson.value : this.metricsJson,
+      scoresJson:
+          data.scoresJson.present ? data.scoresJson.value : this.scoresJson,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      tagsJson: data.tagsJson.present ? data.tagsJson.value : this.tagsJson,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('HrvReading(')
@@ -670,6 +692,14 @@ class Setting extends DataClass implements Insertable<Setting> {
         value: value ?? this.value,
         updatedAt: updatedAt ?? this.updatedAt,
       );
+  Setting copyWithCompanion(SettingsCompanion data) {
+    return Setting(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Setting(')
@@ -989,6 +1019,20 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
         createdAt: createdAt ?? this.createdAt,
         retryCount: retryCount ?? this.retryCount,
       );
+  SyncQueueData copyWithCompanion(SyncQueueCompanion data) {
+    return SyncQueueData(
+      id: data.id.present ? data.id.value : this.id,
+      entityType:
+          data.entityType.present ? data.entityType.value : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      action: data.action.present ? data.action.value : this.action,
+      dataJson: data.dataJson.present ? data.dataJson.value : this.dataJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      retryCount:
+          data.retryCount.present ? data.retryCount.value : this.retryCount,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('SyncQueueData(')
@@ -1131,7 +1175,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
-  _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $HrvReadingsTable hrvReadings = $HrvReadingsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
@@ -1143,7 +1187,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       [hrvReadings, settings, syncQueue];
 }
 
-typedef $$HrvReadingsTableInsertCompanionBuilder = HrvReadingsCompanion
+typedef $$HrvReadingsTableCreateCompanionBuilder = HrvReadingsCompanion
     Function({
   required String id,
   required DateTime timestamp,
@@ -1174,26 +1218,162 @@ typedef $$HrvReadingsTableUpdateCompanionBuilder = HrvReadingsCompanion
   Value<int> rowid,
 });
 
+class $$HrvReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $HrvReadingsTable> {
+  $$HrvReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rrIntervalsJson => $composableBuilder(
+      column: $table.rrIntervalsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get metricsJson => $composableBuilder(
+      column: $table.metricsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tagsJson => $composableBuilder(
+      column: $table.tagsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$HrvReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $HrvReadingsTable> {
+  $$HrvReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rrIntervalsJson => $composableBuilder(
+      column: $table.rrIntervalsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get metricsJson => $composableBuilder(
+      column: $table.metricsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tagsJson => $composableBuilder(
+      column: $table.tagsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$HrvReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HrvReadingsTable> {
+  $$HrvReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds, builder: (column) => column);
+
+  GeneratedColumn<String> get rrIntervalsJson => $composableBuilder(
+      column: $table.rrIntervalsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get metricsJson => $composableBuilder(
+      column: $table.metricsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get scoresJson => $composableBuilder(
+      column: $table.scoresJson, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get tagsJson =>
+      $composableBuilder(column: $table.tagsJson, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
 class $$HrvReadingsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $HrvReadingsTable,
     HrvReading,
     $$HrvReadingsTableFilterComposer,
     $$HrvReadingsTableOrderingComposer,
-    $$HrvReadingsTableProcessedTableManager,
-    $$HrvReadingsTableInsertCompanionBuilder,
-    $$HrvReadingsTableUpdateCompanionBuilder> {
+    $$HrvReadingsTableAnnotationComposer,
+    $$HrvReadingsTableCreateCompanionBuilder,
+    $$HrvReadingsTableUpdateCompanionBuilder,
+    (HrvReading, BaseReferences<_$AppDatabase, $HrvReadingsTable, HrvReading>),
+    HrvReading,
+    PrefetchHooks Function()> {
   $$HrvReadingsTableTableManager(_$AppDatabase db, $HrvReadingsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$HrvReadingsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$HrvReadingsTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$HrvReadingsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          createFilteringComposer: () =>
+              $$HrvReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HrvReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HrvReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<DateTime> timestamp = const Value.absent(),
             Value<int> durationSeconds = const Value.absent(),
@@ -1221,7 +1401,7 @@ class $$HrvReadingsTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String id,
             required DateTime timestamp,
             required int durationSeconds,
@@ -1249,140 +1429,26 @@ class $$HrvReadingsTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$HrvReadingsTableProcessedTableManager extends ProcessedTableManager<
+typedef $$HrvReadingsTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $HrvReadingsTable,
     HrvReading,
     $$HrvReadingsTableFilterComposer,
     $$HrvReadingsTableOrderingComposer,
-    $$HrvReadingsTableProcessedTableManager,
-    $$HrvReadingsTableInsertCompanionBuilder,
-    $$HrvReadingsTableUpdateCompanionBuilder> {
-  $$HrvReadingsTableProcessedTableManager(super.$state);
-}
-
-class $$HrvReadingsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $HrvReadingsTable> {
-  $$HrvReadingsTableFilterComposer(super.$state);
-  ColumnFilters<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get durationSeconds => $state.composableBuilder(
-      column: $state.table.durationSeconds,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get rrIntervalsJson => $state.composableBuilder(
-      column: $state.table.rrIntervalsJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get metricsJson => $state.composableBuilder(
-      column: $state.table.metricsJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get scoresJson => $state.composableBuilder(
-      column: $state.table.scoresJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get notes => $state.composableBuilder(
-      column: $state.table.notes,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tagsJson => $state.composableBuilder(
-      column: $state.table.tagsJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isSynced => $state.composableBuilder(
-      column: $state.table.isSynced,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$HrvReadingsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $HrvReadingsTable> {
-  $$HrvReadingsTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get timestamp => $state.composableBuilder(
-      column: $state.table.timestamp,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get durationSeconds => $state.composableBuilder(
-      column: $state.table.durationSeconds,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get rrIntervalsJson => $state.composableBuilder(
-      column: $state.table.rrIntervalsJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get metricsJson => $state.composableBuilder(
-      column: $state.table.metricsJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get scoresJson => $state.composableBuilder(
-      column: $state.table.scoresJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get notes => $state.composableBuilder(
-      column: $state.table.notes,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tagsJson => $state.composableBuilder(
-      column: $state.table.tagsJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isSynced => $state.composableBuilder(
-      column: $state.table.isSynced,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
-typedef $$SettingsTableInsertCompanionBuilder = SettingsCompanion Function({
+    $$HrvReadingsTableAnnotationComposer,
+    $$HrvReadingsTableCreateCompanionBuilder,
+    $$HrvReadingsTableUpdateCompanionBuilder,
+    (HrvReading, BaseReferences<_$AppDatabase, $HrvReadingsTable, HrvReading>),
+    HrvReading,
+    PrefetchHooks Function()>;
+typedef $$SettingsTableCreateCompanionBuilder = SettingsCompanion Function({
   required String key,
   required String value,
   Value<DateTime> updatedAt,
@@ -1395,26 +1461,86 @@ typedef $$SettingsTableUpdateCompanionBuilder = SettingsCompanion Function({
   Value<int> rowid,
 });
 
+class $$SettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
 class $$SettingsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $SettingsTable,
     Setting,
     $$SettingsTableFilterComposer,
     $$SettingsTableOrderingComposer,
-    $$SettingsTableProcessedTableManager,
-    $$SettingsTableInsertCompanionBuilder,
-    $$SettingsTableUpdateCompanionBuilder> {
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (Setting, BaseReferences<_$AppDatabase, $SettingsTable, Setting>),
+    Setting,
+    PrefetchHooks Function()> {
   $$SettingsTableTableManager(_$AppDatabase db, $SettingsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$SettingsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$SettingsTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$SettingsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          createFilteringComposer: () =>
+              $$SettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SettingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SettingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
             Value<String> key = const Value.absent(),
             Value<String> value = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -1426,7 +1552,7 @@ class $$SettingsTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String key,
             required String value,
             Value<DateTime> updatedAt = const Value.absent(),
@@ -1438,60 +1564,26 @@ class $$SettingsTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$SettingsTableProcessedTableManager extends ProcessedTableManager<
+typedef $$SettingsTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $SettingsTable,
     Setting,
     $$SettingsTableFilterComposer,
     $$SettingsTableOrderingComposer,
-    $$SettingsTableProcessedTableManager,
-    $$SettingsTableInsertCompanionBuilder,
-    $$SettingsTableUpdateCompanionBuilder> {
-  $$SettingsTableProcessedTableManager(super.$state);
-}
-
-class $$SettingsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $SettingsTable> {
-  $$SettingsTableFilterComposer(super.$state);
-  ColumnFilters<String> get key => $state.composableBuilder(
-      column: $state.table.key,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get value => $state.composableBuilder(
-      column: $state.table.value,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$SettingsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $SettingsTable> {
-  $$SettingsTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get key => $state.composableBuilder(
-      column: $state.table.key,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get value => $state.composableBuilder(
-      column: $state.table.value,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
-typedef $$SyncQueueTableInsertCompanionBuilder = SyncQueueCompanion Function({
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (Setting, BaseReferences<_$AppDatabase, $SettingsTable, Setting>),
+    Setting,
+    PrefetchHooks Function()>;
+typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   Value<int> id,
   required String entityType,
   required String entityId,
@@ -1510,26 +1602,125 @@ typedef $$SyncQueueTableUpdateCompanionBuilder = SyncQueueCompanion Function({
   Value<int> retryCount,
 });
 
+class $$SyncQueueTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncQueueTable> {
+  $$SyncQueueTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dataJson => $composableBuilder(
+      column: $table.dataJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncQueueTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncQueueTable> {
+  $$SyncQueueTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dataJson => $composableBuilder(
+      column: $table.dataJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncQueueTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncQueueTable> {
+  $$SyncQueueTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get dataJson =>
+      $composableBuilder(column: $table.dataJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => column);
+}
+
 class $$SyncQueueTableTableManager extends RootTableManager<
     _$AppDatabase,
     $SyncQueueTable,
     SyncQueueData,
     $$SyncQueueTableFilterComposer,
     $$SyncQueueTableOrderingComposer,
-    $$SyncQueueTableProcessedTableManager,
-    $$SyncQueueTableInsertCompanionBuilder,
-    $$SyncQueueTableUpdateCompanionBuilder> {
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$AppDatabase, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()> {
   $$SyncQueueTableTableManager(_$AppDatabase db, $SyncQueueTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$SyncQueueTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$SyncQueueTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$SyncQueueTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          createFilteringComposer: () =>
+              $$SyncQueueTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncQueueTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncQueueTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> entityType = const Value.absent(),
             Value<String> entityId = const Value.absent(),
@@ -1547,7 +1738,7 @@ class $$SyncQueueTableTableManager extends RootTableManager<
             createdAt: createdAt,
             retryCount: retryCount,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String entityType,
             required String entityId,
@@ -1565,102 +1756,32 @@ class $$SyncQueueTableTableManager extends RootTableManager<
             createdAt: createdAt,
             retryCount: retryCount,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$SyncQueueTableProcessedTableManager extends ProcessedTableManager<
+typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $SyncQueueTable,
     SyncQueueData,
     $$SyncQueueTableFilterComposer,
     $$SyncQueueTableOrderingComposer,
-    $$SyncQueueTableProcessedTableManager,
-    $$SyncQueueTableInsertCompanionBuilder,
-    $$SyncQueueTableUpdateCompanionBuilder> {
-  $$SyncQueueTableProcessedTableManager(super.$state);
-}
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$AppDatabase, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()>;
 
-class $$SyncQueueTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $SyncQueueTable> {
-  $$SyncQueueTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get entityType => $state.composableBuilder(
-      column: $state.table.entityType,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get entityId => $state.composableBuilder(
-      column: $state.table.entityId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get action => $state.composableBuilder(
-      column: $state.table.action,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get dataJson => $state.composableBuilder(
-      column: $state.table.dataJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get retryCount => $state.composableBuilder(
-      column: $state.table.retryCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$SyncQueueTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $SyncQueueTable> {
-  $$SyncQueueTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get entityType => $state.composableBuilder(
-      column: $state.table.entityType,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get entityId => $state.composableBuilder(
-      column: $state.table.entityId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get action => $state.composableBuilder(
-      column: $state.table.action,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get dataJson => $state.composableBuilder(
-      column: $state.table.dataJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get retryCount => $state.composableBuilder(
-      column: $state.table.retryCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
-class _$AppDatabaseManager {
+class $AppDatabaseManager {
   final _$AppDatabase _db;
-  _$AppDatabaseManager(this._db);
+  $AppDatabaseManager(this._db);
   $$HrvReadingsTableTableManager get hrvReadings =>
       $$HrvReadingsTableTableManager(_db, _db.hrvReadings);
   $$SettingsTableTableManager get settings =>
