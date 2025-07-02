@@ -11,6 +11,8 @@ import '../../features/ble/domain/services/ble_hrv_integration_service.dart';
 import '../../features/ble/domain/services/ble_connection_manager.dart';
 import '../../features/ble/domain/services/hrv_quality_service.dart';
 import '../../features/ble/data/repositories/ble_device_repository.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -276,6 +278,13 @@ Future<void> _initDashboard() async {
   debugPrint('✅ Dashboard dependencies initialized');
 }
 
+
+Future<void> _initAuth() async {
+  // Authentication repository
+  sl.registerLazySingleton<AuthRepository>(
+    () => FirebaseAuthRepository(),
+  );
+}
 
 Future<void> _initSettings() async {
   // Settings feature dependencies will be registered here

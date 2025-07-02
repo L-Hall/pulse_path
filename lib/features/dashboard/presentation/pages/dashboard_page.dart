@@ -11,6 +11,7 @@ import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
 import '../../../liquid_glass/presentation/pages/liquid_glass_demo_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
+import '../../../auth/presentation/widgets/user_profile_widget.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -75,6 +76,10 @@ class DashboardPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // User profile section
+            const UserProfileWidget(),
+            const SizedBox(height: 16),
+            
             // Welcome section
             _buildWelcomeSection(context, data),
             const SizedBox(height: 24),

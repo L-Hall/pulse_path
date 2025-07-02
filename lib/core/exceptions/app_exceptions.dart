@@ -50,6 +50,11 @@ class SecureStorageException extends AppException {
   const SecureStorageException(super.message);
 }
 
+// Authentication exceptions
+class AuthException extends AppException {
+  const AuthException(super.message);
+}
+
 // Cloud sync exceptions
 class SyncException extends AppException {
   const SyncException(super.message);
