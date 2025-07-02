@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 
-/// Factory for creating Liquid Glass platform views on iOS 26+
+/// Factory for creating Liquid Glass platform views
 public class LiquidGlassViewFactory: NSObject, FlutterPlatformViewFactory {
     private var messenger: FlutterBinaryMessenger
 
@@ -61,8 +61,7 @@ class LiquidGlassPlatformView: NSObject, FlutterPlatformView {
         let elevation = params["elevation"] as? Int ?? 1
         let borderRadius = params["borderRadius"] as? Double ?? 8.0
 
-        // Check if iOS 26+ and UILiquidGlassMaterial is available
-        // For now, use enhanced visual effect view
+        // Use enhanced visual effect view for glass effect
         setupEnhancedGlass(elevation: elevation, borderRadius: borderRadius)
     }
 
@@ -89,7 +88,7 @@ class LiquidGlassPlatformView: NSObject, FlutterPlatformView {
         view.layer.borderColor = UIColor.white.withAlphaComponent(0.2).cgColor
         
         // Add shadow based on elevation
-        view.layer.shadowOpacity = Float(0.1 * elevation)
+        view.layer.shadowOpacity = Float(0.1 * Double(elevation))
         view.layer.shadowRadius = CGFloat(2 * elevation)
         view.layer.shadowOffset = CGSize(width: 0, height: elevation)
         view.layer.shadowColor = UIColor.black.cgColor
@@ -151,7 +150,7 @@ class LiquidGlassPlatformView: NSObject, FlutterPlatformView {
         }
 
         DispatchQueue.main.async {
-            self.glassLayer?.layer.shadowOpacity = Float(0.1 * elevation)
+            self.glassLayer?.layer.shadowOpacity = Float(0.1 * Double(elevation))
             self.glassLayer?.layer.shadowRadius = CGFloat(2 * elevation)
             self.glassLayer?.layer.shadowOffset = CGSize(width: 0, height: elevation)
         }
@@ -179,10 +178,10 @@ public class LiquidGlassPlugin: NSObject, FlutterPlugin {
             // Return current system tint color
             let systemTint = getCurrentSystemTint()
             result([
-                "red": Int(systemTint.cgColor.components?[0] ?? 0) * 255,
-                "green": Int(systemTint.cgColor.components?[1] ?? 0) * 255,
-                "blue": Int(systemTint.cgColor.components?[2] ?? 0) * 255,
-                "alpha": Int(systemTint.cgColor.components?[3] ?? 0) * 255
+                "red": Int((systemTint.cgColor.components?[0] ?? 0.0) * 255.0),
+                "green": Int((systemTint.cgColor.components?[1] ?? 0.0) * 255.0),
+                "blue": Int((systemTint.cgColor.components?[2] ?? 0.0) * 255.0),
+                "alpha": Int((systemTint.cgColor.components?[3] ?? 1.0) * 255.0)
             ])
         default:
             result(FlutterMethodNotImplemented)

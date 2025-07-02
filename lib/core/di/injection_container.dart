@@ -8,6 +8,9 @@ import '../../features/hrv/domain/services/ppg_processing_service.dart';
 import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 import '../../features/ble/domain/services/ble_heart_rate_service.dart';
 import '../../features/ble/domain/services/ble_hrv_integration_service.dart';
+import '../../features/ble/domain/services/ble_connection_manager.dart';
+import '../../features/ble/domain/services/hrv_quality_service.dart';
+import '../../features/ble/data/repositories/ble_device_repository.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -23,24 +26,47 @@ import '../services/logging_service.dart';
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
-  // External dependencies
-  sl.registerLazySingleton<FlutterSecureStorage>(
-    () => const FlutterSecureStorage(),
-  );
+  try {
+    // External dependencies
+    sl.registerLazySingleton<FlutterSecureStorage>(
+      () => const FlutterSecureStorage(),
+    );
 
-  // Core services
-  await _initCore();
+    // Core services
+    await _initCore();
+    
+    // HRV must be initialized before Dashboard to resolve circular dependencies
+    await _initHrv();
+    
+    // Dashboard features (depends on HRV repository)
+    await _initDashboard();
+    await _initSettings();
+    await _initSync();
+    
+    // Let async singletons initialize lazily (don't block startup)
+    
+    debugPrint('✅ Dependencies initialized successfully');
+  } catch (e) {
+    debugPrint('❌ Dependency initialization failed: $e');
+    // Use fallback initialization
+    await _initFallbackDependencies();
+  }
+}
+
+Future<void> _initFallbackDependencies() async {
+  debugPrint('🔄 Initializing fallback dependencies...');
   
-  // Features
-  await _initHrv();
-  await _initDashboard();
-  await _initSettings();
-  await _initSync();
+  // Initialize minimal dependencies for development
+  if (!sl.isRegistered<HrvRepositoryInterface>()) {
+    sl.registerLazySingleton<HrvRepositoryInterface>(
+      () => SimpleHrvRepository()..addSampleData(),
+    );
+  }
   
-  // Ensure all async singletons are ready on mobile/desktop
-  if (!kIsWeb) {
-    // Pre-initialize async dependencies
-    await sl.allReady();
+  if (!sl.isRegistered<DashboardRepository>()) {
+    sl.registerLazySingleton<DashboardRepository>(
+      () => DashboardRepository(sl<HrvRepositoryInterface>()),
+    );
   }
 }
 
@@ -77,6 +103,17 @@ Future<void> _initCore() async {
 }
 
 Future<void> _initHrv() async {
+  debugPrint('🔄 Initializing HRV dependencies...');
+  
+  // Register data migration services first
+  sl.registerLazySingleton<DataMigrationService>(
+    () => DataMigrationService(),
+  );
+  
+  sl.registerLazySingleton<EnhancedDataMigrationService>(
+    () => EnhancedDataMigrationService(sl<DatabaseKeyManager>()),
+  );
+  
   // HRV calculation service - singleton since it's stateless
   sl.registerLazySingleton<HrvCalculationService>(
     () => HrvCalculationService(),
@@ -102,46 +139,65 @@ Future<void> _initHrv() async {
     () => BleHeartRateService(),
   );
   
-  // BLE HRV Integration service - singleton for BLE-HRV pipeline
-  sl.registerLazySingleton<BleHrvIntegrationService>(
-    () => BleHrvIntegrationService(
-      bleService: sl<BleHeartRateService>(),
-      calculationService: sl<HrvCalculationService>(),
-      scoringService: sl<HrvScoringService>(),
-      repository: sl<HrvRepositoryInterface>(),
-      errorHandler: sl<ErrorHandlingService>(),
-      logger: sl<LoggingService>(),
-    ),
-  );
-}
-
-Future<void> _initDashboard() async {
-  // Register data migration services
-  sl.registerLazySingleton<DataMigrationService>(
-    () => DataMigrationService(),
+  // BLE Device Repository - singleton for device pairing management
+  sl.registerLazySingleton<BleDeviceRepository>(
+    () => BleDeviceRepository(secureStorage: sl<FlutterSecureStorage>()),
   );
   
-  sl.registerLazySingleton<EnhancedDataMigrationService>(
-    () => EnhancedDataMigrationService(sl<DatabaseKeyManager>()),
+  // HRV Quality Service - singleton for data validation
+  sl.registerLazySingleton<HrvQualityService>(
+    () => HrvQualityService(),
   );
-
-  // Platform-specific repository selection
+  
+  // BLE Connection Manager - singleton for connection stability
+  sl.registerLazySingleton<BleConnectionManager>(
+    () => BleConnectionManager(
+      bleService: sl<BleHeartRateService>(),
+      deviceRepository: sl<BleDeviceRepository>(),
+    ),
+  );
+  
+  // Platform-specific repository selection (MOVED HERE to break circular dependency)
   if (kIsWeb) {
+    debugPrint('📱 Web platform - registering SimpleHrvRepository');
     // Use SimpleHrvRepository for web platform
     sl.registerLazySingleton<HrvRepositoryInterface>(
-      () => SimpleHrvRepository()..addSampleData(),
+      () {
+        debugPrint('🔄 Creating SimpleHrvRepository with sample data...');
+        final repo = SimpleHrvRepository();
+        repo.addSampleData();
+        debugPrint('✅ SimpleHrvRepository created and sample data added');
+        return repo;
+      },
+    );
+    
+    // BLE HRV Integration service for web
+    sl.registerLazySingleton<BleHrvIntegrationService>(
+      () => BleHrvIntegrationService(
+        bleService: sl<BleHeartRateService>(),
+        calculationService: sl<HrvCalculationService>(),
+        scoringService: sl<HrvScoringService>(),
+        repository: sl<HrvRepositoryInterface>(),
+        errorHandler: sl<ErrorHandlingService>(),
+        logger: sl<LoggingService>(),
+      ),
     );
   } else {
+    debugPrint('📱 Mobile/Desktop platform - registering DatabaseHrvRepository');
     // Use DatabaseHrvRepository for mobile/desktop platforms
     // Register as async since database is async
     sl.registerLazySingletonAsync<HrvRepositoryInterface>(
       () async {
+        debugPrint('🔄 Getting database for HrvRepository...');
         final database = await sl.getAsync<AppDatabase>();
+        debugPrint('✅ Database obtained, creating DatabaseHrvRepository...');
         final databaseRepository = DatabaseHrvRepository(database);
         
         // Initialize with sample data if empty using enhanced migration service
+        debugPrint('🔄 Initializing sample data...');
         final migrationService = sl<EnhancedDataMigrationService>();
         await migrationService.initializeWithSampleDataIfEmpty(databaseRepository);
+        debugPrint('✅ Sample data initialization complete');
         
         return databaseRepository;
       },
@@ -151,21 +207,52 @@ Future<void> _initDashboard() async {
     sl.registerLazySingleton<SimpleHrvRepository>(
       () => SimpleHrvRepository(),
     );
+    
+    // BLE HRV Integration service for mobile/desktop - register as async
+    sl.registerLazySingletonAsync<BleHrvIntegrationService>(
+      () async => BleHrvIntegrationService(
+        bleService: sl<BleHeartRateService>(),
+        calculationService: sl<HrvCalculationService>(),
+        scoringService: sl<HrvScoringService>(),
+        repository: await sl.getAsync<HrvRepositoryInterface>(),
+        errorHandler: sl<ErrorHandlingService>(),
+        logger: sl<LoggingService>(),
+      ),
+    );
   }
+}
+
+Future<void> _initDashboard() async {
+  debugPrint('🔄 Initializing dashboard dependencies...');
+  
+  // HRV Repository is already registered in _initHrv()
   
   // Dashboard repository - also async on mobile/desktop
   if (kIsWeb) {
+    debugPrint('📱 Web platform - registering sync DashboardRepository');
     sl.registerLazySingleton<DashboardRepository>(
-      () => DashboardRepository(sl<HrvRepositoryInterface>()),
+      () {
+        debugPrint('🔄 Creating sync DashboardRepository...');
+        final repo = DashboardRepository(sl<HrvRepositoryInterface>());
+        debugPrint('✅ Sync DashboardRepository created');
+        return repo;
+      },
     );
   } else {
+    debugPrint('📱 Mobile/Desktop platform - registering async DashboardRepository');
     sl.registerLazySingletonAsync<DashboardRepository>(
       () async {
+        debugPrint('🔄 Getting HrvRepository for DashboardRepository...');
         final repository = await sl.getAsync<HrvRepositoryInterface>();
-        return DashboardRepository(repository);
+        debugPrint('✅ HrvRepository obtained, creating DashboardRepository...');
+        final dashRepo = DashboardRepository(repository);
+        debugPrint('✅ Async DashboardRepository created');
+        return dashRepo;
       },
     );
   }
+  
+  debugPrint('✅ Dashboard dependencies initialized');
 }
 
 

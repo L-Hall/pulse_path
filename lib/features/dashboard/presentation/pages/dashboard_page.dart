@@ -45,9 +45,7 @@ class DashboardPage extends ConsumerWidget {
       body: SafeArea(
         child: dashboardState.when(
           data: (data) => _buildDashboardContent(context, ref, data),
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          loading: () => _buildLoadingState(context),
           error: (error, stack) => _buildErrorState(context, ref, error),
         ),
       ),
@@ -377,6 +375,42 @@ class DashboardPage extends ConsumerWidget {
               'Take a few readings to see your trend',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            Text(
+              'Loading PulsePath Dashboard',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Initializing HRV data and dependencies...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'This may take a few moments on first launch',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),

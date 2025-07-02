@@ -15,6 +15,16 @@ class DashboardData {
     required this.lastUpdated,
   });
 
+  /// Create empty dashboard data for fallback scenarios
+  factory DashboardData.empty() {
+    return DashboardData(
+      latestReading: null,
+      statistics: DashboardStatistics.empty(),
+      trendReadings: const [],
+      lastUpdated: DateTime.now(),
+    );
+  }
+
   /// Get current scores from the latest reading, or default values
   DashboardScores get currentScores {
     if (latestReading != null) {

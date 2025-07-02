@@ -168,4 +168,17 @@ class DashboardStatistics {
     required this.averageHeartRate,
     required this.streakDays,
   });
+
+  /// Create empty statistics for fallback scenarios
+  factory DashboardStatistics.empty() {
+    return const DashboardStatistics(
+      totalReadings: 0,
+      averageStress: 0,
+      averageRecovery: 0,
+      averageEnergy: 0,
+      averageRmssd: 0.0,
+      averageHeartRate: 0.0,
+      streakDays: 0,
+    );
+  }
 }
