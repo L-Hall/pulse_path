@@ -1,4 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- BLE permissions for heart rate monitor integration -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    
+    <!-- Android 12+ (API 31+) BLE permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" 
+                     android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    
+    <!-- BLE feature declaration -->
+    <uses-feature 
+        android:name="android.hardware.bluetooth_le" 
+        android:required="false" />
+    
     <application
         android:label="pulse_path"
         android:name="${applicationName}"
