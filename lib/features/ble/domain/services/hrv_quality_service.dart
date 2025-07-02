@@ -196,10 +196,17 @@ class HrvQualityService {
   ) {
     // Check data sufficiency
     if (cleanedIntervals.length < _minIntervalsForAnalysis) {
+<<<<<<< HEAD
       issues.add('Insufficient data for reliable HRV analysis (${cleanedIntervals.length} intervals, minimum $_minIntervalsForAnalysis required)');
       recommendations.add('Extend measurement duration to collect more data');
     } else if (cleanedIntervals.length < _recommendedIntervalsForAnalysis) {
       issues.add('Limited data for optimal HRV analysis (${cleanedIntervals.length} intervals, $_recommendedIntervalsForAnalysis recommended)');
+=======
+      issues.add('Insufficient data for reliable HRV analysis (${cleanedIntervals.length} intervals, minimum ${_minIntervalsForAnalysis} required)');
+      recommendations.add('Extend measurement duration to collect more data');
+    } else if (cleanedIntervals.length < _recommendedIntervalsForAnalysis) {
+      issues.add('Limited data for optimal HRV analysis (${cleanedIntervals.length} intervals, ${_recommendedIntervalsForAnalysis} recommended)');
+>>>>>>> Complete BLE Integration for PulsePath - Production Ready
       recommendations.add('Consider longer measurement periods for more reliable results');
     }
 
@@ -344,7 +351,11 @@ class HrvQualityResult {
   @override
   String toString() => 'HrvQualityResult(score: ${(qualityScore * 100).toStringAsFixed(1)}%, '
       'rating: $qualityRating, '
+<<<<<<< HEAD
       'intervals: ${cleanedIntervals.length}/$originalCount)';
+=======
+      'intervals: ${cleanedIntervals.length}/${originalCount})';
+>>>>>>> Complete BLE Integration for PulsePath - Production Ready
 }
 
 /// Real-time quality assessment during data collection

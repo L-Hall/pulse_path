@@ -41,38 +41,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDemoKeyForWebDevelopment',
-    appId: '1:123456789:web:abcdef1234567890',
+    apiKey: 'demo-api-key-web',
+    appId: '1:123456789:web:demo',
     messagingSenderId: '123456789',
-    projectId: 'pulsepath-demo',
-    authDomain: 'pulsepath-demo.firebaseapp.com',
-    storageBucket: 'pulsepath-demo.appspot.com',
-    measurementId: 'G-DEMO1234567',
+    projectId: 'pulse-path-demo',
+    authDomain: 'pulse-path-demo.firebaseapp.com',
+    storageBucket: 'pulse-path-demo.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDemoKeyForAndroidDevelopment',
-    appId: '1:123456789:android:abcdef1234567890',
+    apiKey: 'demo-api-key-android',
+    appId: '1:123456789:android:demo',
     messagingSenderId: '123456789',
-    projectId: 'pulsepath-demo',
-    storageBucket: 'pulsepath-demo.appspot.com',
+    projectId: 'pulse-path-demo',
+    storageBucket: 'pulse-path-demo.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDemoKeyForIOSDevelopment',
-    appId: '1:123456789:ios:abcdef1234567890',
+    apiKey: 'demo-api-key-ios',
+    appId: '1:123456789:ios:demo',
     messagingSenderId: '123456789',
-    projectId: 'pulsepath-demo',
-    storageBucket: 'pulsepath-demo.appspot.com',
+    projectId: 'pulse-path-demo',
+    storageBucket: 'pulse-path-demo.appspot.com',
     iosBundleId: 'com.example.pulsePath',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDemoKeyForMacOSDevelopment',
-    appId: '1:123456789:macos:abcdef1234567890',
+    apiKey: 'demo-api-key-macos',
+    appId: '1:123456789:ios:demo',
     messagingSenderId: '123456789',
-    projectId: 'pulsepath-demo',
-    storageBucket: 'pulsepath-demo.appspot.com',
+    projectId: 'pulse-path-demo',
+    storageBucket: 'pulse-path-demo.appspot.com',
     iosBundleId: 'com.example.pulsePath',
   );
 

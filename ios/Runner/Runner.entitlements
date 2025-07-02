@@ -2,12 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>aps-environment</key>
-	<string>development</string>
-	<key>com.apple.developer.background-processing</key>
-	<true/>
-	<key>com.apple.developer.bluetooth-central</key>
-	<true/>
+	<!-- HealthKit entitlements for HRV and health data access -->
 	<key>com.apple.developer.healthkit</key>
 	<true/>
 	<key>com.apple.developer.healthkit.access</key>
@@ -16,6 +11,20 @@
 	</array>
 	<key>com.apple.developer.healthkit.background-delivery</key>
 	<true/>
+	
+	<!-- Push notifications entitlements -->
+	<key>aps-environment</key>
+	<string>development</string>
+	
+	<!-- Bluetooth entitlements for heart rate monitors -->
+	<key>com.apple.developer.bluetooth-central</key>
+	<true/>
+	
+	<!-- Background processing for data sync -->
+	<key>com.apple.developer.background-processing</key>
+	<true/>
+	
+	<!-- App Groups for data sharing -->
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.pulsepath.com</string>
