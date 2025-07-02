@@ -1,0 +1,6 @@
+# melos_managed_dependency_overrides: sensors_plus,sensors_plus_platform_interface
+dependency_overrides:
+  sensors_plus:
+    path: ..
+  sensors_plus_platform_interface:
+    path: ../../sensors_plus_platform_interface
