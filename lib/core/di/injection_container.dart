@@ -8,6 +8,8 @@ import '../../features/hrv/domain/services/ppg_processing_service.dart';
 import '../../features/hrv/data/datasources/camera_ppg_datasource.dart';
 import '../../features/ble/domain/services/ble_heart_rate_service.dart';
 import '../../features/ble/domain/services/ble_hrv_integration_service.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -32,6 +34,7 @@ Future<void> initializeDependencies() async {
   await _initCore();
   
   // Features
+  await _initAuth();
   await _initHrv();
   await _initDashboard();
   await _initSettings();
@@ -168,6 +171,13 @@ Future<void> _initDashboard() async {
   }
 }
 
+
+Future<void> _initAuth() async {
+  // Authentication repository
+  sl.registerLazySingleton<AuthRepository>(
+    () => FirebaseAuthRepository(),
+  );
+}
 
 Future<void> _initSettings() async {
   // Settings feature dependencies will be registered here
