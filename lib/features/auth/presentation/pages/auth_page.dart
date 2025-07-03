@@ -64,7 +64,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
                   Text(
                     'HRV-Based Wellbeing Tracking',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -122,7 +122,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
                         Text(
                           'Your data will be stored locally. You can create an account later to sync across devices.',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -214,7 +214,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
             Text(
               'Enter your email address and we\'ll send you a link to reset your password.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 24),

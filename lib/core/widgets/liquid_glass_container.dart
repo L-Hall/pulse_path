@@ -96,10 +96,10 @@ class _LiquidGlassContainerState extends State<LiquidGlassContainer>
     try {
       final tintColor = LiquidGlassTheme.getDynamicTint(context);
       await _channel.invokeMethod('setTint', {
-        'red': tintColor.red,
-        'green': tintColor.green,
-        'blue': tintColor.blue,
-        'alpha': tintColor.alpha,
+        'red': (tintColor.r * 255.0).round(),
+        'green': (tintColor.g * 255.0).round(),
+        'blue': (tintColor.b * 255.0).round(),
+        'alpha': (tintColor.a * 255.0).round(),
       });
     } catch (e) {
       // Fallback silently if native bridge fails

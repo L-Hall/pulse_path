@@ -2,6 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../features/hrv/domain/services/hrv_calculation_service.dart';
 import '../../features/hrv/domain/services/hrv_scoring_service.dart';
 import '../../features/hrv/domain/services/ppg_processing_service.dart';
@@ -17,6 +19,9 @@ import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/hrv_repository_interface.dart';
+import '../../features/cloud_sync/data/services/cloud_encryption_service.dart';
+import '../../features/cloud_sync/data/services/cloud_sync_service.dart';
+import '../../features/cloud_sync/data/repositories/cloud_sync_hrv_repository.dart';
 import '../../shared/repositories/database/app_database.dart';
 import '../../shared/repositories/database/database_factory.dart';
 import '../security/database_key_manager.dart';
@@ -291,5 +296,51 @@ Future<void> _initSettings() async {
 }
 
 Future<void> _initSync() async {
-  // Sync feature dependencies will be registered here
+  // External dependencies for cloud sync
+  sl.registerLazySingleton<FirebaseFirestore>(
+    () => FirebaseFirestore.instance,
+  );
+  
+  sl.registerLazySingleton<Connectivity>(
+    () => Connectivity(),
+  );
+  
+  // Cloud sync services
+  sl.registerLazySingleton<CloudEncryptionService>(
+    () => CloudEncryptionService(),
+  );
+  
+  // Cloud sync service - depends on other services
+  if (!kIsWeb) {
+    sl.registerLazySingletonAsync<CloudSyncService>(
+      () async {
+        final database = await sl.getAsync<AppDatabase>();
+        final cloudRepository = await sl.getAsync<CloudSyncHrvRepository>();
+        
+        return CloudSyncService(
+          cloudRepository: cloudRepository,
+          authRepository: sl<AuthRepository>(),
+          database: database,
+          connectivity: sl<Connectivity>(),
+        );
+      },
+    );
+  }
+  
+  // Cloud-enabled HRV repository
+  if (!kIsWeb) {
+    sl.registerLazySingletonAsync<CloudSyncHrvRepository>(
+      () async {
+        final database = await sl.getAsync<AppDatabase>();
+        final localRepository = DatabaseHrvRepository(database);
+        
+        return CloudSyncHrvRepository(
+          firestore: sl<FirebaseFirestore>(),
+          encryptionService: sl<CloudEncryptionService>(),
+          authRepository: sl<AuthRepository>(),
+          localRepository: localRepository,
+        );
+      },
+    );
+  }
 }
