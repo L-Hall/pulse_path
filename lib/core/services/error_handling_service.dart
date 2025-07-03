@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 /// Log levels for different types of messages
 enum LogLevel {
@@ -28,7 +29,25 @@ enum ErrorCategory {
 class ErrorHandlingService {
   static final ErrorHandlingService _instance = ErrorHandlingService._internal();
   factory ErrorHandlingService() => _instance;
-  ErrorHandlingService._internal();
+  ErrorHandlingService._internal() {
+    _initializeCrashlytics();
+  }
+
+  // Error statistics tracking
+  final Map<ErrorCategory, int> _errorCountByCategory = {};
+  final Map<LogLevel, int> _errorCountByLevel = {};
+  final List<String> _recentErrors = [];
+  late final DateTime _sessionStart;
+  bool _crashlyticsInitialized = false;
+
+  /// Initialize the error handling service
+  void initialize() {
+    _sessionStart = DateTime.now();
+    _initializeCrashlytics();
+    logInfo('ErrorHandlingService initialized', context: {
+      'session_start': _sessionStart.toIso8601String(),
+    });
+  }
 
   /// Log an error with context and optional user notification
   void logError(
@@ -231,6 +250,9 @@ class ErrorHandlingService {
     ErrorCategory category = ErrorCategory.general,
     Map<String, dynamic>? context,
   }) {
+    // Update statistics
+    _updateErrorStatistics(level, category, message);
+    
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = _formatLogMessage(
       timestamp: timestamp,
@@ -249,6 +271,11 @@ class ErrorHandlingService {
       error: error,
       stackTrace: stackTrace,
     );
+
+    // Send to Crashlytics for errors and critical issues
+    if ((level == LogLevel.error || level == LogLevel.critical) && _crashlyticsInitialized) {
+      _sendToCrashlytics(message, error, stackTrace, category, context);
+    }
 
     // In debug mode, also print for immediate visibility
     if (kDebugMode) {
@@ -324,6 +351,81 @@ class ErrorHandlingService {
     }
   }
 
+  /// Initialize Firebase Crashlytics
+  void _initializeCrashlytics() {
+    try {
+      if (!kDebugMode) {
+        // Only enable Crashlytics in release mode
+        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+        _crashlyticsInitialized = true;
+        
+        // Set up Flutter error handling
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        };
+        
+        // Set up platform error handling
+        PlatformDispatcher.instance.onError = (error, stack) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          return true;
+        };
+      }
+    } catch (e) {
+      debugPrint('Failed to initialize Crashlytics: $e');
+    }
+  }
+
+  /// Send error to Crashlytics with context
+  void _sendToCrashlytics(
+    String message,
+    Object? error,
+    StackTrace? stackTrace,
+    ErrorCategory category,
+    Map<String, dynamic>? context,
+  ) {
+    try {
+      // Set custom keys for better error grouping
+      FirebaseCrashlytics.instance.setCustomKey('error_category', category.name);
+      FirebaseCrashlytics.instance.setCustomKey('app_section', category.name);
+      
+      if (context != null) {
+        for (final entry in context.entries) {
+          FirebaseCrashlytics.instance.setCustomKey(
+            'context_${entry.key}',
+            entry.value.toString(),
+          );
+        }
+      }
+
+      // Record the error
+      if (error != null && stackTrace != null) {
+        FirebaseCrashlytics.instance.recordError(
+          error,
+          stackTrace,
+          reason: message,
+          fatal: false,
+        );
+      } else {
+        FirebaseCrashlytics.instance.log(message);
+      }
+    } catch (e) {
+      debugPrint('Failed to send error to Crashlytics: $e');
+    }
+  }
+
+  /// Update error statistics
+  void _updateErrorStatistics(LogLevel level, ErrorCategory category, String message) {
+    // Update counters
+    _errorCountByLevel[level] = (_errorCountByLevel[level] ?? 0) + 1;
+    _errorCountByCategory[category] = (_errorCountByCategory[category] ?? 0) + 1;
+    
+    // Track recent errors (keep last 50)
+    _recentErrors.add('${DateTime.now().toIso8601String()}: [$level] $message');
+    if (_recentErrors.length > 50) {
+      _recentErrors.removeAt(0);
+    }
+  }
+
   /// Report critical errors to external service
   void _reportCriticalError(
     String message,
@@ -331,19 +433,60 @@ class ErrorHandlingService {
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
   ) {
-    // TODO: Integrate with Firebase Crashlytics or similar service
+    // Send to Crashlytics as a non-fatal error
+    _sendToCrashlytics(message, error, stackTrace, ErrorCategory.general, context);
+    
+    // Set user identifier for better debugging (if available)
+    if (context?['userId'] != null) {
+      FirebaseCrashlytics.instance.setUserIdentifier(context!['userId'].toString());
+    }
+    
     if (kDebugMode) {
       debugPrint('CRITICAL ERROR REPORTED: $message');
     }
   }
 
-  /// Get error statistics for debugging/monitoring
+  /// Get comprehensive error statistics for debugging/monitoring
   Map<String, dynamic> getErrorStats() {
-    // TODO: Implement error statistics tracking
+    final totalErrors = _errorCountByLevel.values.fold(0, (sum, count) => sum + count);
+    
     return {
-      'session_start': DateTime.now().toIso8601String(),
-      'total_errors': 0,
-      'by_category': <String, int>{},
+      'session_start': _sessionStart.toIso8601String(),
+      'session_duration_minutes': DateTime.now().difference(_sessionStart).inMinutes,
+      'total_errors': totalErrors,
+      'crashlytics_enabled': _crashlyticsInitialized,
+      'by_level': Map.fromEntries(
+        _errorCountByLevel.entries.map((e) => MapEntry(e.key.name, e.value)),
+      ),
+      'by_category': Map.fromEntries(
+        _errorCountByCategory.entries.map((e) => MapEntry(e.key.name, e.value)),
+      ),
+      'recent_errors': _recentErrors.take(10).toList(), // Last 10 errors
+      'error_rate_per_minute': totalErrors > 0 && _sessionStart != null
+          ? (totalErrors / DateTime.now().difference(_sessionStart).inMinutes.clamp(1, double.infinity))
+          : 0.0,
+    };
+  }
+
+  /// Clear error statistics (useful for testing)
+  void clearStats() {
+    _errorCountByCategory.clear();
+    _errorCountByLevel.clear();
+    _recentErrors.clear();
+  }
+
+  /// Get health check status
+  Map<String, dynamic> getHealthStatus() {
+    final stats = getErrorStats();
+    final errorRate = stats['error_rate_per_minute'] as double;
+    final totalErrors = stats['total_errors'] as int;
+    
+    return {
+      'healthy': errorRate < 5.0 && totalErrors < 100, // Thresholds for health
+      'error_rate': errorRate,
+      'total_errors': totalErrors,
+      'session_duration': stats['session_duration_minutes'],
+      'last_error': _recentErrors.isNotEmpty ? _recentErrors.last : null,
     };
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -17,7 +18,9 @@ LazyDatabase createConnection([String? encryptionKey]) {
       await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
     } catch (e) {
       // Fallback to unencrypted if SQLCipher fails
-      print('SQLCipher initialization failed, using unencrypted database: $e');
+      if (kDebugMode) {
+        print('SQLCipher initialization failed, using unencrypted database: $e');
+      }
     }
     
     final dbFolder = await getDatabasesPath();
@@ -45,7 +48,9 @@ LazyDatabase createConnection([String? encryptionKey]) {
             database.execute('SELECT name FROM sqlite_master WHERE type="table"');
           } catch (e) {
             // SQLCipher not available, continue with unencrypted
-            print('SQLCipher not available, using unencrypted database: $e');
+            if (kDebugMode) {
+              print('SQLCipher not available, using unencrypted database: $e');
+            }
           }
         },
       ),

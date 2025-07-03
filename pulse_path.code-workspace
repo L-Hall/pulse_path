@@ -1,0 +1,325 @@
+{
+    "folders": [
+        {
+            "name": "🏠 Main Repository",
+            "path": "."
+        },
+        {
+            "name": "🔗 BLE Integration",
+            "path": "./worktrees/ble_integration"
+        },
+        {
+            "name": "☁️ Cloud Sync",
+            "path": "./worktrees/cloud_sync"
+        },
+        {
+            "name": "💳 Subscription Paywall",
+            "path": "./worktrees/subscription_paywall"
+        },
+        {
+            "name": "🏃 Adaptive Pacing",
+            "path": "./worktrees/adaptive_pacing"
+        },
+        {
+            "name": "🧪 Testing & QA",
+            "path": "./worktrees/testing_qa"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/build": true,
+            "**/.dart_tool": true,
+            "**/ios/Pods": true,
+            "**/android/.gradle": true,
+            "**/android/build": true,
+            "**/web/packages": true,
+            "**/.vscode": false
+        },
+        "search.exclude": {
+            "**/build": true,
+            "**/.dart_tool": true,
+            "**/ios/Pods": true,
+            "**/android/.gradle": true,
+            "**/android/build": true,
+            "**/web/packages": true,
+            "**/pubspec.lock": true,
+            "**/*.g.dart": true,
+            "**/*.freezed.dart": true
+        },
+        "dart.devTools.embedded": true,
+        "dart.debugExternalPackageLibraries": false,
+        "dart.debugSdkLibraries": false,
+        "dart.lineLength": 120,
+        "editor.rulers": [120],
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "git.enableSmartCommit": true,
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "flutter.sdkPath": null,
+        "dart.flutterSdkPath": null,
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#1e3a8a",
+            "titleBar.activeForeground": "#ffffff",
+            "titleBar.inactiveBackground": "#1e3a8a80",
+            "titleBar.inactiveForeground": "#ffffff80"
+        },
+        "workbench.editor.labelFormat": "short",
+        "explorer.compactFolders": false
+    },
+    "extensions": {
+        "recommendations": [
+            "dart-code.dart-code",
+            "dart-code.flutter",
+            "ms-vscode.vscode-json",
+            "bradlc.vscode-tailwindcss",
+            "usernamehw.errorlens",
+            "aaron-bond.better-comments",
+            "ms-vscode.git-extension-pack",
+            "github.copilot",
+            "github.copilot-chat"
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Main: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=development"]
+            },
+            {
+                "name": "BLE: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/ble_integration",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=development", "--dart-define=FEATURE=ble_integration"]
+            },
+            {
+                "name": "Cloud: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/cloud_sync",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=development", "--dart-define=FEATURE=cloud_sync"]
+            },
+            {
+                "name": "Paywall: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/subscription_paywall",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=development", "--dart-define=FEATURE=subscription_paywall"]
+            },
+            {
+                "name": "Pacing: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/adaptive_pacing",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=development", "--dart-define=FEATURE=adaptive_pacing"]
+            },
+            {
+                "name": "Testing: Flutter (Debug)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/testing_qa",
+                "program": "lib/main.dart",
+                "args": ["--dart-define=ENVIRONMENT=testing"]
+            },
+            {
+                "name": "BLE: Web (Chrome)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/ble_integration",
+                "program": "lib/main.dart",
+                "deviceId": "chrome",
+                "args": ["--web-port=8051", "--web-hostname=localhost"]
+            },
+            {
+                "name": "Cloud: Web (Chrome)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/cloud_sync",
+                "program": "lib/main.dart",
+                "deviceId": "chrome",
+                "args": ["--web-port=8052", "--web-hostname=localhost"]
+            },
+            {
+                "name": "Paywall: Web (Chrome)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/subscription_paywall",
+                "program": "lib/main.dart",
+                "deviceId": "chrome",
+                "args": ["--web-port=8053", "--web-hostname=localhost"]
+            },
+            {
+                "name": "Pacing: Web (Chrome)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/adaptive_pacing",
+                "program": "lib/main.dart",
+                "deviceId": "chrome",
+                "args": ["--web-port=8054", "--web-hostname=localhost"]
+            },
+            {
+                "name": "Testing: Web (Chrome)",
+                "type": "dart",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/worktrees/testing_qa",
+                "program": "lib/main.dart",
+                "deviceId": "chrome",
+                "args": ["--web-port=8055", "--web-hostname=localhost"]
+            }
+        ],
+        "compounds": [
+            {
+                "name": "🚀 All Worktrees (Web)",
+                "configurations": [
+                    "BLE: Web (Chrome)",
+                    "Cloud: Web (Chrome)",
+                    "Testing: Web (Chrome)"
+                ],
+                "stopAll": true
+            },
+            {
+                "name": "🔬 Development + Testing",
+                "configurations": [
+                    "BLE: Flutter (Debug)",
+                    "Testing: Flutter (Debug)"
+                ],
+                "stopAll": true
+            }
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Main: Flutter Clean",
+                "type": "shell",
+                "command": "flutter",
+                "args": ["clean"],
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                }
+            },
+            {
+                "label": "BLE: Flutter Run",
+                "type": "shell",
+                "command": "flutter",
+                "args": ["run", "-d", "chrome", "--web-port=8051"],
+                "options": {
+                    "cwd": "${workspaceFolder}/worktrees/ble_integration"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "dedicated"
+                }
+            },
+            {
+                "label": "Cloud: Flutter Run",
+                "type": "shell",
+                "command": "flutter",
+                "args": ["run", "-d", "chrome", "--web-port=8052"],
+                "options": {
+                    "cwd": "${workspaceFolder}/worktrees/cloud_sync"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "dedicated"
+                }
+            },
+            {
+                "label": "Testing: Flutter Test (Watch)",
+                "type": "shell",
+                "command": "flutter",
+                "args": ["test", "--watch"],
+                "options": {
+                    "cwd": "${workspaceFolder}/worktrees/testing_qa"
+                },
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "dedicated"
+                }
+            },
+            {
+                "label": "All: Sync Worktrees",
+                "type": "shell",
+                "command": "./dev.sh",
+                "args": ["sync-worktrees"],
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                }
+            },
+            {
+                "label": "All: Clean Worktrees",
+                "type": "shell",
+                "command": "./dev.sh",
+                "args": ["clean-worktrees"],
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                }
+            },
+            {
+                "label": "All: Flutter Analyze",
+                "type": "shell",
+                "command": "find",
+                "args": [
+                    "worktrees", 
+                    "-name", "pubspec.yaml", 
+                    "-execdir", "flutter", "analyze", ";"
+                ],
+                "options": {
+                    "cwd": "${workspaceFolder}"
+                },
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                }
+            }
+        ]
+    }
+}

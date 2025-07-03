@@ -1,5 +1,7 @@
 import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'error_handling_service.dart';
 
 /// Enhanced logging service for PulsePath with structured logging and performance tracking
@@ -9,6 +11,32 @@ class LoggingService {
   LoggingService._internal();
 
   final ErrorHandlingService _errorHandler = ErrorHandlingService();
+  File? _logFile;
+  bool _fileLoggingEnabled = false;
+  LogLevel _minimumLogLevel = LogLevel.info;
+  final List<String> _logBuffer = [];
+  static const int _maxLogBufferSize = 1000;
+  static const int _maxLogFileSize = 5 * 1024 * 1024; // 5MB
+
+  /// Initialize the logging service with file logging
+  Future<void> initialize({
+    LogLevel minimumLogLevel = LogLevel.info,
+    bool enableFileLogging = true,
+  }) async {
+    _minimumLogLevel = minimumLogLevel;
+    
+    if (enableFileLogging && !kIsWeb) {
+      await _initializeFileLogging();
+    }
+    
+    _errorHandler.logInfo(
+      'LoggingService initialized',
+      context: {
+        'file_logging_enabled': _fileLoggingEnabled,
+        'minimum_log_level': minimumLogLevel.name,
+      },
+    );
+  }
 
   /// Log HRV capture start with device info
   void logHrvCaptureStart({
@@ -320,14 +348,262 @@ class LoggingService {
     }
   }
 
-  /// Debug performance tracking
+  /// Initialize file logging
+  Future<void> _initializeFileLogging() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final logDir = Directory('${directory.path}/logs');
+      
+      if (!await logDir.exists()) {
+        await logDir.create(recursive: true);
+      }
+      
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      _logFile = File('${logDir.path}/pulsepath_$timestamp.log');
+      _fileLoggingEnabled = true;
+      
+      // Write initial log entry
+      await _writeToFile('=== PulsePath Logging Session Started ===');
+      await _writeToFile('Timestamp: ${DateTime.now().toIso8601String()}');
+      await _writeToFile('Platform: ${Platform.operatingSystem}');
+      await _writeToFile('Debug Mode: $kDebugMode');
+      await _writeToFile('==========================================');
+      
+    } catch (e) {
+      debugPrint('Failed to initialize file logging: $e');
+      _fileLoggingEnabled = false;
+    }
+  }
+
+  /// Write log entry to file
+  Future<void> _writeToFile(String logEntry) async {
+    if (!_fileLoggingEnabled || _logFile == null) return;
+    
+    try {
+      // Check file size and rotate if necessary
+      if (await _logFile!.exists()) {
+        final fileSize = await _logFile!.length();
+        if (fileSize > _maxLogFileSize) {
+          await _rotateLogFile();
+        }
+      }
+      
+      // Write to file
+      await _logFile!.writeAsString(
+        '$logEntry\n',
+        mode: FileMode.append,
+      );
+      
+      // Maintain buffer for quick access
+      _logBuffer.add(logEntry);
+      if (_logBuffer.length > _maxLogBufferSize) {
+        _logBuffer.removeAt(0);
+      }
+      
+    } catch (e) {
+      debugPrint('Failed to write to log file: $e');
+    }
+  }
+
+  /// Rotate log file when it gets too large
+  Future<void> _rotateLogFile() async {
+    if (_logFile == null) return;
+    
+    try {
+      final directory = _logFile!.parent;
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final archiveName = '${directory.path}/pulsepath_${timestamp}_archived.log';
+      
+      await _logFile!.rename(archiveName);
+      
+      // Create new log file
+      _logFile = File('${directory.path}/pulsepath_current.log');
+      await _writeToFile('=== Log File Rotated ===');
+      
+    } catch (e) {
+      debugPrint('Failed to rotate log file: $e');
+    }
+  }
+
+  /// Enhanced log method with file writing
+  Future<void> _logToFile({
+    required LogLevel level,
+    required String message,
+    ErrorCategory category = ErrorCategory.general,
+    Map<String, dynamic>? context,
+  }) async {
+    // Check if we should log this level
+    if (_getLogLevelValue(level) < _getLogLevelValue(_minimumLogLevel)) {
+      return;
+    }
+    
+    final timestamp = DateTime.now().toIso8601String();
+    final logEntry = _formatFileLogEntry(
+      timestamp: timestamp,
+      level: level,
+      category: category,
+      message: message,
+      context: context,
+    );
+    
+    await _writeToFile(logEntry);
+  }
+
+  /// Format log entry for file output
+  String _formatFileLogEntry({
+    required String timestamp,
+    required LogLevel level,
+    required ErrorCategory category,
+    required String message,
+    Map<String, dynamic>? context,
+  }) {
+    final buffer = StringBuffer();
+    buffer.write('[$timestamp] ');
+    buffer.write('[${level.name.toUpperCase()}] ');
+    buffer.write('[${category.name.toUpperCase()}] ');
+    buffer.write(message);
+    
+    if (context != null && context.isNotEmpty) {
+      buffer.write(' | Context: ${context.toString()}');
+    }
+    
+    return buffer.toString();
+  }
+
+  /// Get numeric log level value
+  int _getLogLevelValue(LogLevel level) {
+    switch (level) {
+      case LogLevel.debug:
+        return 1;
+      case LogLevel.info:
+        return 2;
+      case LogLevel.warning:
+        return 3;
+      case LogLevel.error:
+        return 4;
+      case LogLevel.critical:
+        return 5;
+    }
+  }
+
+  /// Enhanced memory usage tracking
   void trackMemoryUsage(String operation) {
     if (kDebugMode) {
-      // TODO: Implement memory usage tracking for debug builds
-      developer.log(
-        'Memory tracking for: $operation',
-        name: 'PulsePath.Performance',
+      try {
+        // Get memory info from dart:io if available
+        final info = ProcessInfo.currentRss;
+        final memoryMB = info / (1024 * 1024);
+        
+        logPerformanceMetric(
+          metric: 'memory_usage',
+          value: memoryMB,
+          unit: 'MB',
+          context: {
+            'operation': operation,
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        );
+        
+        developer.log(
+          'Memory: ${memoryMB.toStringAsFixed(2)}MB for $operation',
+          name: 'PulsePath.Performance',
+        );
+      } catch (e) {
+        developer.log(
+          'Memory tracking failed for: $operation - $e',
+          name: 'PulsePath.Performance',
+        );
+      }
+    }
+  }
+
+  /// Get recent logs for debugging
+  List<String> getRecentLogs({int count = 50}) {
+    return _logBuffer.take(count).toList();
+  }
+
+  /// Get log file path for sharing/debugging
+  String? getLogFilePath() {
+    return _logFile?.path;
+  }
+
+  /// Clear old log files (keep last N files)
+  Future<void> cleanupOldLogs({int keepFiles = 5}) async {
+    if (_logFile == null) return;
+    
+    try {
+      final directory = _logFile!.parent;
+      final logFiles = directory
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.contains('pulsepath_'))
+          .toList();
+      
+      // Sort by modification time (newest first)
+      logFiles.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      
+      // Delete old files beyond keepFiles limit
+      for (int i = keepFiles; i < logFiles.length; i++) {
+        await logFiles[i].delete();
+      }
+      
+      _errorHandler.logInfo(
+        'Log cleanup completed',
+        context: {
+          'total_files_found': logFiles.length,
+          'files_kept': keepFiles,
+          'files_deleted': (logFiles.length - keepFiles).clamp(0, logFiles.length),
+        },
       );
+      
+    } catch (e) {
+      _errorHandler.logWarning(
+        'Log cleanup failed',
+        context: {'error': e.toString()},
+      );
+    }
+  }
+
+  /// Export logs for support/debugging
+  Future<String?> exportLogsForSupport() async {
+    if (_logFile == null || !_fileLoggingEnabled) return null;
+    
+    try {
+      final directory = await getTemporaryDirectory();
+      final exportFile = File('${directory.path}/pulsepath_logs_export.txt');
+      
+      final buffer = StringBuffer();
+      buffer.writeln('=== PulsePath Support Log Export ===');
+      buffer.writeln('Export Time: ${DateTime.now().toIso8601String()}');
+      buffer.writeln('Platform: ${Platform.operatingSystem}');
+      buffer.writeln('Debug Mode: $kDebugMode');
+      buffer.writeln('======================================');
+      buffer.writeln();
+      
+      // Add recent in-memory logs
+      buffer.writeln('=== Recent In-Memory Logs ===');
+      for (final log in _logBuffer) {
+        buffer.writeln(log);
+      }
+      buffer.writeln();
+      
+      // Add current log file content
+      if (await _logFile!.exists()) {
+        buffer.writeln('=== Current Log File ===');
+        final fileContent = await _logFile!.readAsString();
+        buffer.write(fileContent);
+      }
+      
+      await exportFile.writeAsString(buffer.toString());
+      return exportFile.path;
+      
+    } catch (e) {
+      _errorHandler.logError(
+        'Failed to export logs for support',
+        error: e,
+        context: {'operation': 'export_logs'},
+      );
+      return null;
     }
   }
 }

@@ -22,6 +22,7 @@ import '../services/data_migration_service.dart';
 import '../services/enhanced_data_migration_service.dart';
 import '../services/error_handling_service.dart';
 import '../services/logging_service.dart';
+import '../services/performance_monitoring_service.dart';
 
 final sl = GetIt.instance;
 
@@ -94,11 +95,31 @@ Future<void> _initCore() async {
   
   // Error handling and logging services
   sl.registerLazySingleton<ErrorHandlingService>(
-    () => ErrorHandlingService(),
+    () {
+      final service = ErrorHandlingService();
+      service.initialize(); // Initialize with crash reporting
+      return service;
+    },
   );
   
-  sl.registerLazySingleton<LoggingService>(
-    () => LoggingService(),
+  sl.registerLazySingletonAsync<LoggingService>(
+    () async {
+      final service = LoggingService();
+      await service.initialize(
+        minimumLogLevel: kDebugMode ? LogLevel.debug : LogLevel.info,
+        enableFileLogging: true,
+      );
+      return service;
+    },
+  );
+  
+  sl.registerLazySingletonAsync<PerformanceMonitoringService>(
+    () async {
+      final service = PerformanceMonitoringService();
+      final logger = await sl.getAsync<LoggingService>();
+      await service.initialize(logger: logger);
+      return service;
+    },
   );
 }
 

@@ -90,6 +90,8 @@ dev_dependencies:
   # Testing
   mocktail: ^1.0.2
   golden_toolkit: ^0.15.0
+  integration_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

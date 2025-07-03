@@ -1,0 +1,409 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../lib/core/services/error_handling_service.dart';
+import '../../lib/core/services/logging_service.dart';
+import '../../lib/core/services/performance_monitoring_service.dart';
+import '../../lib/features/dashboard/data/repositories/hrv_repository_interface.dart';
+import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
+import '../../lib/features/ble/domain/services/ble_heart_rate_service.dart';
+import 'mock_data_service.dart';
+
+/// TimeoutException for async operations
+class TimeoutException implements Exception {
+  final String message;
+  final Duration timeout;
+  
+  TimeoutException(this.message, this.timeout);
+  
+  @override
+  String toString() => 'TimeoutException: $message after ${timeout.inMilliseconds}ms';
+}
+
+/// Mock classes for testing
+class MockHrvRepository extends Mock implements HrvRepositoryInterface {}
+class MockBleHeartRateService extends Mock implements BleHeartRateService {}
+class MockErrorHandlingService extends Mock implements ErrorHandlingService {}
+class MockLoggingService extends Mock implements LoggingService {}
+class MockPerformanceMonitoringService extends Mock implements PerformanceMonitoringService {}
+
+/// Comprehensive test utilities for PulsePath testing infrastructure
+class TestUtils {
+  static final TestUtils _instance = TestUtils._internal();
+  factory TestUtils() => _instance;
+  TestUtils._internal();
+
+  final MockDataService _mockDataService = MockDataService();
+  late GetIt _testServiceLocator;
+
+  /// Initialize test environment with mock services
+  Future<void> initializeTestEnvironment({
+    bool useMockServices = true,
+    bool enableLogging = false,
+  }) async {
+    // Reset GetIt for testing
+    _testServiceLocator = GetIt.asNewInstance();
+    
+    if (useMockServices) {
+      await _registerMockServices();
+    } else {
+      await _registerRealServices(enableLogging: enableLogging);
+    }
+    
+    // Register mock data service
+    _testServiceLocator.registerSingleton<MockDataService>(_mockDataService);
+  }
+
+  /// Clean up test environment
+  Future<void> cleanupTestEnvironment() async {
+    await _testServiceLocator.reset();
+  }
+
+  /// Get the test service locator
+  GetIt get serviceLocator => _testServiceLocator;
+
+  /// Create a test app widget with proper providers
+  Widget createTestApp({
+    required Widget child,
+    List<Override> providerOverrides = const [],
+  }) {
+    return ProviderScope(
+      overrides: providerOverrides,
+      child: MaterialApp(
+        home: child,
+      ),
+    );
+  }
+
+  /// Create a test widget with minimal Material app wrapper
+  Widget createTestWidget(Widget widget) {
+    return MaterialApp(
+      home: Scaffold(
+        body: widget,
+      ),
+    );
+  }
+
+  /// Pump a widget and wait for async operations to complete
+  Future<void> pumpAndSettle(WidgetTester tester, Widget widget, {Duration timeout = const Duration(seconds: 10)}) async {
+    await tester.pumpWidget(widget);
+    await tester.pumpAndSettle(timeout);
+  }
+
+  /// Wait for a specific condition to be true
+  Future<void> waitForCondition(
+    bool Function() condition, {
+    Duration timeout = const Duration(seconds: 5),
+    Duration pollInterval = const Duration(milliseconds: 100),
+  }) async {
+    final stopwatch = Stopwatch()..start();
+    
+    while (!condition() && stopwatch.elapsed < timeout) {
+      await Future.delayed(pollInterval);
+    }
+    
+    if (!condition()) {
+      throw TimeoutException('Condition not met within timeout', timeout);
+    }
+  }
+
+  /// Verify that a widget exists in the widget tree
+  void verifyWidgetExists(WidgetTester tester, Type widgetType) {
+    expect(find.byType(widgetType), findsOneWidget);
+  }
+
+  /// Verify that text appears in the widget tree
+  void verifyTextExists(WidgetTester tester, String text) {
+    expect(find.text(text), findsOneWidget);
+  }
+
+  /// Verify that multiple texts appear in the widget tree
+  void verifyTextsExist(WidgetTester tester, List<String> texts) {
+    for (final text in texts) {
+      expect(find.text(text), findsOneWidget);
+    }
+  }
+
+  /// Simulate a tap on a widget and wait for settlement
+  Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  }
+
+  /// Simulate entering text and wait for settlement
+  Future<void> enterTextAndSettle(WidgetTester tester, Finder finder, String text) async {
+    await tester.enterText(finder, text);
+    await tester.pumpAndSettle();
+  }
+
+  /// Create mock HRV repository with pre-configured behavior
+  MockHrvRepository createMockHrvRepository({
+    bool shouldSucceed = true,
+    bool hasData = true,
+  }) {
+    final mock = MockHrvRepository();
+    
+    if (shouldSucceed) {
+      if (hasData) {
+        final mockReadings = _mockDataService.generateHrvTimeSeries(
+          startDate: DateTime.now().subtract(const Duration(days: 30)),
+          endDate: DateTime.now(),
+        );
+        
+        when(() => mock.getAllReadings()).thenAnswer((_) async => mockReadings);
+        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => mockReadings);
+        when(() => mock.getLatestReading()).thenAnswer((_) async => mockReadings.isNotEmpty ? mockReadings.last : null);
+        when(() => mock.saveReading(any())).thenAnswer((_) async => {});
+        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+      } else {
+        when(() => mock.getAllReadings()).thenAnswer((_) async => []);
+        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => []);
+        when(() => mock.getLatestReading()).thenAnswer((_) async => null);
+        when(() => mock.saveReading(any())).thenAnswer((_) async => {});
+        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+      }
+    } else {
+      when(() => mock.getAllReadings()).thenThrow(Exception('Database error'));
+      when(() => mock.getReadingsByDateRange(any(), any())).thenThrow(Exception('Database error'));
+      when(() => mock.getLatestReading()).thenThrow(Exception('Database error'));
+      when(() => mock.saveReading(any())).thenThrow(Exception('Database error'));
+      when(() => mock.deleteReading(any())).thenThrow(Exception('Database error'));
+    }
+    
+    return mock;
+  }
+
+  /// Create mock BLE service with pre-configured behavior
+  MockBleHeartRateService createMockBleService({
+    bool connectionSucceeds = true,
+    bool hasDevices = true,
+  }) {
+    final mock = MockBleHeartRateService();
+    
+    if (hasDevices) {
+      final mockDevices = _mockDataService.generateMockBleDevices();
+      when(() => mock.scanForDevices()).thenAnswer((_) => Stream.fromIterable(mockDevices));
+      when(() => mock.getConnectedDevices()).thenAnswer((_) async => mockDevices.where((d) => d['connected'] == true).toList());
+    } else {
+      when(() => mock.scanForDevices()).thenAnswer((_) => const Stream.empty());
+      when(() => mock.getConnectedDevices()).thenAnswer((_) async => []);
+    }
+    
+    if (connectionSucceeds) {
+      when(() => mock.connectToDevice(any())).thenAnswer((_) async => true);
+      when(() => mock.disconnectFromDevice(any())).thenAnswer((_) async => true);
+      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.periodic(
+        const Duration(milliseconds: 800),
+        (index) => 60 + (index % 40), // Simulate heart rate 60-100 BPM
+      ));
+    } else {
+      when(() => mock.connectToDevice(any())).thenThrow(Exception('Connection failed'));
+      when(() => mock.disconnectFromDevice(any())).thenThrow(Exception('Disconnect failed'));
+      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.error(Exception('Stream error')));
+    }
+    
+    return mock;
+  }
+
+  /// Setup realistic test scenarios
+  void setupTestScenario(String scenario) {
+    switch (scenario) {
+      case 'first_time_user':
+        final emptyRepo = createMockHrvRepository(hasData: false);
+        _testServiceLocator.registerSingleton<HrvRepositoryInterface>(emptyRepo);
+        break;
+        
+      case 'experienced_user':
+        final fullRepo = createMockHrvRepository(hasData: true);
+        _testServiceLocator.registerSingleton<HrvRepositoryInterface>(fullRepo);
+        break;
+        
+      case 'ble_connection_success':
+        final successfulBle = createMockBleService(connectionSucceeds: true);
+        _testServiceLocator.registerSingleton<BleHeartRateService>(successfulBle);
+        break;
+        
+      case 'ble_connection_failure':
+        final failingBle = createMockBleService(connectionSucceeds: false);
+        _testServiceLocator.registerSingleton<BleHeartRateService>(failingBle);
+        break;
+        
+      case 'database_error':
+        final errorRepo = createMockHrvRepository(shouldSucceed: false);
+        _testServiceLocator.registerSingleton<HrvRepositoryInterface>(errorRepo);
+        break;
+    }
+  }
+
+  /// Generate test data for specific use cases
+  Map<String, dynamic> generateTestData(String dataType) {
+    switch (dataType) {
+      case 'hrv_reading':
+        return {
+          'reading': _mockDataService.generateMockHrvReading(),
+          'edge_cases': _mockDataService.generateEdgeCaseReadings(),
+        };
+        
+      case 'dashboard_data':
+        return {
+          'full_data': _mockDataService.generateMockDashboardData(),
+          'empty_data': _mockDataService.generateMockDashboardData(trendDays: 0),
+        };
+        
+      case 'performance_metrics':
+        return {
+          'metrics': _mockDataService.generateMockPerformanceMetrics(),
+          'error_scenarios': _mockDataService.generateMockErrorScenarios(),
+        };
+        
+      case 'user_profiles':
+        return {
+          'profiles': _mockDataService.generateMockUserProfiles(),
+        };
+        
+      default:
+        throw ArgumentError('Unknown data type: $dataType');
+    }
+  }
+
+  /// Verify error handling behavior
+  Future<void> verifyErrorHandling<T>(
+    Future<void> Function() operation,
+    Type expectedErrorType,
+  ) async {
+    try {
+      await operation();
+      fail('Expected error of type $expectedErrorType but operation succeeded');
+    } catch (error) {
+      expect(error.runtimeType, expectedErrorType);
+    }
+  }
+
+  /// Measure performance of an operation
+  Future<Duration> measurePerformance(Future<void> Function() operation) async {
+    final stopwatch = Stopwatch()..start();
+    await operation();
+    stopwatch.stop();
+    return stopwatch.elapsed;
+  }
+
+  /// Verify performance meets expectations
+  Future<void> verifyPerformance(
+    Future<void> Function() operation,
+    Duration maxDuration, {
+    String? operationName,
+  }) async {
+    final duration = await measurePerformance(operation);
+    expect(
+      duration,
+      lessThan(maxDuration),
+      reason: '${operationName ?? 'Operation'} took ${duration.inMilliseconds}ms, expected < ${maxDuration.inMilliseconds}ms',
+    );
+  }
+
+  /// Private: Register mock services
+  Future<void> _registerMockServices() async {
+    _testServiceLocator.registerSingleton<ErrorHandlingService>(MockErrorHandlingService());
+    _testServiceLocator.registerSingleton<LoggingService>(MockLoggingService());
+    _testServiceLocator.registerSingleton<PerformanceMonitoringService>(MockPerformanceMonitoringService());
+    _testServiceLocator.registerSingleton<HrvRepositoryInterface>(createMockHrvRepository());
+    _testServiceLocator.registerSingleton<BleHeartRateService>(createMockBleService());
+  }
+
+  /// Private: Register real services for integration testing
+  Future<void> _registerRealServices({bool enableLogging = false}) async {
+    final errorService = ErrorHandlingService();
+    errorService.initialize();
+    _testServiceLocator.registerSingleton<ErrorHandlingService>(errorService);
+    
+    if (enableLogging) {
+      final loggingService = LoggingService();
+      await loggingService.initialize(enableFileLogging: false); // No file logging in tests
+      _testServiceLocator.registerSingleton<LoggingService>(loggingService);
+      
+      final perfService = PerformanceMonitoringService();
+      await perfService.initialize(logger: loggingService);
+      _testServiceLocator.registerSingleton<PerformanceMonitoringService>(perfService);
+    } else {
+      _testServiceLocator.registerSingleton<LoggingService>(MockLoggingService());
+      _testServiceLocator.registerSingleton<PerformanceMonitoringService>(MockPerformanceMonitoringService());
+    }
+    
+    // Use SimpleHrvRepository for real but fast testing
+    final repo = SimpleHrvRepository();
+    repo.addSampleData();
+    _testServiceLocator.registerSingleton<HrvRepositoryInterface>(repo);
+  }
+}
+
+/// Base test class for integration tests
+abstract class BaseIntegrationTest {
+  late TestUtils testUtils;
+  
+  @setUp
+  void setUpBase() async {
+    testUtils = TestUtils();
+    await testUtils.initializeTestEnvironment();
+  }
+  
+  @tearDown
+  void tearDownBase() async {
+    await testUtils.cleanupTestEnvironment();
+  }
+}
+
+/// Base test class for widget tests
+abstract class BaseWidgetTest {
+  late TestUtils testUtils;
+  
+  @setUp
+  void setUpWidgetTest() async {
+    testUtils = TestUtils();
+    await testUtils.initializeTestEnvironment(useMockServices: true);
+  }
+  
+  @tearDown
+  void tearDownWidgetTest() async {
+    await testUtils.cleanupTestEnvironment();
+  }
+  
+  /// Create and pump a test widget
+  Future<void> pumpTestWidget(WidgetTester tester, Widget widget) async {
+    await testUtils.pumpAndSettle(tester, testUtils.createTestWidget(widget));
+  }
+}
+
+/// Base test class for unit tests
+abstract class BaseUnitTest {
+  late MockDataService mockDataService;
+  
+  @setUp
+  void setUpUnitTest() {
+    mockDataService = MockDataService();
+  }
+}
+
+/// Test performance benchmarks
+class PerformanceBenchmarks {
+  static const Duration maxAppStartup = Duration(seconds: 3);
+  static const Duration maxWidgetBuild = Duration(milliseconds: 16);
+  static const Duration maxDatabaseQuery = Duration(milliseconds: 100);
+  static const Duration maxHrvCalculation = Duration(milliseconds: 500);
+  static const Duration maxBleConnection = Duration(seconds: 10);
+}
+
+/// Custom matchers for testing
+Matcher throwsHrvException() => throwsA(isA<Exception>());
+Matcher isValidHrvReading() => predicate<dynamic>((reading) {
+  return reading != null &&
+         reading.rmssd > 0 &&
+         reading.rrIntervals.isNotEmpty &&
+         reading.timestamp != null;
+}, 'is a valid HRV reading');
+
+Matcher isHealthyPerformanceMetric({required double threshold}) => predicate<double>((value) {
+  return value <= threshold;
+}, 'is within performance threshold');
