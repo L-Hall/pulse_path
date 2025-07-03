@@ -304,12 +304,16 @@ class PerformanceMonitoringService {
       values.removeAt(0);
     }
     
-    // Log the metric
-    _logger.logPerformanceMetric(
-      metric: metric.name,
-      value: value,
-      unit: 'ms',
-      context: context,
+    // Log the metric via error handler
+    _errorHandler.logInfo(
+      'Performance metric recorded',
+      category: ErrorCategory.general,
+      context: {
+        'metric': metric.name,
+        'value': value,
+        'unit': 'ms',
+        ...?context,
+      },
     );
   }
 
