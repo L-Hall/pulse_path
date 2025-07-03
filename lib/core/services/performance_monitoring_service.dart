@@ -1,6 +1,13 @@
 import 'dart:async';
+<<<<<<< HEAD
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+=======
+import 'dart:developer' as developer;
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 import 'error_handling_service.dart';
 import 'logging_service.dart';
 
@@ -302,6 +309,7 @@ class PerformanceMonitoringService {
       values.removeAt(0);
     }
     
+<<<<<<< HEAD
     // Log the metric via error handler
     _errorHandler.logInfo(
       'Performance metric recorded',
@@ -312,6 +320,14 @@ class PerformanceMonitoringService {
         'unit': 'ms',
         ...?context,
       },
+=======
+    // Log the metric
+    _logger.logPerformanceMetric(
+      metric: metric.name,
+      value: value,
+      unit: 'ms',
+      context: context,
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     );
   }
 

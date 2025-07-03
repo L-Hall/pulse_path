@@ -10,7 +10,10 @@ import '../../lib/core/services/performance_monitoring_service.dart';
 import '../../lib/features/dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../lib/features/ble/domain/services/ble_heart_rate_service.dart';
+<<<<<<< HEAD
 import 'package:pulse_path/shared/models/hrv_reading.dart';
+=======
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 import 'mock_data_service.dart';
 
 /// TimeoutException for async operations
@@ -153,6 +156,7 @@ class TestUtils {
           startDate: DateTime.now().subtract(const Duration(days: 30)),
           endDate: DateTime.now(),
         );
+<<<<<<< HEAD
         final mockStats = _mockDataService.generateMockStatistics();
         
         when(() => mock.getTrendReadings(days: any(named: 'days'))).thenAnswer((_) async => mockReadings);
@@ -174,6 +178,27 @@ class TestUtils {
       when(() => mock.saveReading(any())).thenThrow(Exception('Database error'));
       when(() => mock.getStatistics(days: any(named: 'days'))).thenThrow(Exception('Database error'));
       when(() => mock.addSampleData()).thenThrow(Exception('Database error'));
+=======
+        
+        when(() => mock.getAllReadings()).thenAnswer((_) async => mockReadings);
+        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => mockReadings);
+        when(() => mock.getLatestReading()).thenAnswer((_) async => mockReadings.isNotEmpty ? mockReadings.last : null);
+        when(() => mock.saveReading(any())).thenAnswer((_) async => {});
+        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+      } else {
+        when(() => mock.getAllReadings()).thenAnswer((_) async => []);
+        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => []);
+        when(() => mock.getLatestReading()).thenAnswer((_) async => null);
+        when(() => mock.saveReading(any())).thenAnswer((_) async => {});
+        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+      }
+    } else {
+      when(() => mock.getAllReadings()).thenThrow(Exception('Database error'));
+      when(() => mock.getReadingsByDateRange(any(), any())).thenThrow(Exception('Database error'));
+      when(() => mock.getLatestReading()).thenThrow(Exception('Database error'));
+      when(() => mock.saveReading(any())).thenThrow(Exception('Database error'));
+      when(() => mock.deleteReading(any())).thenThrow(Exception('Database error'));
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     }
     
     return mock;
@@ -186,6 +211,7 @@ class TestUtils {
   }) {
     final mock = MockBleHeartRateService();
     
+<<<<<<< HEAD
     // Mock isBluetoothAvailable
     when(() => mock.isBluetoothAvailable()).thenAnswer((_) async => true);
     
@@ -194,10 +220,20 @@ class TestUtils {
       when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => Stream.fromIterable([]));
     } else {
       when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => const Stream.empty());
+=======
+    if (hasDevices) {
+      final mockDevices = _mockDataService.generateMockBleDevices();
+      when(() => mock.scanForDevices()).thenAnswer((_) => Stream.fromIterable(mockDevices));
+      when(() => mock.getConnectedDevices()).thenAnswer((_) async => mockDevices.where((d) => d['connected'] == true).toList());
+    } else {
+      when(() => mock.scanForDevices()).thenAnswer((_) => const Stream.empty());
+      when(() => mock.getConnectedDevices()).thenAnswer((_) async => []);
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     }
     
     if (connectionSucceeds) {
       when(() => mock.connectToDevice(any())).thenAnswer((_) async => true);
+<<<<<<< HEAD
       when(() => mock.disconnect()).thenAnswer((_) async => {});
       when(() => mock.heartRateStream).thenAnswer((_) => Stream.periodic(
         const Duration(milliseconds: 800),
@@ -230,6 +266,17 @@ class TestUtils {
       ));
     } else {
       when(() => mock.connectedDeviceInfo).thenReturn(null);
+=======
+      when(() => mock.disconnectFromDevice(any())).thenAnswer((_) async => true);
+      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.periodic(
+        const Duration(milliseconds: 800),
+        (index) => 60 + (index % 40), // Simulate heart rate 60-100 BPM
+      ));
+    } else {
+      when(() => mock.connectToDevice(any())).thenThrow(Exception('Connection failed'));
+      when(() => mock.disconnectFromDevice(any())).thenThrow(Exception('Disconnect failed'));
+      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.error(Exception('Stream error')));
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     }
     
     return mock;
@@ -370,11 +417,19 @@ class TestUtils {
 abstract class BaseIntegrationTest {
   late TestUtils testUtils;
   
+<<<<<<< HEAD
+=======
+  @setUp
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
   void setUpBase() async {
     testUtils = TestUtils();
     await testUtils.initializeTestEnvironment();
   }
   
+<<<<<<< HEAD
+=======
+  @tearDown
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
   void tearDownBase() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -384,11 +439,21 @@ abstract class BaseIntegrationTest {
 abstract class BaseWidgetTest {
   late TestUtils testUtils;
   
+<<<<<<< HEAD
   void setUpWidgetTest() async {
     testUtils = TestUtils();
     await testUtils.initializeTestEnvironment();
   }
   
+=======
+  @setUp
+  void setUpWidgetTest() async {
+    testUtils = TestUtils();
+    await testUtils.initializeTestEnvironment(useMockServices: true);
+  }
+  
+  @tearDown
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
   void tearDownWidgetTest() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -403,6 +468,10 @@ abstract class BaseWidgetTest {
 abstract class BaseUnitTest {
   late MockDataService mockDataService;
   
+<<<<<<< HEAD
+=======
+  @setUp
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
   void setUpUnitTest() {
     mockDataService = MockDataService();
   }
@@ -419,10 +488,18 @@ class PerformanceBenchmarks {
 
 /// Custom matchers for testing
 Matcher throwsHrvException() => throwsA(isA<Exception>());
+<<<<<<< HEAD
 Matcher isValidHrvReading() => predicate<HrvReading>((reading) {
   return reading.metrics.rmssd > 0 &&
          reading.rrIntervals.isNotEmpty &&
          reading.durationSeconds > 0;
+=======
+Matcher isValidHrvReading() => predicate<dynamic>((reading) {
+  return reading != null &&
+         reading.rmssd > 0 &&
+         reading.rrIntervals.isNotEmpty &&
+         reading.timestamp != null;
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 }, 'is a valid HRV reading');
 
 Matcher isHealthyPerformanceMetric({required double threshold}) => predicate<double>((value) {

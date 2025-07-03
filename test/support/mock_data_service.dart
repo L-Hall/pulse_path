@@ -1,7 +1,10 @@
 import 'dart:math';
 import '../../lib/shared/models/hrv_reading.dart';
 import '../../lib/features/dashboard/domain/models/dashboard_data.dart';
+<<<<<<< HEAD
 import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
+=======
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 import '../../lib/core/services/error_handling_service.dart';
 
 /// Log Level enum for MockDataService
@@ -47,6 +50,7 @@ class MockDataService {
 
     // Calculate realistic metrics or use override
     final rmssd = overrideRmssd ?? _calculateRealisticRmssd(rrIntervals);
+<<<<<<< HEAD
     final meanRr = rrIntervals.isNotEmpty ? rrIntervals.reduce((a, b) => a + b) / rrIntervals.length : 800.0;
     
     // Generate HRV metrics
@@ -75,16 +79,36 @@ class MockDataService {
       energy: _calculateEnergyScore(rmssd),
       confidence: 0.7 + _random.nextDouble() * 0.3,
     );
+=======
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     
     return HrvReading(
       id: 'mock_${now.millisecondsSinceEpoch}',
       timestamp: now,
+<<<<<<< HEAD
       durationSeconds: 180, // 3 minutes
       metrics: metrics,
       rrIntervals: rrIntervals,
       scores: scores,
       notes: deviceName != null ? 'Recorded with $deviceName' : null,
       tags: method == 'camera' ? ['camera', 'ppg'] : ['ble', 'hrm'],
+=======
+      method: method,
+      deviceName: deviceName,
+      rrIntervals: rrIntervals,
+      rmssd: rmssd,
+      meanRr: rrIntervals.reduce((a, b) => a + b) / rrIntervals.length,
+      sdnn: _calculateSdnn(rrIntervals),
+      pnn50: _calculatePnn50(rrIntervals),
+      hrvIndex: _calculateHrvIndex(rmssd),
+      stressScore: _calculateStressScore(rmssd),
+      recoveryScore: _calculateRecoveryScore(rmssd),
+      energyScore: _calculateEnergyScore(rmssd),
+      qualityScore: 0.85 + _random.nextDouble() * 0.15, // 85-100%
+      duration: Duration(seconds: intervalCount ~/ 3), // ~3 seconds per interval
+      createdAt: now,
+      updatedAt: now,
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     );
   }
 
@@ -142,12 +166,18 @@ class MockDataService {
     final latest = latestReading ?? generateMockHrvReading();
     
     // Calculate trend metrics
+<<<<<<< HEAD
     final averageRmssd = trendReadings.map((r) => r.metrics.rmssd).reduce((a, b) => a + b) / trendReadings.length;
     final trendDirection = latest.metrics.rmssd > averageRmssd ? 'improving' : 'declining';
+=======
+    final averageRmssd = trendReadings.map((r) => r.rmssd).reduce((a, b) => a + b) / trendReadings.length;
+    final trendDirection = latest.rmssd > averageRmssd ? 'improving' : 'declining';
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     
     return DashboardData(
       latestReading: latest,
       trendReadings: trendReadings,
+<<<<<<< HEAD
       statistics: DashboardStatistics(
         totalReadings: trendReadings.length,
         averageStress: (trendReadings.map((r) => r.scores.stress).reduce((a, b) => a + b) / trendReadings.length).round(),
@@ -158,6 +188,14 @@ class MockDataService {
         streakDays: 7,
       ),
       lastUpdated: endDate,
+=======
+      averageStress: trendReadings.map((r) => r.stressScore).reduce((a, b) => a + b) / trendReadings.length,
+      averageRecovery: trendReadings.map((r) => r.recoveryScore).reduce((a, b) => a + b) / trendReadings.length,
+      averageEnergy: trendReadings.map((r) => r.energyScore).reduce((a, b) => a + b) / trendReadings.length,
+      trend: trendDirection,
+      readingsThisWeek: trendReadings.where((r) => r.timestamp.isAfter(endDate.subtract(const Duration(days: 7)))).length,
+      lastSyncTime: endDate,
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
     );
   }
 
@@ -384,6 +422,7 @@ class MockDataService {
   int _calculateEnergyScore(double rmssd) {
     return (rmssd * 1.2 + _random.nextDouble() * 10).clamp(0, 100).round();
   }
+<<<<<<< HEAD
 
   /// Generate mock dashboard statistics
   DashboardStatistics generateMockStatistics() {
@@ -397,4 +436,6 @@ class MockDataService {
       streakDays: 12,
     );
   }
+=======
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 }

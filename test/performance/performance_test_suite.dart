@@ -127,11 +127,19 @@ void main() {
         await testUtils.verifyPerformance(
           () async {
             for (final reading in readings) {
+<<<<<<< HEAD
               await scoringService.calculateStressScore(rmssd: reading.metrics.rmssd, age: 30);
               await scoringService.calculateRecoveryScore(rmssd: reading.metrics.rmssd, age: 30, gender: 'male');
               await scoringService.calculateEnergyScore(
                 rmssd: reading.metrics.rmssd,
                 meanRr: reading.metrics.meanRr,
+=======
+              await scoringService.calculateStressScore(rmssd: reading.rmssd, age: 30);
+              await scoringService.calculateRecoveryScore(rmssd: reading.rmssd, age: 30, gender: 'male');
+              await scoringService.calculateEnergyScore(
+                rmssd: reading.rmssd,
+                meanRr: reading.meanRr,
+>>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
                 age: 30,
                 fitnessLevel: 'moderate',
               );
