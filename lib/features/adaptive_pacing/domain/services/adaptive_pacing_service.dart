@@ -149,19 +149,19 @@ class AdaptivePacingService {
     // Calculate baseline from last 30 days (or available data)
     final thirtyDayReadings = recentHrvReadings.take(30).toList();
     final personalBaseline = thirtyDayReadings
-        .map((r) => r.scores.recoveryScore)
+        .map((r) => r.scores.recovery.toDouble())
         .reduce((a, b) => a + b) / thirtyDayReadings.length;
     
     // Calculate 7-day average
     final sevenDayReadings = recentHrvReadings.take(7).toList();
     final sevenDayAverage = sevenDayReadings.isNotEmpty
         ? sevenDayReadings
-            .map((r) => r.scores.recoveryScore)
+            .map((r) => r.scores.recovery.toDouble())
             .reduce((a, b) => a + b) / sevenDayReadings.length
         : personalBaseline;
     
     // Current HRV score
-    final currentScore = todayHrv?.scores.recoveryScore ?? sevenDayAverage;
+    final currentScore = todayHrv?.scores.recovery.toDouble() ?? sevenDayAverage;
     
     // Calculate percentage of baseline
     final percentageOfBaseline = (currentScore / personalBaseline) * 100;
@@ -649,8 +649,8 @@ class AdaptivePacingService {
   TrendDirection _calculateHrvTrend(List<HrvReading> readings) {
     if (readings.length < 3) return TrendDirection.stable;
     
-    final recent = readings.take(3).map((r) => r.scores.recoveryScore).toList();
-    final older = readings.skip(3).take(3).map((r) => r.scores.recoveryScore).toList();
+    final recent = readings.take(3).map((r) => r.scores.recovery).toList();
+    final older = readings.skip(3).take(3).map((r) => r.scores.recovery).toList();
     
     if (older.isEmpty) return TrendDirection.stable;
     
@@ -877,8 +877,8 @@ class AdaptivePacingService {
   double _calculateSevenDayEnergyTrend(List<HrvReading> readings) {
     if (readings.length < 7) return 0.0;
     
-    final recent3 = readings.take(3).map((r) => r.scores.recoveryScore).toList();
-    final older3 = readings.skip(4).take(3).map((r) => r.scores.recoveryScore).toList();
+    final recent3 = readings.take(3).map((r) => r.scores.recovery).toList();
+    final older3 = readings.skip(4).take(3).map((r) => r.scores.recovery).toList();
     
     if (older3.isEmpty) return 0.0;
     
@@ -901,7 +901,7 @@ class AdaptivePacingService {
     // Adjust based on HRV variability
     if (recentReadings.length >= 7) {
       final scores = recentReadings.take(7)
-          .map((r) => r.scores.recoveryScore)
+          .map((r) => r.scores.recovery.toDouble())
           .toList();
       
       final mean = scores.reduce((a, b) => a + b) / scores.length;

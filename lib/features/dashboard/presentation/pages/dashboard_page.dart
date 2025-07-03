@@ -4,6 +4,8 @@ import '../providers/dashboard_providers.dart';
 import '../widgets/score_card.dart';
 import '../widgets/hrv_trend_chart.dart';
 import '../widgets/enhanced_hrv_chart.dart';
+import '../../../adaptive_pacing/presentation/widgets/health_context_cards.dart';
+import '../../../adaptive_pacing/presentation/widgets/pem_risk_indicator.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
 import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
@@ -79,6 +81,14 @@ class DashboardPage extends ConsumerWidget {
 
             // Score cards
             _buildScoreCards(context, scores),
+            const SizedBox(height: 32),
+
+            // Adaptive Pacing Section
+            const PemRiskIndicator(),
+            const SizedBox(height: 32),
+
+            // Health Context Section
+            const HealthContextCards(),
             const SizedBox(height: 32),
 
             // Trend chart section

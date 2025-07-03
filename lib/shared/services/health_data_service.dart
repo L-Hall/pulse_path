@@ -310,7 +310,7 @@ class HealthDataService {
       final workouts = <WorkoutSession>[];
       
       for (final data in healthData.where((d) => d.type == HealthDataType.WORKOUT)) {
-        final workoutType = _mapHealthWorkoutType(data.workoutSummary?.workoutType?.name);
+        final workoutType = _mapHealthWorkoutType(data.workoutSummary?.workoutType.toString());
         
         final workout = WorkoutSession(
           id: '${data.dateFrom.millisecondsSinceEpoch}',
