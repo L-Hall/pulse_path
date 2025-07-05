@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -107,9 +107,39 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		17F2A3BA2E1870FF00D416E8 /* PulsePath Watch App Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "PulsePath Watch App Watch App"; sourceTree = "<group>"; };
-		17F2A3C82E18710200D416E8 /* PulsePath Watch App Watch AppTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "PulsePath Watch App Watch AppTests"; sourceTree = "<group>"; };
-		17F2A3D22E18710200D416E8 /* PulsePath Watch App Watch AppUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "PulsePath Watch App Watch AppUITests"; sourceTree = "<group>"; };
+		17F2A3BA2E1870FF00D416E8 /* PulsePath Watch App Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "PulsePath Watch App Watch App";
+			sourceTree = "<group>";
+		};
+		17F2A3C82E18710200D416E8 /* PulsePath Watch App Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "PulsePath Watch App Watch AppTests";
+			sourceTree = "<group>";
+		};
+		17F2A3D22E18710200D416E8 /* PulsePath Watch App Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "PulsePath Watch App Watch AppUITests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,8 +287,6 @@
 				17F2A3BA2E1870FF00D416E8 /* PulsePath Watch App Watch App */,
 			);
 			name = "PulsePath Watch App Watch App";
-			packageProductDependencies = (
-			);
 			productName = "PulsePath Watch App Watch App";
 			productReference = 17F2A3B92E1870FE00D416E8 /* PulsePath Watch App Watch App.app */;
 			productType = "com.apple.product-type.application";
@@ -280,8 +308,6 @@
 				17F2A3C82E18710200D416E8 /* PulsePath Watch App Watch AppTests */,
 			);
 			name = "PulsePath Watch App Watch AppTests";
-			packageProductDependencies = (
-			);
 			productName = "PulsePath Watch App Watch AppTests";
 			productReference = 17F2A3C52E18710200D416E8 /* PulsePath Watch App Watch AppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -303,8 +329,6 @@
 				17F2A3D22E18710200D416E8 /* PulsePath Watch App Watch AppUITests */,
 			);
 			name = "PulsePath Watch App Watch AppUITests";
-			packageProductDependencies = (
-			);
 			productName = "PulsePath Watch App Watch AppUITests";
 			productReference = 17F2A3CF2E18710200D416E8 /* PulsePath Watch App Watch AppUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -488,13 +512,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
