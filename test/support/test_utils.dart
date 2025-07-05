@@ -10,6 +10,7 @@ import '../../lib/core/services/performance_monitoring_service.dart';
 import '../../lib/features/dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../lib/features/ble/domain/services/ble_heart_rate_service.dart';
+import 'package:pulse_path/shared/models/hrv_reading.dart';
 import 'mock_data_service.dart';
 
 /// TimeoutException for async operations
@@ -152,25 +153,27 @@ class TestUtils {
           startDate: DateTime.now().subtract(const Duration(days: 30)),
           endDate: DateTime.now(),
         );
+        final mockStats = _mockDataService.generateMockStatistics();
         
-        when(() => mock.getAllReadings()).thenAnswer((_) async => mockReadings);
-        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => mockReadings);
+        when(() => mock.getTrendReadings(days: any(named: 'days'))).thenAnswer((_) async => mockReadings);
         when(() => mock.getLatestReading()).thenAnswer((_) async => mockReadings.isNotEmpty ? mockReadings.last : null);
         when(() => mock.saveReading(any())).thenAnswer((_) async => {});
-        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+        when(() => mock.getStatistics(days: any(named: 'days'))).thenAnswer((_) async => mockStats);
+        when(() => mock.addSampleData()).thenAnswer((_) async => {});
       } else {
-        when(() => mock.getAllReadings()).thenAnswer((_) async => []);
-        when(() => mock.getReadingsByDateRange(any(), any())).thenAnswer((_) async => []);
+        final mockStats = _mockDataService.generateMockStatistics();
+        when(() => mock.getTrendReadings(days: any(named: 'days'))).thenAnswer((_) async => []);
         when(() => mock.getLatestReading()).thenAnswer((_) async => null);
         when(() => mock.saveReading(any())).thenAnswer((_) async => {});
-        when(() => mock.deleteReading(any())).thenAnswer((_) async => {});
+        when(() => mock.getStatistics(days: any(named: 'days'))).thenAnswer((_) async => mockStats);
+        when(() => mock.addSampleData()).thenAnswer((_) async => {});
       }
     } else {
-      when(() => mock.getAllReadings()).thenThrow(Exception('Database error'));
-      when(() => mock.getReadingsByDateRange(any(), any())).thenThrow(Exception('Database error'));
+      when(() => mock.getTrendReadings(days: any(named: 'days'))).thenThrow(Exception('Database error'));
       when(() => mock.getLatestReading()).thenThrow(Exception('Database error'));
       when(() => mock.saveReading(any())).thenThrow(Exception('Database error'));
-      when(() => mock.deleteReading(any())).thenThrow(Exception('Database error'));
+      when(() => mock.getStatistics(days: any(named: 'days'))).thenThrow(Exception('Database error'));
+      when(() => mock.addSampleData()).thenThrow(Exception('Database error'));
     }
     
     return mock;
@@ -183,26 +186,50 @@ class TestUtils {
   }) {
     final mock = MockBleHeartRateService();
     
+    // Mock isBluetoothAvailable
+    when(() => mock.isBluetoothAvailable()).thenAnswer((_) async => true);
+    
     if (hasDevices) {
-      final mockDevices = _mockDataService.generateMockBleDevices();
-      when(() => mock.scanForDevices()).thenAnswer((_) => Stream.fromIterable(mockDevices));
-      when(() => mock.getConnectedDevices()).thenAnswer((_) async => mockDevices.where((d) => d['connected'] == true).toList());
+      // Create a stream that yields nothing but doesn't error - we'll test the mock behavior separately
+      when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => Stream.fromIterable([]));
     } else {
-      when(() => mock.scanForDevices()).thenAnswer((_) => const Stream.empty());
-      when(() => mock.getConnectedDevices()).thenAnswer((_) async => []);
+      when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => const Stream.empty());
     }
     
     if (connectionSucceeds) {
       when(() => mock.connectToDevice(any())).thenAnswer((_) async => true);
-      when(() => mock.disconnectFromDevice(any())).thenAnswer((_) async => true);
-      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.periodic(
+      when(() => mock.disconnect()).thenAnswer((_) async => {});
+      when(() => mock.heartRateStream).thenAnswer((_) => Stream.periodic(
         const Duration(milliseconds: 800),
-        (index) => 60 + (index % 40), // Simulate heart rate 60-100 BPM
+        (index) => HeartRateReading(
+          heartRate: 60 + (index % 40),
+          rrIntervals: [800.0 + (index % 100)],
+          timestamp: DateTime.now(),
+          hasRrIntervals: true,
+        ),
       ));
+      when(() => mock.connectionStream).thenAnswer((_) => Stream.value(BleConnectionState.connected));
+      when(() => mock.batteryStream).thenAnswer((_) => Stream.value(85));
     } else {
       when(() => mock.connectToDevice(any())).thenThrow(Exception('Connection failed'));
-      when(() => mock.disconnectFromDevice(any())).thenThrow(Exception('Disconnect failed'));
-      when(() => mock.startHeartRateStream(any())).thenAnswer((_) => Stream.error(Exception('Stream error')));
+      when(() => mock.disconnect()).thenThrow(Exception('Disconnect failed'));
+      when(() => mock.heartRateStream).thenAnswer((_) => Stream.error(Exception('Stream error')));
+      when(() => mock.connectionStream).thenAnswer((_) => Stream.value(BleConnectionState.error));
+      when(() => mock.batteryStream).thenAnswer((_) => Stream.error(Exception('Battery error')));
+    }
+    
+    // Mock connectionState getter
+    when(() => mock.connectionState).thenReturn(connectionSucceeds ? BleConnectionState.connected : BleConnectionState.disconnected);
+    
+    // Mock connectedDeviceInfo getter
+    if (connectionSucceeds) {
+      when(() => mock.connectedDeviceInfo).thenReturn(const BleDeviceInfo(
+        name: 'Mock HR Device',
+        address: '00:11:22:33:44:55',
+        isConnected: true,
+      ));
+    } else {
+      when(() => mock.connectedDeviceInfo).thenReturn(null);
     }
     
     return mock;
@@ -343,13 +370,11 @@ class TestUtils {
 abstract class BaseIntegrationTest {
   late TestUtils testUtils;
   
-  @setUp
   void setUpBase() async {
     testUtils = TestUtils();
     await testUtils.initializeTestEnvironment();
   }
   
-  @tearDown
   void tearDownBase() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -359,13 +384,11 @@ abstract class BaseIntegrationTest {
 abstract class BaseWidgetTest {
   late TestUtils testUtils;
   
-  @setUp
   void setUpWidgetTest() async {
     testUtils = TestUtils();
-    await testUtils.initializeTestEnvironment(useMockServices: true);
+    await testUtils.initializeTestEnvironment();
   }
   
-  @tearDown
   void tearDownWidgetTest() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -380,7 +403,6 @@ abstract class BaseWidgetTest {
 abstract class BaseUnitTest {
   late MockDataService mockDataService;
   
-  @setUp
   void setUpUnitTest() {
     mockDataService = MockDataService();
   }
@@ -397,11 +419,10 @@ class PerformanceBenchmarks {
 
 /// Custom matchers for testing
 Matcher throwsHrvException() => throwsA(isA<Exception>());
-Matcher isValidHrvReading() => predicate<dynamic>((reading) {
-  return reading != null &&
-         reading.rmssd > 0 &&
+Matcher isValidHrvReading() => predicate<HrvReading>((reading) {
+  return reading.metrics.rmssd > 0 &&
          reading.rrIntervals.isNotEmpty &&
-         reading.timestamp != null;
+         reading.durationSeconds > 0;
 }, 'is a valid HRV reading');
 
 Matcher isHealthyPerformanceMetric({required double threshold}) => predicate<double>((value) {

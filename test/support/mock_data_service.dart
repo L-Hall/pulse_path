@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../../lib/shared/models/hrv_reading.dart';
 import '../../lib/features/dashboard/domain/models/dashboard_data.dart';
+import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../lib/core/services/error_handling_service.dart';
 
 /// Log Level enum for MockDataService
@@ -46,25 +47,44 @@ class MockDataService {
 
     // Calculate realistic metrics or use override
     final rmssd = overrideRmssd ?? _calculateRealisticRmssd(rrIntervals);
+    final meanRr = rrIntervals.isNotEmpty ? rrIntervals.reduce((a, b) => a + b) / rrIntervals.length : 800.0;
+    
+    // Generate HRV metrics
+    final metrics = HrvMetrics(
+      rmssd: rmssd,
+      meanRr: meanRr,
+      sdnn: rmssd * 1.2 + _random.nextDouble() * 10,
+      lowFrequency: _random.nextDouble() * 1000 + 500,
+      highFrequency: _random.nextDouble() * 1000 + 300,
+      lfHfRatio: 0.5 + _random.nextDouble() * 2.0,
+      baevsky: 50 + _random.nextDouble() * 100,
+      coefficientOfVariance: _random.nextDouble() * 10 + 2,
+      mxdmn: _random.nextDouble() * 200 + 100,
+      moda: meanRr,
+      amo50: _random.nextDouble() * 50 + 10,
+      pnn50: _random.nextDouble() * 30,
+      pnn20: _random.nextDouble() * 50,
+      totalPower: _random.nextDouble() * 5000 + 1000,
+      dfaAlpha1: 0.8 + _random.nextDouble() * 0.5,
+    );
+
+    // Generate HRV scores
+    final scores = HrvScores(
+      stress: _calculateStressScore(rmssd),
+      recovery: _calculateRecoveryScore(rmssd),
+      energy: _calculateEnergyScore(rmssd),
+      confidence: 0.7 + _random.nextDouble() * 0.3,
+    );
     
     return HrvReading(
       id: 'mock_${now.millisecondsSinceEpoch}',
       timestamp: now,
-      method: method,
-      deviceName: deviceName,
+      durationSeconds: 180, // 3 minutes
+      metrics: metrics,
       rrIntervals: rrIntervals,
-      rmssd: rmssd,
-      meanRr: rrIntervals.reduce((a, b) => a + b) / rrIntervals.length,
-      sdnn: _calculateSdnn(rrIntervals),
-      pnn50: _calculatePnn50(rrIntervals),
-      hrvIndex: _calculateHrvIndex(rmssd),
-      stressScore: _calculateStressScore(rmssd),
-      recoveryScore: _calculateRecoveryScore(rmssd),
-      energyScore: _calculateEnergyScore(rmssd),
-      qualityScore: 0.85 + _random.nextDouble() * 0.15, // 85-100%
-      duration: Duration(seconds: intervalCount ~/ 3), // ~3 seconds per interval
-      createdAt: now,
-      updatedAt: now,
+      scores: scores,
+      notes: deviceName != null ? 'Recorded with $deviceName' : null,
+      tags: method == 'camera' ? ['camera', 'ppg'] : ['ble', 'hrm'],
     );
   }
 
@@ -122,18 +142,22 @@ class MockDataService {
     final latest = latestReading ?? generateMockHrvReading();
     
     // Calculate trend metrics
-    final averageRmssd = trendReadings.map((r) => r.rmssd).reduce((a, b) => a + b) / trendReadings.length;
-    final trendDirection = latest.rmssd > averageRmssd ? 'improving' : 'declining';
+    final averageRmssd = trendReadings.map((r) => r.metrics.rmssd).reduce((a, b) => a + b) / trendReadings.length;
+    final trendDirection = latest.metrics.rmssd > averageRmssd ? 'improving' : 'declining';
     
     return DashboardData(
       latestReading: latest,
       trendReadings: trendReadings,
-      averageStress: trendReadings.map((r) => r.stressScore).reduce((a, b) => a + b) / trendReadings.length,
-      averageRecovery: trendReadings.map((r) => r.recoveryScore).reduce((a, b) => a + b) / trendReadings.length,
-      averageEnergy: trendReadings.map((r) => r.energyScore).reduce((a, b) => a + b) / trendReadings.length,
-      trend: trendDirection,
-      readingsThisWeek: trendReadings.where((r) => r.timestamp.isAfter(endDate.subtract(const Duration(days: 7)))).length,
-      lastSyncTime: endDate,
+      statistics: DashboardStatistics(
+        totalReadings: trendReadings.length,
+        averageStress: (trendReadings.map((r) => r.scores.stress).reduce((a, b) => a + b) / trendReadings.length).round(),
+        averageRecovery: (trendReadings.map((r) => r.scores.recovery).reduce((a, b) => a + b) / trendReadings.length).round(),
+        averageEnergy: (trendReadings.map((r) => r.scores.energy).reduce((a, b) => a + b) / trendReadings.length).round(),
+        averageRmssd: averageRmssd,
+        averageHeartRate: trendReadings.map((r) => 60000 / r.metrics.meanRr).reduce((a, b) => a + b) / trendReadings.length,
+        streakDays: 7,
+      ),
+      lastUpdated: endDate,
     );
   }
 
@@ -359,5 +383,18 @@ class MockDataService {
   /// Helper: Calculate energy score
   int _calculateEnergyScore(double rmssd) {
     return (rmssd * 1.2 + _random.nextDouble() * 10).clamp(0, 100).round();
+  }
+
+  /// Generate mock dashboard statistics
+  DashboardStatistics generateMockStatistics() {
+    return const DashboardStatistics(
+      totalReadings: 45,
+      averageStress: 35,
+      averageRecovery: 65,
+      averageEnergy: 70,
+      averageRmssd: 42.5,
+      averageHeartRate: 72.0,
+      streakDays: 12,
+    );
   }
 }
