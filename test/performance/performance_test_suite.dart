@@ -216,7 +216,7 @@ void main() {
             // Simulate processing all readings
             double totalRmssd = 0;
             for (final reading in largeTimeSeries) {
-              totalRmssd += reading.rmssd;
+              totalRmssd += reading.metrics.rmssd;
             }
             final averageRmssd = totalRmssd / largeTimeSeries.length;
             expect(averageRmssd, greaterThan(0));

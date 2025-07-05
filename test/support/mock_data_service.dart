@@ -42,7 +42,7 @@ class MockDataService {
       // Add natural heart rate variability
       final variation = (_random.nextDouble() - 0.5) * 100; // ±50ms variation
       final rrInterval = (baseRr + variation).clamp(400, 1500);
-      rrIntervals.add(rrInterval);
+      rrIntervals.add(rrInterval.toDouble());
     }
 
     // Calculate realistic metrics or use override
