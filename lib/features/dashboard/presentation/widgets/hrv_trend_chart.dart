@@ -180,7 +180,6 @@ class _HrvTrendChartState extends State<HrvTrendChart>
     
     return LineChartData(
       gridData: FlGridData(
-        show: true,
         drawVerticalLine: false,
         horizontalInterval: 25,
         getDrawingHorizontalLine: (value) {
@@ -191,13 +190,8 @@ class _HrvTrendChartState extends State<HrvTrendChart>
         },
       ),
       titlesData: FlTitlesData(
-        show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(),
+        topTitles: const AxisTitles(),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -235,7 +229,6 @@ class _HrvTrendChartState extends State<HrvTrendChart>
           barWidth: 3,
           isStrokeCapRound: true,
           dotData: FlDotData(
-            show: true,
             getDotPainter: (spot, percent, barData, index) =>
                 FlDotCirclePainter(
               radius: 4,
@@ -258,7 +251,6 @@ class _HrvTrendChartState extends State<HrvTrendChart>
         ),
       ],
       lineTouchData: LineTouchData(
-        enabled: true,
         touchTooltipData: LineTouchTooltipData(
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {

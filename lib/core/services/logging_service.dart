@@ -412,7 +412,7 @@ class LoggingService {
     try {
       final directory = _logFile!.parent;
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final archiveName = '${directory.path}/pulsepath_${timestamp}_archived.log';
+      final archiveName = '${directory.path}/pulsepath_$timestamp}_archived.log';
       
       await _logFile!.rename(archiveName);
       

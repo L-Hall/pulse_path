@@ -98,12 +98,12 @@ class EnhancedDataMigrationService {
           migratedCount++;
           
           if (kDebugMode && migratedCount % 10 == 0) {
-            print('📈 Migrated $migratedCount readings...');
+            debugPrint('📈 Migrated $migratedCount readings...');
           }
         } catch (e) {
           errors.add('Reading ${reading.id}: $e');
           if (kDebugMode) {
-            print('❌ Error migrating reading ${reading.id}: $e');
+            debugPrint('❌ Error migrating reading ${reading.id}: $e');
           }
         }
       }
@@ -272,7 +272,7 @@ class EnhancedDataMigrationService {
     try {
       final stats = await repository.getStatistics(days: 365);
       final latestReading = await repository.getLatestReading();
-      final weekReadings = await repository.getTrendReadings(days: 7);
+      final weekReadings = await repository.getTrendReadings();
       
       return RepositoryInfo(
         type: repository.runtimeType.toString(),
@@ -458,6 +458,6 @@ class RepositoryInfo {
 
   @override
   String toString() {
-    return 'RepositoryInfo($type: ${totalReadings} readings, healthy: $isHealthy, latest: $latestReadingDate)';
+    return 'RepositoryInfo($type: $totalReadings readings, healthy: $isHealthy, latest: $latestReadingDate)';
   }
 }

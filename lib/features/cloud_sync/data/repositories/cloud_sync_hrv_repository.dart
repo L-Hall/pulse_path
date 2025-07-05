@@ -193,7 +193,7 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
         userKey,
       );
       
-      return HrvReading.fromJson(jsonDecode(decryptedJson));
+      return HrvReading.fromJson(jsonDecode(decryptedJson) as Map<String, dynamic>);
     } catch (e) {
       throw RepositoryException('Failed to get latest reading from cloud: $e');
     }
@@ -221,7 +221,7 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
             userKey,
           );
           
-          final reading = HrvReading.fromJson(jsonDecode(decryptedJson));
+          final reading = HrvReading.fromJson(jsonDecode(decryptedJson) as Map<String, dynamic>);
           final syncedReading = reading.copyWith(isSynced: true);
           
           // Save to local repository

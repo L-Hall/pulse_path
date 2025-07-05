@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'error_handling_service.dart';
 import 'logging_service.dart';
 

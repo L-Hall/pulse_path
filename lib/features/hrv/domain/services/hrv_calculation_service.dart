@@ -8,6 +8,15 @@ class HrvCalculationService {
   static final HrvCalculationService _instance = HrvCalculationService._();
   factory HrvCalculationService() => _instance;
 
+  /// Calculate SDNN from RR intervals
+  /// RR intervals should be in milliseconds
+  Future<double> calculateSDNN(List<double> rrIntervals) async {
+    if (rrIntervals.isEmpty) {
+      throw ArgumentError('RR intervals cannot be empty');
+    }
+    return AppUtils.calculateSdnn(rrIntervals);
+  }
+
   /// Calculate all HRV metrics from RR intervals
   /// RR intervals should be in milliseconds
   HrvMetrics calculateMetrics(List<double> rrIntervals) {

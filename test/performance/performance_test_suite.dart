@@ -127,11 +127,11 @@ void main() {
         await testUtils.verifyPerformance(
           () async {
             for (final reading in readings) {
-              await scoringService.calculateStressScore(rmssd: reading.rmssd, age: 30);
-              await scoringService.calculateRecoveryScore(rmssd: reading.rmssd, age: 30, gender: 'male');
+              await scoringService.calculateStressScore(rmssd: reading.metrics.rmssd, age: 30);
+              await scoringService.calculateRecoveryScore(rmssd: reading.metrics.rmssd, age: 30, gender: 'male');
               await scoringService.calculateEnergyScore(
-                rmssd: reading.rmssd,
-                meanRr: reading.meanRr,
+                rmssd: reading.metrics.rmssd,
+                meanRr: reading.metrics.meanRr,
                 age: 30,
                 fitnessLevel: 'moderate',
               );

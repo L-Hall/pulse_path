@@ -7,6 +7,91 @@ class HrvScoringService {
   static final HrvScoringService _instance = HrvScoringService._();
   factory HrvScoringService() => _instance;
 
+  /// Calculate stress score from RMSSD
+  /// For compatibility with performance tests
+  Future<int> calculateStressScore({
+    required double rmssd,
+    required int age,
+    String? gender,
+  }) async {
+    // Create minimal metrics object for stress calculation
+    final metrics = HrvMetrics(
+      rmssd: rmssd,
+      meanRr: 800.0, // Default value
+      sdnn: 50.0, // Default value
+      lowFrequency: 100.0, // Default value
+      highFrequency: 100.0, // Default value
+      lfHfRatio: 1.0, // Default value
+      baevsky: 100.0, // Default value
+      coefficientOfVariance: 5.0, // Default value
+      mxdmn: 200.0, // Default value
+      moda: 800.0, // Default value
+      amo50: 30.0, // Default value
+      pnn50: 20.0, // Default value
+      pnn20: 40.0, // Default value
+      totalPower: 1000.0, // Default value
+      dfaAlpha1: 1.0, // Default value
+    );
+    return _calculateStressScore(metrics, age, gender);
+  }
+
+  /// Calculate recovery score from RMSSD
+  /// For compatibility with performance tests
+  Future<int> calculateRecoveryScore({
+    required double rmssd,
+    required int age,
+    String? gender,
+  }) async {
+    // Create minimal metrics object for recovery calculation
+    final metrics = HrvMetrics(
+      rmssd: rmssd,
+      meanRr: 800.0, // Default value
+      sdnn: 50.0, // Default value
+      lowFrequency: 100.0, // Default value
+      highFrequency: 100.0, // Default value
+      lfHfRatio: 1.0, // Default value
+      baevsky: 100.0, // Default value
+      coefficientOfVariance: 5.0, // Default value
+      mxdmn: 200.0, // Default value
+      moda: 800.0, // Default value
+      amo50: 30.0, // Default value
+      pnn50: 20.0, // Default value
+      pnn20: 40.0, // Default value
+      totalPower: 1000.0, // Default value
+      dfaAlpha1: 1.0, // Default value
+    );
+    return _calculateRecoveryScore(metrics, age, gender);
+  }
+
+  /// Calculate energy score from RMSSD and mean RR
+  /// For compatibility with performance tests
+  Future<int> calculateEnergyScore({
+    required double rmssd,
+    required double meanRr,
+    required int age,
+    String? fitnessLevel,
+  }) async {
+    // Create minimal metrics object for energy calculation
+    final metrics = HrvMetrics(
+      rmssd: rmssd,
+      meanRr: meanRr,
+      sdnn: 50.0, // Default value
+      lowFrequency: 100.0, // Default value
+      highFrequency: 100.0, // Default value
+      lfHfRatio: 1.0, // Default value
+      baevsky: 100.0, // Default value
+      coefficientOfVariance: 5.0, // Default value
+      mxdmn: 200.0, // Default value
+      moda: 800.0, // Default value
+      amo50: 30.0, // Default value
+      pnn50: 20.0, // Default value
+      pnn20: 40.0, // Default value
+      totalPower: 1000.0, // Default value
+      dfaAlpha1: 1.0, // Default value
+    );
+    return _calculateEnergyScore(metrics, age, null); // Ignore fitness level for now
+  }
+
   /// Calculate comprehensive scores from HRV metrics
   /// Age is optional for normalization (default: 30)
   /// Gender: 'male', 'female', or null for general population

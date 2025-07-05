@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "22135956583",
+    "project_id": "pulsepath-db381",
+    "storage_bucket": "pulsepath-db381.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22135956583:android:96719e4e39ba386a9ba0c2",
+        "android_client_info": {
+          "package_name": "com.pulsepath.example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22135956583-t8s52mr8vtg755eno2rq443t6n1jgkok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pulsepath.example",
+            "certificate_hash": "83d078c1e3bfa85acfef3c5507b287f4cfdb463f"
+          }
+        },
+        {
+          "client_id": "22135956583-7004m35qtsed11i2e7rptoud5eeii6hi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7JZv5aUTSM1N_TEBw6wI1HR3KdoRCL7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22135956583-7004m35qtsed11i2e7rptoud5eeii6hi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "22135956583-65m0o19i3loi86lhu1hm8hjpnibr6p6g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pulsepath.example"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
