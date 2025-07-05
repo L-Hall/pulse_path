@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/liquid_glass_container.dart';
-import '../../../../core/theme/liquid_glass_theme.dart';
 
 /// Widget displaying a single HRV score with visual indicators
 class ScoreCard extends StatefulWidget {

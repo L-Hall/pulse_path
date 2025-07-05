@@ -4,11 +4,19 @@ import '../providers/dashboard_providers.dart';
 import '../widgets/score_card.dart';
 import '../widgets/hrv_trend_chart.dart';
 import '../widgets/enhanced_hrv_chart.dart';
+import '../../../adaptive_pacing/presentation/widgets/health_context_cards.dart';
+import '../../../adaptive_pacing/presentation/widgets/pem_risk_indicator.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
 import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
+import '../../../ble/presentation/widgets/ble_status_widget.dart';
+import '../../../ble/presentation/providers/ble_providers.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
 import '../../../liquid_glass/presentation/pages/liquid_glass_demo_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
+import '../../../auth/presentation/widgets/user_profile_widget.dart';
+import '../../../health_data/presentation/widgets/health_summary_widget.dart';
+import '../../../health_data/presentation/widgets/health_metrics_card.dart';
+import '../../../health_data/presentation/widgets/health_trend_chart.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -21,6 +29,18 @@ class DashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardDataProvider);
+    
+    // Initialize BLE connection manager for auto-reconnect functionality
+    ref.listen(bleConnectionManagerProvider, (previous, next) {
+      if (previous == null) {
+        try {
+          next.initialize();
+        } catch (e) {
+          // BLE initialization failure is not critical for dashboard
+          debugPrint('BLE connection manager initialization failed: $e');
+        }
+      }
+    });
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -45,9 +65,7 @@ class DashboardPage extends ConsumerWidget {
       body: SafeArea(
         child: dashboardState.when(
           data: (data) => _buildDashboardContent(context, ref, data),
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          loading: () => _buildLoadingState(context),
           error: (error, stack) => _buildErrorState(context, ref, error),
         ),
       ),
@@ -75,12 +93,32 @@ class DashboardPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // User profile section
+            const UserProfileWidget(),
+            const SizedBox(height: 16),
+            
             // Welcome section
             _buildWelcomeSection(context, data),
             const SizedBox(height: 24),
 
             // Score cards
             _buildScoreCards(context, scores),
+            const SizedBox(height: 32),
+
+            // Adaptive Pacing Section
+            const PemRiskIndicator(),
+            const SizedBox(height: 32),
+
+            // Health Context Section
+            const HealthContextCards(),
+            const SizedBox(height: 32),
+
+            // Health Data Section
+            _buildHealthDataSection(context),
+            const SizedBox(height: 16),
+            
+            // BLE Device Status Section
+            _buildBleStatusSection(context),
             const SizedBox(height: 32),
 
             // Trend chart section
@@ -386,6 +424,42 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            Text(
+              'Loading PulsePath Dashboard',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Initializing HRV data and dependencies...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'This may take a few moments on first launch',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
     return Center(
       child: Padding(
@@ -420,6 +494,105 @@ class DashboardPage extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHealthDataSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.health_and_safety,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Health Data',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // Health Summary Widget
+        const HealthSummaryWidget(),
+        const SizedBox(height: 16),
+        
+        // Health Metrics Cards Row
+        const Row(
+          children: [
+            Expanded(
+              child: StepsMetricCard(),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: SleepMetricCard(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Row(
+          children: [
+            Expanded(
+              child: HeartRateMetricCard(),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: WorkoutMetricCard(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // Health Trend Chart
+        const HealthTrendChart(
+          metricType: HealthMetricType.steps,
+          days: 7,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBleStatusSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.bluetooth,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Heart Rate Monitor',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            CompactBleStatusWidget(
+              onTap: () => _navigateToBleDiscovery(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        GestureDetector(
+          onTap: () => _navigateToBleDiscovery(context),
+          child: const BleStatusWidget(),
+        ),
+      ],
     );
   }
 

@@ -74,7 +74,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.1),
+                color: theme.colorScheme.outline.withValues(alpha: 0.1),
               ),
             ),
             child: AnimatedBuilder(
@@ -142,7 +142,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.1),
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
       child: Center(
@@ -152,7 +152,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
             Icon(
               Icons.timeline,
               size: 48,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -165,7 +165,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
             Text(
               'Take more readings to see trends',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -185,7 +185,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
         horizontalInterval: 25,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: theme.colorScheme.outline.withOpacity(0.1),
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
             strokeWidth: 1,
           );
         },
@@ -228,7 +228,7 @@ class _HrvTrendChartState extends State<HrvTrendChart>
           isCurved: true,
           gradient: LinearGradient(
             colors: [
-              _metricColors[_selectedMetric].withOpacity(0.8),
+              _metricColors[_selectedMetric].withValues(alpha: 0.8),
               _metricColors[_selectedMetric],
             ],
           ),
@@ -250,8 +250,8 @@ class _HrvTrendChartState extends State<HrvTrendChart>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                _metricColors[_selectedMetric].withOpacity(0.2),
-                _metricColors[_selectedMetric].withOpacity(0.05),
+                _metricColors[_selectedMetric].withValues(alpha: 0.2),
+                _metricColors[_selectedMetric].withValues(alpha: 0.05),
               ],
             ),
           ),

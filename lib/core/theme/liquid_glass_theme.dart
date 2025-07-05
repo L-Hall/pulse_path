@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 
 /// Liquid Glass design tokens for iOS 26+ with graceful fallbacks
@@ -48,14 +47,14 @@ class LiquidGlassTheme {
       // On iOS 26+, this would sample from wallpaper
       // For now, derive from primary color
       return brightness == Brightness.light
-          ? primaryColor.withOpacity(0.12)
-          : primaryColor.withOpacity(0.18);
+          ? primaryColor.withValues(alpha: 0.12)
+          : primaryColor.withValues(alpha: 0.18);
     }
     
     // Fallback tint for older devices
     return brightness == Brightness.light
-        ? Colors.white.withOpacity(0.12)
-        : Colors.black.withOpacity(0.18);
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.18);
   }
 
   /// Get glass overlay color for light/dark mode
@@ -65,8 +64,8 @@ class LiquidGlassTheme {
     final elevationConfig = elevationFor(elevation);
     
     return brightness == Brightness.light
-        ? Colors.white.withOpacity(elevationConfig.opacity)
-        : Colors.black.withOpacity(elevationConfig.opacity);
+        ? Colors.white.withValues(alpha: elevationConfig.opacity)
+        : Colors.black.withValues(alpha: elevationConfig.opacity);
   }
 
   /// Animation configuration for liquid glass effects
@@ -103,16 +102,16 @@ class LiquidGlassElevation {
 /// Liquid Glass color scheme extensions
 extension LiquidGlassColorScheme on ColorScheme {
   /// Liquid primary color with dynamic tint
-  Color get liquidPrimary => primary.withOpacity(0.85);
+  Color get liquidPrimary => primary.withValues(alpha: 0.85);
   
   /// Liquid secondary color with dynamic tint
-  Color get liquidSecondary => secondary.withOpacity(0.75);
+  Color get liquidSecondary => secondary.withValues(alpha: 0.75);
   
   /// Glass surface color for containers
-  Color get glassSurface => surface.withOpacity(0.9);
+  Color get glassSurface => surface.withValues(alpha: 0.9);
   
   /// Glass background for elevated surfaces
-  Color get glassBackground => background.withOpacity(0.95);
+  Color get glassBackground => surface.withValues(alpha: 0.95);
 }
 
 /// Material 3 theme with Liquid Glass integration
@@ -211,8 +210,6 @@ class LiquidGlassMaterial3Theme {
     onSecondary: Color(0xFFFFFFFF),
     error: Color(0xFFBA1A1A),
     onError: Color(0xFFFFFFFF),
-    background: Color(0xFFFEFBFF),
-    onBackground: Color(0xFF1C1B1F),
     surface: Color(0xFFFEFBFF),
     onSurface: Color(0xFF1C1B1F),
   );
@@ -225,8 +222,6 @@ class LiquidGlassMaterial3Theme {
     onSecondary: Color(0xFF332D41),
     error: Color(0xFFFFB4AB),
     onError: Color(0xFF690005),
-    background: Color(0xFF1C1B1F),
-    onBackground: Color(0xFFE6E1E5),
     surface: Color(0xFF1C1B1F),
     onSurface: Color(0xFFE6E1E5),
   );

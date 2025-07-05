@@ -76,16 +76,29 @@ class _BleDeviceDiscoveryPageState extends ConsumerState<BleDeviceDiscoveryPage>
   Future<void> _connectToDevice(BluetoothDevice device) async {
     try {
       final bleService = ref.read(bleHeartRateServiceProvider);
+      final deviceRepository = ref.read(bleDeviceRepositoryProvider);
+      
       final success = await bleService.connectToDevice(device);
       
       if (success && mounted) {
+        // Save the device to paired devices
+        final deviceInfo = BleDeviceInfo(
+          name: device.platformName.isNotEmpty ? device.platformName : 'Unknown Device',
+          address: device.remoteId.toString(),
+          isConnected: true,
+        );
+        
+        await deviceRepository.addPairedDevice(deviceInfo);
+        
         _showSuccessSnackBar('Connected to ${device.platformName}');
         // Navigate to HRV capture page instead of just returning
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (context) => const BleHrvCapturePage(),
-          ),
-        );
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (context) => const BleHrvCapturePage(),
+            ),
+          );
+        }
       } else if (mounted) {
         _showErrorSnackBar('Failed to connect to ${device.platformName}');
       }
