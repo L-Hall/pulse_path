@@ -16,7 +16,8 @@ import '../../features/ble/data/repositories/ble_device_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/health_data/services/health_data_service.dart';
-import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/health_data/services/apple_watch_service.dart';
+import '../../features/health_data/services/watch_connectivity_service.dart';
 import '../../features/subscription/domain/services/purchase_service.dart';
 import '../../features/subscription/domain/services/feature_gating_service.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
@@ -52,6 +53,9 @@ Future<void> initializeDependencies() async {
     
     // HRV must be initialized before Dashboard to resolve circular dependencies
     await _initHrv();
+    
+    // Health data services (Apple Watch integration)
+    await _initHealthData();
     
     // Dashboard features (depends on HRV repository)
     await _initDashboard();
@@ -298,6 +302,27 @@ Future<void> _initAuth() async {
   sl.registerLazySingleton<AuthRepository>(
     () => FirebaseAuthRepository(),
   );
+}
+
+Future<void> _initHealthData() async {
+  debugPrint('🔄 Initializing health data dependencies...');
+  
+  // Base health data service - singleton for HealthKit management
+  sl.registerLazySingleton<HealthDataService>(
+    () => HealthDataService(),
+  );
+  
+  // Apple Watch service - extends base health service with Watch-specific features
+  sl.registerLazySingleton<AppleWatchService>(
+    () => AppleWatchService(),
+  );
+  
+  // Watch Connectivity service - handles direct Watch communication
+  sl.registerLazySingleton<WatchConnectivityService>(
+    () => WatchConnectivityService(),
+  );
+  
+  debugPrint('✅ Health data dependencies initialized');
 }
 
 Future<void> _initSettings() async {

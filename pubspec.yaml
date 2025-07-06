@@ -44,6 +44,7 @@ dependencies:
   health: ^10.2.0
   permission_handler: ^11.3.0
   sensors_plus: ^4.0.2
+  watch_connectivity: ^0.2.1+1  # Apple Watch communication
 
   # Storage & Encryption
   drift: ^2.26.1

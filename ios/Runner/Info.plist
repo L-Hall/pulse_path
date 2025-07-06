@@ -47,6 +47,7 @@
 		<string>bluetooth-central</string>
 		<string>processing</string>
 		<string>fetch</string>
+		<string>background-health-delivery</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

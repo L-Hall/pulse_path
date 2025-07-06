@@ -17,6 +17,7 @@ import '../../../auth/presentation/widgets/user_profile_widget.dart';
 import '../../../health_data/presentation/widgets/health_summary_widget.dart';
 import '../../../health_data/presentation/widgets/health_metrics_card.dart';
 import '../../../health_data/presentation/widgets/health_trend_chart.dart';
+import '../../../health_data/presentation/widgets/apple_watch_status_widget.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -120,6 +121,10 @@ class DashboardPage extends ConsumerWidget {
             
             // BLE Device Status Section
             _buildBleStatusSection(context),
+            const SizedBox(height: 16),
+            
+            // Apple Watch Status Section
+            _buildAppleWatchStatusSection(context),
             const SizedBox(height: 32),
 
             // Trend chart section
@@ -879,6 +884,68 @@ class DashboardPage extends ConsumerWidget {
           Text('• Adaptive Pacing for chronic illness support'),
           Text('• End-to-end encrypted cloud sync'),
           Text('• Liquid Glass UI for iOS 26+'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppleWatchStatusSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.watch,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Apple Watch',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            AppleWatchStatusWidget(
+              isCompact: true,
+              onTap: () => _showAppleWatchDetails(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        const AppleWatchStatusWidget(isCompact: false),
+      ],
+    );
+  }
+
+  void _showAppleWatchDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apple Watch Integration'),
+        content: const SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppleWatchStatusWidget(isCompact: false),
+              SizedBox(height: 16),
+              Text(
+                'Apple Watch provides real-time heart rate and HRV data '
+                'for continuous health monitoring. When connected, your '
+                'Watch data will be automatically synchronized with the app.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );

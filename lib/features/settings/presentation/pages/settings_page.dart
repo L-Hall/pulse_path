@@ -9,6 +9,7 @@ import '../widgets/display_settings_section.dart';
 import '../widgets/adaptive_pacing_section.dart';
 import '../widgets/data_management_section.dart';
 import '../widgets/about_section.dart';
+import '../widgets/device_settings_section.dart';
 
 /// Main settings page with all user preferences
 class SettingsPage extends ConsumerWidget {
@@ -51,6 +52,11 @@ class SettingsPage extends ConsumerWidget {
           
           // Capture Settings
           CaptureSettingsSection(preferences: preferences),
+          
+          const SizedBox(height: 24),
+          
+          // Device Settings
+          DeviceSettingsSection(preferences: preferences),
           
           const SizedBox(height: 24),
           
