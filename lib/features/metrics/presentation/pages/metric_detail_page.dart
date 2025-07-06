@@ -195,7 +195,6 @@ class MetricDetailPage extends StatelessWidget {
               child: LineChart(
                 LineChartData(
                   gridData: FlGridData(
-                    show: true,
                     drawVerticalLine: false,
                     horizontalInterval: (values.reduce((a, b) => a > b ? a : b) - 
                         values.reduce((a, b) => a < b ? a : b)) / 4,
@@ -226,8 +225,8 @@ class MetricDetailPage extends StatelessWidget {
                         },
                       ),
                     ),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
                   ),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
@@ -237,7 +236,6 @@ class MetricDetailPage extends StatelessWidget {
                       color: metricInfo.color,
                       barWidth: 3,
                       dotData: FlDotData(
-                        show: true,
                         getDotPainter: (spot, percent, barData, index) {
                           return FlDotCirclePainter(
                             radius: 4,

@@ -176,7 +176,8 @@ class WorkoutSessionsTable extends Table {
   SyncQueue, 
   DailyHealthMetricsTable, 
   AdaptivePacingAssessmentsTable, 
-  WorkoutSessionsTable
+  WorkoutSessionsTable,
+
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([String? encryptionKey]) : super(connection.createConnection(encryptionKey));

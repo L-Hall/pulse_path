@@ -334,7 +334,7 @@ class _LiquidGlassPerformanceMonitorState
       _activeGlassLayers++;
       if (_activeGlassLayers > LiquidGlassTheme.maxSimultaneousLayers) {
         debugPrint(
-          'Warning: ${_activeGlassLayers} Liquid Glass layers active. '
+          'Warning: $_activeGlassLayers Liquid Glass layers active. '
           'Consider reducing for performance.'
         );
       }

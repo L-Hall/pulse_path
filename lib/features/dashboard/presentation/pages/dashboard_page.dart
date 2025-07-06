@@ -113,6 +113,7 @@ class DashboardPage extends ConsumerWidget {
             const HealthContextCards(),
             const SizedBox(height: 32),
 
+
             // Health Data Section
             _buildHealthDataSection(context),
             const SizedBox(height: 16),

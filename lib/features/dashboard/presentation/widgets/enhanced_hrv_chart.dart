@@ -271,8 +271,8 @@ class _EnhancedHrvChartState extends State<EnhancedHrvChart>
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(),
+          rightTitles: const AxisTitles(),
         ),
         borderData: _buildBorderData(),
       ),
@@ -400,7 +400,6 @@ class _EnhancedHrvChartState extends State<EnhancedHrvChart>
   // Helper methods for chart styling
   FlGridData _buildGridData() {
     return FlGridData(
-      show: true,
       drawVerticalLine: false,
       getDrawingHorizontalLine: (value) => FlLine(
         color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
@@ -438,8 +437,8 @@ class _EnhancedHrvChartState extends State<EnhancedHrvChart>
           },
         ),
       ),
-      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      topTitles: const AxisTitles(),
+      rightTitles: const AxisTitles(),
     );
   }
 
@@ -459,7 +458,6 @@ class _EnhancedHrvChartState extends State<EnhancedHrvChart>
       barWidth: 3,
       isStrokeCapRound: true,
       dotData: FlDotData(
-        show: true,
         getDotPainter: (spot, percent, barData, index) {
           return FlDotCirclePainter(
             radius: 4,
@@ -485,7 +483,6 @@ class _EnhancedHrvChartState extends State<EnhancedHrvChart>
 
   LineTouchData _buildLineTouchData() {
     return LineTouchData(
-      enabled: true,
       touchTooltipData: LineTouchTooltipData(
         tooltipBgColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         getTooltipItems: (touchedSpots) {

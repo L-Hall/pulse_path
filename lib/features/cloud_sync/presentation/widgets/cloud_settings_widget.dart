@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../settings/presentation/providers/settings_providers.dart';
+import '../../../settings/domain/models/user_preferences.dart';
+
 import '../providers/cloud_sync_providers.dart';
 import 'sync_status_widget.dart';
 
@@ -11,7 +13,8 @@ class CloudSettingsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
+    final authState = ref.watch(authStateChangesProvider);
+
     final userPreferences = ref.watch(userPreferencesProvider);
     final cloudSyncAvailable = ref.watch(cloudSyncAvailableProvider);
     final theme = Theme.of(context);
@@ -47,7 +50,8 @@ class CloudSettingsWidget extends ConsumerWidget {
             
             // Cloud sync toggle
             authState.when(
-              data: (user) => user != null && !user.isAnonymous
+              data: (user) => user != null && !(user.isAnonymous ?? false)
+
                   ? _buildCloudSyncToggle(context, ref, userPreferences)
                   : _buildSignInPrompt(context, ref),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -73,7 +77,8 @@ class CloudSettingsWidget extends ConsumerWidget {
   Widget _buildCloudSyncToggle(
     BuildContext context, 
     WidgetRef ref, 
-    AsyncValue userPreferences,
+    AsyncValue<UserPreferences> userPreferences,
+
   ) {
     return userPreferences.when(
       data: (prefs) => SwitchListTile(
@@ -81,7 +86,8 @@ class CloudSettingsWidget extends ConsumerWidget {
         subtitle: const Text('Sync your HRV data across all devices'),
         value: prefs.enableCloudSync,
         onChanged: (value) async {
-          await ref.read(userPreferencesProvider.notifier).updateCloudSyncEnabled(value);
+          await ref.read(userPreferencesNotifierProvider.notifier).updatePreference('enableCloudSync', value);
+
           
           if (value) {
             // Trigger initial sync when enabled

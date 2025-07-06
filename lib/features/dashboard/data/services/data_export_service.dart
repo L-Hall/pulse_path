@@ -66,7 +66,7 @@ class DataExportService {
         'rr_intervals_count': reading.rrIntervals.length,
         // Note: RR intervals excluded to reduce file size
         // Include full RR intervals in research export if needed
-      }).toList(),
+      },).toList(),
     };
     
     return jsonEncode(data);

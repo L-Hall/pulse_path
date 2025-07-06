@@ -14,6 +14,7 @@ import '../../features/ble/domain/services/ble_connection_manager.dart';
 import '../../features/ble/domain/services/hrv_quality_service.dart';
 import '../../features/ble/data/repositories/ble_device_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/health_data/services/health_data_service.dart';
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/subscription/domain/services/purchase_service.dart';
@@ -53,7 +54,6 @@ Future<void> initializeDependencies() async {
     await _initDashboard();
     await _initSettings();
     await _initSync();
-    await _initSubscription();
     
     // Let async singletons initialize lazily (don't block startup)
     
@@ -64,6 +64,7 @@ Future<void> initializeDependencies() async {
     await _initFallbackDependencies();
   }
 }
+
 
 Future<void> _initFallbackDependencies() async {
   debugPrint('🔄 Initializing fallback dependencies...');
@@ -129,15 +130,7 @@ Future<void> _initCore() async {
       final service = PerformanceMonitoringService();
       final logger = await sl.getAsync<LoggingService>();
       await service.initialize(logger: logger);
-      return service;
-    },
-  );
-  
-  // Health data service
-  sl.registerLazySingletonAsync<HealthDataService>(
-    () async {
-      final service = HealthDataService();
-      await service.initialize();
+
       return service;
     },
   );

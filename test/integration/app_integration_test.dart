@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -119,6 +121,27 @@ void main() {
       // Verify no memory leaks or crashes
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('App handles lifecycle changes', (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      
+      await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/lifecycle',
+        const StandardMethodCodec().encodeMethodCall(
+          const MethodCall('AppLifecycleState.detached'),
+        ),
+        (data) {},
+      );
+      
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      
+      expect(tester.takeException(), isNull);
+    });
+
   });
 
   group('Error Handling Integration', () {
@@ -196,3 +219,4 @@ void main() {
     });
   });
 }
+

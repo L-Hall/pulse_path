@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/daily_health_metrics.dart';
@@ -41,7 +43,8 @@ class HealthDataService {
       _isInitialized = true;
       return true;
     } catch (e) {
-      print('Error initializing health data service: $e');
+      if (kDebugMode) print('Error initializing health data service: $e');
+
       return false;
     }
   }
@@ -119,7 +122,8 @@ class HealthDataService {
         updatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('Error fetching daily health metrics: $e');
+      if (kDebugMode) print('Error fetching daily health metrics: $e');
+
       return null;
     }
   }
@@ -156,7 +160,8 @@ class HealthDataService {
           .where((data) => data.type == HealthDataType.STEPS)
           .fold<int>(0, (sum, data) => sum + (data.value as num).toInt());
     } catch (e) {
-      print('Error getting step count: $e');
+      if (kDebugMode) print('Error getting step count: $e');
+
       return 0;
     }
   }
@@ -176,7 +181,8 @@ class HealthDataService {
       
       return totalMeters / 1000; // Convert to kilometers
     } catch (e) {
-      print('Error getting distance: $e');
+      if (kDebugMode) print('Error getting distance: $e');
+
       return 0.0;
     }
   }
@@ -197,7 +203,8 @@ class HealthDataService {
       
       return (totalCalories / 5).round();
     } catch (e) {
-      print('Error getting active minutes: $e');
+      if (kDebugMode) print('Error getting active minutes: $e');
+
       return 0;
     }
   }
@@ -215,7 +222,8 @@ class HealthDataService {
           .where((data) => data.type == HealthDataType.FLIGHTS_CLIMBED)
           .fold<int>(0, (sum, data) => sum + (data.value as num).toInt());
     } catch (e) {
-      print('Error getting flights climbed: $e');
+      if (kDebugMode) print('Error getting flights climbed: $e');
+
       return 0;
     }
   }
@@ -293,7 +301,8 @@ class HealthDataService {
         source: 'health_kit',
       );
     } catch (e) {
-      print('Error getting sleep data: $e');
+      if (kDebugMode) print('Error getting sleep data: $e');
+
       return null;
     }
   }
@@ -327,7 +336,8 @@ class HealthDataService {
       
       return workouts;
     } catch (e) {
-      print('Error getting workout sessions: $e');
+      if (kDebugMode) print('Error getting workout sessions: $e');
+
       return [];
     }
   }
@@ -345,7 +355,8 @@ class HealthDataService {
       return null; // Skip menstrual data for now
       
     } catch (e) {
-      print('Error getting menstrual data: $e');
+      if (kDebugMode) print('Error getting menstrual data: $e');
+
       return null;
     }
   }
@@ -411,7 +422,8 @@ class HealthDataService {
       
       return availableTypes;
     } catch (e) {
-      print('Error getting available types: $e');
+      if (kDebugMode) print('Error getting available types: $e');
+
       return [];
     }
   }

@@ -24,7 +24,8 @@ class HealthContextCards extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            if (!healthSummary['hasData'])
+            if (!(healthSummary['hasData'] as bool? ?? true))
+
               TextButton.icon(
                 onPressed: () => _requestHealthPermissions(ref),
                 icon: const Icon(Icons.health_and_safety, size: 16),
@@ -48,7 +49,8 @@ class HealthContextCards extends ConsumerWidget {
   }
 
   Widget _buildHealthCards(BuildContext context, Map<String, dynamic> healthSummary) {
-    if (!healthSummary['hasData']) {
+    if (!(healthSummary['hasData'] as bool? ?? true)) {
+
       return _buildNoDataCards(context);
     }
 
@@ -57,33 +59,36 @@ class HealthContextCards extends ConsumerWidget {
         Expanded(
           child: ScoreCard(
             title: 'Steps',
-            score: healthSummary['stepCount'] ?? 0,
+            score: (healthSummary['stepCount'] as int?) ?? 0,
             maxScore: 10000,
-            color: _getStepsColor(healthSummary['stepCount'] ?? 0),
+            color: _getStepsColor((healthSummary['stepCount'] as int?) ?? 0),
             icon: Icons.directions_walk,
-            subtitle: _getStepsDescription(healthSummary['stepCount'] ?? 0),
+            subtitle: _getStepsDescription((healthSummary['stepCount'] as int?) ?? 0),
+
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: ScoreCard(
             title: 'Activity',
-            score: healthSummary['activeMinutes'] ?? 0,
+            score: (healthSummary['activeMinutes'] as int?) ?? 0,
             maxScore: 60,
-            color: _getActivityColor(healthSummary['activeMinutes'] ?? 0),
+            color: _getActivityColor((healthSummary['activeMinutes'] as int?) ?? 0),
             icon: Icons.fitness_center,
-            subtitle: _getActivityDescription(healthSummary['activeMinutes'] ?? 0),
+            subtitle: _getActivityDescription((healthSummary['activeMinutes'] as int?) ?? 0),
+
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: ScoreCard(
             title: 'Sleep',
-            score: ((healthSummary['sleepHours'] ?? 0.0) * 10).round(),
+            score: (((healthSummary['sleepHours'] as double?) ?? 0.0) * 10).round(),
             maxScore: 100,
-            color: _getSleepColor(healthSummary['sleepHours'] ?? 0.0),
+            color: _getSleepColor((healthSummary['sleepHours'] as double?) ?? 0.0),
             icon: Icons.bedtime,
-            subtitle: _getSleepDescription(healthSummary['sleepHours'] ?? 0.0),
+            subtitle: _getSleepDescription((healthSummary['sleepHours'] as double?) ?? 0.0),
+
           ),
         ),
       ],

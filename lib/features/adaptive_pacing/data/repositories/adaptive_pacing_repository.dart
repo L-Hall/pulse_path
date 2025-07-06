@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import '../../../../shared/models/adaptive_pacing_data.dart';
 import '../../../../shared/models/daily_health_metrics.dart';
 import '../../../../shared/repositories/database/app_database.dart';
@@ -20,17 +21,18 @@ class AdaptivePacingRepository {
         hrvContributionJson: _encodeJson(assessment.hrvContribution.toJson()),
         activityContributionJson: _encodeJson(assessment.activityContribution.toJson()),
         sleepContributionJson: _encodeJson(assessment.sleepContribution.toJson()),
-        menstrualContributionJson: assessment.menstrualContribution != null 
+        menstrualContributionJson: Value.absentIfNull(assessment.menstrualContribution != null 
             ? _encodeJson(assessment.menstrualContribution!.toJson()) 
-            : null,
+            : null),
         recommendationsJson: _encodeJson(assessment.recommendations.map((r) => r.toJson()).toList()),
         activityGuidanceJson: _encodeJson(assessment.activityGuidance.toJson()),
-        trendWarningsJson: _encodeJson(assessment.trendWarnings),
-        consecutiveHighRiskDays: assessment.consecutiveHighRiskDays,
-        sevenDayEnergyTrend: assessment.sevenDayEnergyTrend,
+        trendWarningsJson: Value(_encodeJson(assessment.trendWarnings)),
+        consecutiveHighRiskDays: Value(assessment.consecutiveHighRiskDays),
+        sevenDayEnergyTrend: Value(assessment.sevenDayEnergyTrend),
         conditionProfileJson: _encodeJson(assessment.conditionProfile.toJson()),
-        personalSensitivity: assessment.personalSensitivity,
-        createdAt: assessment.createdAt,
+        personalSensitivity: Value(assessment.personalSensitivity),
+        createdAt: Value(assessment.createdAt),
+
       ),
     );
   }
@@ -56,7 +58,8 @@ class AdaptivePacingRepository {
     final cutoffDate = DateTime.now().subtract(Duration(days: days));
 
     final query = _database.select(_database.adaptivePacingAssessmentsTable)
-      ..where((tbl) => tbl.date.isAfterValue(cutoffDate))
+      ..where((tbl) => tbl.date.isBiggerThanValue(cutoffDate))
+
       ..orderBy([(tbl) => OrderingTerm.desc(tbl.date)]);
 
     final results = await query.get();
@@ -69,25 +72,26 @@ class AdaptivePacingRepository {
       DailyHealthMetricsTableCompanion.insert(
         id: metrics.id,
         date: metrics.date,
-        stepCount: metrics.stepCount,
-        distanceKm: metrics.distanceKm,
-        activeMinutes: metrics.activeMinutes,
-        flightsClimbed: metrics.flightsClimbed,
-        sleepDataJson: metrics.sleepData != null 
+        stepCount: Value(metrics.stepCount),
+        distanceKm: Value(metrics.distanceKm),
+        activeMinutes: Value(metrics.activeMinutes),
+        flightsClimbed: Value(metrics.flightsClimbed),
+        sleepDataJson: Value.absentIfNull(metrics.sleepData != null 
             ? _encodeJson(metrics.sleepData!.toJson()) 
-            : null,
-        workoutsJson: _encodeJson(metrics.workouts.map((w) => w.toJson()).toList()),
-        menstrualDataJson: metrics.menstrualData != null 
+            : null),
+        workoutsJson: Value(_encodeJson(metrics.workouts.map((w) => w.toJson()).toList())),
+        menstrualDataJson: Value.absentIfNull(metrics.menstrualData != null 
             ? _encodeJson(metrics.menstrualData!.toJson()) 
-            : null,
-        energyLevel: metrics.energyLevel,
-        stressLevel: metrics.stressLevel,
-        symptomsJson: _encodeJson(metrics.symptoms),
-        notes: metrics.notes,
-        isComplete: metrics.isComplete,
-        dataSourcesJson: _encodeJson(metrics.dataSources),
-        createdAt: metrics.createdAt,
-        updatedAt: metrics.updatedAt,
+            : null),
+        energyLevel: Value.absentIfNull(metrics.energyLevel),
+        stressLevel: Value.absentIfNull(metrics.stressLevel),
+        symptomsJson: Value(_encodeJson(metrics.symptoms)),
+        notes: Value(metrics.notes),
+        isComplete: Value(metrics.isComplete),
+        dataSourcesJson: Value(_encodeJson(metrics.dataSources)),
+        createdAt: Value(metrics.createdAt),
+        updatedAt: Value(metrics.updatedAt),
+
       ),
     );
   }
@@ -122,7 +126,8 @@ class AdaptivePacingRepository {
     final cutoffDate = DateTime.now().subtract(retentionPeriod);
     
     await (_database.delete(_database.adaptivePacingAssessmentsTable)
-      ..where((tbl) => tbl.date.isBeforeValue(cutoffDate))).go();
+      ..where((tbl) => tbl.date.isSmallerThanValue(cutoffDate))).go();
+
   }
 
   /// Delete old health metrics beyond retention period
@@ -130,7 +135,8 @@ class AdaptivePacingRepository {
     final cutoffDate = DateTime.now().subtract(retentionPeriod);
     
     await (_database.delete(_database.dailyHealthMetricsTable)
-      ..where((tbl) => tbl.date.isBeforeValue(cutoffDate))).go();
+      ..where((tbl) => tbl.date.isSmallerThanValue(cutoffDate))).go();
+
   }
 
   // Helper methods
