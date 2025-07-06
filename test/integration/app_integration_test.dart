@@ -19,18 +19,6 @@ void main() {
     });
 
     tearDownAll(() async {
-<<<<<<< HEAD
-      await testUtils.cleanup();
-    });
-
-    testWidgets('App launches successfully', (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(MaterialApp), findsOneWidget);
-      expect(find.text('PulsePath'), findsAtLeastNWidgets(1));
-      
-=======
       await testUtils.cleanupTestEnvironment();
     });
 
@@ -46,7 +34,6 @@ void main() {
       expect(find.text('PulsePath'), findsAtLeastOneWidget);
       
       // Wait for any async initialization to complete
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
       await tester.pumpAndSettle(const Duration(seconds: 5));
     });
 
@@ -54,12 +41,6 @@ void main() {
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 10));
 
-<<<<<<< HEAD
-      expect(find.byType(Card), findsAtLeastNWidgets(1));
-      
-      final navigationElements = find.byType(BottomNavigationBar);
-      if (tester.any(navigationElements)) {
-=======
       // Look for score cards or data elements
       // Note: These depend on your actual UI implementation
       expect(find.byType(Card), findsAtLeastOneWidget);
@@ -68,18 +49,11 @@ void main() {
       final navigationElements = find.byType(BottomNavigationBar);
       if (tester.any(navigationElements)) {
         // Test navigation between tabs
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
         await tester.tap(navigationElements);
         await tester.pumpAndSettle();
       }
     });
 
-<<<<<<< HEAD
-    testWidgets('Error handling works correctly', (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 10));
-      
-=======
     testWidgets('Error handling displays user-friendly messages', (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 10));
@@ -88,7 +62,6 @@ void main() {
       // This would depend on your specific UI and error triggers
       
       // Verify no crashes occurred
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
       expect(tester.takeException(), isNull);
     });
 
@@ -96,37 +69,6 @@ void main() {
       final stopwatch = Stopwatch()..start();
       
       app.main();
-<<<<<<< HEAD
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      
-      stopwatch.stop();
-      expect(stopwatch.elapsedMilliseconds, lessThan(5000));
-    });
-
-    testWidgets('Data persistence works', (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      
-      await Future<void>.delayed(const Duration(seconds: 2));
-      
-      await tester.runAsync(() async {
-        await tester.pumpWidget(Container());
-        await tester.pumpAndSettle();
-        
-        app.main();
-        await tester.pumpAndSettle(const Duration(seconds: 5));
-      });
-      
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('App handles lifecycle changes', (WidgetTester tester) async {
-      app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      
-=======
       await tester.pumpAndSettle(const Duration(seconds: 10));
       
       stopwatch.stop();
@@ -178,6 +120,26 @@ void main() {
       // Verify no memory leaks or crashes
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('App handles lifecycle changes', (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      
+      await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/lifecycle',
+        const StandardMethodCodec().encodeMethodCall(
+          const MethodCall('AppLifecycleState.detached'),
+        ),
+        (data) {},
+      );
+      
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('Error Handling Integration', () {
@@ -213,7 +175,6 @@ void main() {
       // This would depend on your specific data entry mechanisms
       
       // Stop the app (simulate app close)
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
       await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
         'flutter/lifecycle',
         const StandardMethodCodec().encodeMethodCall(
@@ -222,15 +183,6 @@ void main() {
         (data) {},
       );
       
-<<<<<<< HEAD
-      app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      
-      expect(tester.takeException(), isNull);
-    });
-  });
-}
-=======
       // Restart the app
       app.main();
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -265,4 +217,3 @@ void main() {
     });
   });
 }
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods

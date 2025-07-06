@@ -344,11 +344,7 @@ class HrvQualityResult {
   @override
   String toString() => 'HrvQualityResult(score: ${(qualityScore * 100).toStringAsFixed(1)}%, '
       'rating: $qualityRating, '
-<<<<<<< HEAD
-      'intervals: ${cleanedIntervals.length}/$originalCount)';
-=======
       'intervals: ${cleanedIntervals.length}/${originalCount})';
->>>>>>> Complete BLE Integration for PulsePath - Production Ready
 }
 
 /// Real-time quality assessment during data collection
