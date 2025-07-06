@@ -127,13 +127,13 @@
          await testUtils.verifyPerformance(
             () async {
               for (final reading in readings) {
-                await scoringService.calculateStressScore(rmssd: reading.rmssd,
+                await scoringService.calculateStressScore(rmssd: reading.metrics.rmssd,
   age: 30);
-                await scoringService.calculateRecoveryScore(rmssd: reading.rmssd,
+                await scoringService.calculateRecoveryScore(rmssd: reading.metrics.rmssd,
    age: 30, gender: 'male');
                 await scoringService.calculateEnergyScore(
-                  rmssd: reading.rmssd,
-                  meanRr: reading.meanRr,
+                  rmssd: reading.metrics.rmssd,
+                  meanRr: reading.metrics.meanRr,
                   age: 30,
                   fitnessLevel: 'moderate',
                 );
@@ -216,7 +216,7 @@
               // Simulate processing all readings
               double totalRmssd = 0;
               for (final reading in largeTimeSeries) {
-                totalRmssd += reading.rmssd;
+                totalRmssd += reading.metrics.rmssd;
               }
               final averageRmssd = totalRmssd / largeTimeSeries.length;
               expect(averageRmssd, greaterThan(0));

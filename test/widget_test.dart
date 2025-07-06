@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/main.dart';
+import 'package:pulse_path/main.dart';
 
 void main() {
   testWidgets('PulsePath app loads correctly', (WidgetTester tester) async {

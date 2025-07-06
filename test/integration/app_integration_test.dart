@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '../../lib/main.dart' as app;
+import 'package:pulse_path/main.dart' as app;
 import '../support/test_utils.dart';
 
 /// Comprehensive integration tests for PulsePath core functionality

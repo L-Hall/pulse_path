@@ -98,7 +98,7 @@ class _SubscriptionPaywallPageState extends ConsumerState<SubscriptionPaywallPag
             child: Text(
               'Maybe Later',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -294,7 +294,7 @@ class _SubscriptionPaywallPageState extends ConsumerState<SubscriptionPaywallPag
             Text(
               error.toString(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),

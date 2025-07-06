@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../lib/core/services/error_handling_service.dart';
-import '../../lib/core/services/logging_service.dart';
-import '../../lib/core/services/performance_monitoring_service.dart';
-import '../../lib/features/dashboard/data/repositories/hrv_repository_interface.dart';
-import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
-import '../../lib/features/ble/domain/services/ble_heart_rate_service.dart';
-import '../../lib/shared/models/hrv_reading.dart';
+import 'package:pulse_path/core/services/error_handling_service.dart';
+import 'package:pulse_path/core/services/logging_service.dart';
+import 'package:pulse_path/core/services/performance_monitoring_service.dart';
+import 'package:pulse_path/features/dashboard/data/repositories/hrv_repository_interface.dart';
+import 'package:pulse_path/features/dashboard/data/repositories/simple_hrv_repository.dart';
+import 'package:pulse_path/features/ble/domain/services/ble_heart_rate_service.dart';
+import 'package:pulse_path/shared/models/hrv_reading.dart';
 
 import 'mock_data_service.dart';
 

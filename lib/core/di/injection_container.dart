@@ -47,6 +47,9 @@ Future<void> initializeDependencies() async {
     // Core services
     await _initCore();
     
+    // Auth must be initialized before cloud sync
+    await _initAuth();
+    
     // HRV must be initialized before Dashboard to resolve circular dependencies
     await _initHrv();
     
@@ -332,24 +335,7 @@ Future<void> _initSync() async {
     () => CloudEncryptionService(),
   );
   
-  // Cloud sync service - depends on other services
-  if (!kIsWeb) {
-    sl.registerLazySingletonAsync<CloudSyncService>(
-      () async {
-        final database = await sl.getAsync<AppDatabase>();
-        final cloudRepository = await sl.getAsync<CloudSyncHrvRepository>();
-        
-        return CloudSyncService(
-          cloudRepository: cloudRepository,
-          authRepository: sl<AuthRepository>(),
-          database: database,
-          connectivity: sl<Connectivity>(),
-        );
-      },
-    );
-  }
-  
-  // Cloud-enabled HRV repository
+  // Cloud-enabled HRV repository - register first
   if (!kIsWeb) {
     sl.registerLazySingletonAsync<CloudSyncHrvRepository>(
       () async {
@@ -361,6 +347,23 @@ Future<void> _initSync() async {
           encryptionService: sl<CloudEncryptionService>(),
           authRepository: sl<AuthRepository>(),
           localRepository: localRepository,
+        );
+      },
+    );
+  }
+  
+  // Cloud sync service - depends on cloud repository
+  if (!kIsWeb) {
+    sl.registerLazySingletonAsync<CloudSyncService>(
+      () async {
+        final database = await sl.getAsync<AppDatabase>();
+        final cloudRepository = await sl.getAsync<CloudSyncHrvRepository>();
+        
+        return CloudSyncService(
+          cloudRepository: cloudRepository,
+          authRepository: sl<AuthRepository>(),
+          database: database,
+          connectivity: sl<Connectivity>(),
         );
       },
     );

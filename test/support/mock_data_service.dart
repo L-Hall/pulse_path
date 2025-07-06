@@ -1,9 +1,8 @@
 import 'dart:math';
-import '../../lib/shared/models/hrv_reading.dart';
-import '../../lib/features/dashboard/domain/models/dashboard_data.dart';
-import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
-
-import '../../lib/core/services/error_handling_service.dart';
+import 'package:pulse_path/shared/models/hrv_reading.dart';
+import 'package:pulse_path/features/dashboard/domain/models/dashboard_data.dart';
+import 'package:pulse_path/features/dashboard/data/repositories/simple_hrv_repository.dart';
+import 'package:pulse_path/core/services/error_handling_service.dart';
 
 /// Log Level enum for MockDataService
 enum LogLevel {
@@ -43,7 +42,7 @@ class MockDataService {
       // Add natural heart rate variability
       final variation = (_random.nextDouble() - 0.5) * 100; // ±50ms variation
       final rrInterval = (baseRr + variation).clamp(400, 1500);
-      rrIntervals.add(rrInterval);
+      rrIntervals.add(rrInterval.toDouble());
     }
 
     // Calculate realistic metrics or use override
