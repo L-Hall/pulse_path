@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:flutter/services.dart';
-=======
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../lib/main.dart' as app;
 import '../support/test_utils.dart';
 
-<<<<<<< HEAD
-=======
 /// Comprehensive integration tests for PulsePath core functionality
 /// Tests the complete user journey from app launch to HRV reading completion
->>>>>>> Fix build errors: Performance monitoring logInfo, web database WASM API, integration_test dependency, and HRV test methods
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 

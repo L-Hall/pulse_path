@@ -3,7 +3,34 @@
 **Current Status**: Phase 1 Complete - Authentication Foundation ✅  
 **Next Phase**: Phase 2 - Cloud Data Repositories & Firestore Operations  
 **Worktree**: `cloud-sync`  
-**Last Updated**: July 2, 2025
+**Last Updated**: January 6, 2025
+
+## ⚠️ **IMPORTANT: Resolve Merge Conflicts Before Proceeding**
+
+Before starting Phase 2 of cloud sync, the following merge conflicts from worktree integration must be resolved:
+
+### **Critical Files with Merge Conflicts**
+1. **Test Files** (4 files):
+   - `test/integration/app_integration_test.dart`
+   - `test/support/test_utils.dart`
+   - `test/support/mock_data_service.dart`
+   - `test/performance/performance_test_suite.dart`
+
+2. **Core Services** (3 files):
+   - `lib/core/services/performance_monitoring_service.dart`
+   - `lib/core/services/logging_service.dart`
+   - `lib/core/utils/migration_helper.dart`
+
+3. **BLE Service** (1 file - partially fixed):
+   - `lib/features/ble/domain/services/hrv_quality_service.dart`
+
+### **Resolution Steps**
+1. Search for `<<<<<<< HEAD` markers in each file
+2. Resolve conflicts by choosing correct code version
+3. Remove all conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+4. Run `flutter analyze` to verify no syntax errors
+5. Run `flutter test` to ensure tests pass
+6. Commit resolved files
 
 ## 🎯 **Phase 2: Cloud Data Repositories** (Next Priority)
 
