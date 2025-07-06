@@ -15,6 +15,10 @@ import '../../features/ble/domain/services/hrv_quality_service.dart';
 import '../../features/ble/data/repositories/ble_device_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/health_data/services/health_data_service.dart';
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/subscription/domain/services/purchase_service.dart';
+import '../../features/subscription/domain/services/feature_gating_service.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -60,6 +64,7 @@ Future<void> initializeDependencies() async {
     await _initFallbackDependencies();
   }
 }
+
 
 Future<void> _initFallbackDependencies() async {
   debugPrint('🔄 Initializing fallback dependencies...');
@@ -125,6 +130,7 @@ Future<void> _initCore() async {
       final service = PerformanceMonitoringService();
       final logger = await sl.getAsync<LoggingService>();
       await service.initialize(logger: logger);
+
       return service;
     },
   );
@@ -293,6 +299,22 @@ Future<void> _initAuth() async {
 
 Future<void> _initSettings() async {
   // Settings feature dependencies will be registered here
+}
+
+Future<void> _initSubscription() async {
+  debugPrint('🔄 Initializing subscription dependencies...');
+  
+  // Purchase service - singleton for subscription management
+  sl.registerLazySingleton<PurchaseService>(
+    () => PurchaseService(secureStorage: sl<FlutterSecureStorage>()),
+  );
+  
+  // Feature gating service - depends on purchase service
+  sl.registerLazySingleton<FeatureGatingService>(
+    () => FeatureGatingService(sl<PurchaseService>()),
+  );
+  
+  debugPrint('✅ Subscription dependencies initialized');
 }
 
 Future<void> _initSync() async {

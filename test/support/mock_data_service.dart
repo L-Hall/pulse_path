@@ -2,6 +2,7 @@ import 'dart:math';
 import '../../lib/shared/models/hrv_reading.dart';
 import '../../lib/features/dashboard/domain/models/dashboard_data.dart';
 import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
+
 import '../../lib/core/services/error_handling_service.dart';
 
 /// Log Level enum for MockDataService
@@ -75,6 +76,7 @@ class MockDataService {
       energy: _calculateEnergyScore(rmssd),
       confidence: 0.7 + _random.nextDouble() * 0.3,
     );
+
     
     return HrvReading(
       id: 'mock_${now.millisecondsSinceEpoch}',
@@ -85,6 +87,7 @@ class MockDataService {
       scores: scores,
       notes: deviceName != null ? 'Recorded with $deviceName' : null,
       tags: method == 'camera' ? ['camera', 'ppg'] : ['ble', 'hrm'],
+
     );
   }
 
@@ -144,6 +147,7 @@ class MockDataService {
     // Calculate trend metrics
     final averageRmssd = trendReadings.map((r) => r.metrics.rmssd).reduce((a, b) => a + b) / trendReadings.length;
     final trendDirection = latest.metrics.rmssd > averageRmssd ? 'improving' : 'declining';
+
     
     return DashboardData(
       latestReading: latest,
@@ -158,6 +162,7 @@ class MockDataService {
         streakDays: 7,
       ),
       lastUpdated: endDate,
+
     );
   }
 
@@ -397,4 +402,5 @@ class MockDataService {
       streakDays: 12,
     );
   }
+
 }

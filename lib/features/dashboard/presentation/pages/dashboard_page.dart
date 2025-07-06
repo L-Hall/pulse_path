@@ -8,10 +8,15 @@ import '../../../adaptive_pacing/presentation/widgets/health_context_cards.dart'
 import '../../../adaptive_pacing/presentation/widgets/pem_risk_indicator.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
 import '../../../ble/presentation/pages/ble_device_discovery_page.dart';
+import '../../../ble/presentation/widgets/ble_status_widget.dart';
+import '../../../ble/presentation/providers/ble_providers.dart';
 import '../../../metrics/presentation/pages/metrics_overview_page.dart';
 import '../../../liquid_glass/presentation/pages/liquid_glass_demo_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
 import '../../../auth/presentation/widgets/user_profile_widget.dart';
+import '../../../health_data/presentation/widgets/health_summary_widget.dart';
+import '../../../health_data/presentation/widgets/health_metrics_card.dart';
+import '../../../health_data/presentation/widgets/health_trend_chart.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/services/data_export_service.dart';
@@ -24,6 +29,18 @@ class DashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardDataProvider);
+    
+    // Initialize BLE connection manager for auto-reconnect functionality
+    ref.listen(bleConnectionManagerProvider, (previous, next) {
+      if (previous == null) {
+        try {
+          next.initialize();
+        } catch (e) {
+          // BLE initialization failure is not critical for dashboard
+          debugPrint('BLE connection manager initialization failed: $e');
+        }
+      }
+    });
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -94,6 +111,15 @@ class DashboardPage extends ConsumerWidget {
 
             // Health Context Section
             const HealthContextCards(),
+            const SizedBox(height: 32),
+
+
+            // Health Data Section
+            _buildHealthDataSection(context),
+            const SizedBox(height: 16),
+            
+            // BLE Device Status Section
+            _buildBleStatusSection(context),
             const SizedBox(height: 32),
 
             // Trend chart section
@@ -469,6 +495,105 @@ class DashboardPage extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHealthDataSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.health_and_safety,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Health Data',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // Health Summary Widget
+        const HealthSummaryWidget(),
+        const SizedBox(height: 16),
+        
+        // Health Metrics Cards Row
+        const Row(
+          children: [
+            Expanded(
+              child: StepsMetricCard(),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: SleepMetricCard(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Row(
+          children: [
+            Expanded(
+              child: HeartRateMetricCard(),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: WorkoutMetricCard(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // Health Trend Chart
+        const HealthTrendChart(
+          metricType: HealthMetricType.steps,
+          days: 7,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBleStatusSection(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.bluetooth,
+              color: theme.colorScheme.primary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Heart Rate Monitor',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            CompactBleStatusWidget(
+              onTap: () => _navigateToBleDiscovery(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        GestureDetector(
+          onTap: () => _navigateToBleDiscovery(context),
+          child: const BleStatusWidget(),
+        ),
+      ],
     );
   }
 

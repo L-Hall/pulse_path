@@ -11,6 +11,7 @@ import '../../lib/features/dashboard/data/repositories/hrv_repository_interface.
 import '../../lib/features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../lib/features/ble/domain/services/ble_heart_rate_service.dart';
 import '../../lib/shared/models/hrv_reading.dart';
+
 import 'mock_data_service.dart';
 
 /// TimeoutException for async operations
@@ -104,6 +105,7 @@ class TestUtils {
     
     while (!condition() && stopwatch.elapsed < timeout) {
       await Future<void>.delayed(pollInterval);
+
     }
     
     if (!condition()) {
@@ -174,6 +176,7 @@ class TestUtils {
       when(() => mock.saveReading(any())).thenThrow(Exception('Database error'));
       when(() => mock.getStatistics(days: any(named: 'days'))).thenThrow(Exception('Database error'));
       when(() => mock.addSampleData()).thenThrow(Exception('Database error'));
+
     }
     
     return mock;
@@ -194,6 +197,7 @@ class TestUtils {
       when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => Stream.fromIterable([]));
     } else {
       when(() => mock.scanForHeartRateDevices(timeout: any(named: 'timeout'))).thenAnswer((_) => const Stream.empty());
+
     }
     
     if (connectionSucceeds) {
@@ -230,6 +234,7 @@ class TestUtils {
       ));
     } else {
       when(() => mock.connectedDeviceInfo).thenReturn(null);
+
     }
     
     return mock;
@@ -370,11 +375,13 @@ class TestUtils {
 abstract class BaseIntegrationTest {
   late TestUtils testUtils;
   
+
   void setUpBase() async {
     testUtils = TestUtils();
     await testUtils.initializeTestEnvironment();
   }
   
+
   void tearDownBase() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -384,11 +391,13 @@ abstract class BaseIntegrationTest {
 abstract class BaseWidgetTest {
   late TestUtils testUtils;
   
+
   void setUpWidgetTest() async {
     testUtils = TestUtils();
     await testUtils.initializeTestEnvironment(useMockServices: true);
   }
   
+
   void tearDownWidgetTest() async {
     await testUtils.cleanupTestEnvironment();
   }
@@ -403,6 +412,7 @@ abstract class BaseWidgetTest {
 abstract class BaseUnitTest {
   late MockDataService mockDataService;
   
+
   void setUpUnitTest() {
     mockDataService = MockDataService();
   }
@@ -423,6 +433,7 @@ Matcher isValidHrvReading() => predicate<HrvReading>((reading) {
   return reading.metrics.rmssd > 0 &&
          reading.rrIntervals.isNotEmpty &&
          reading.durationSeconds > 0;
+
 }, 'is a valid HRV reading');
 
 Matcher isHealthyPerformanceMetric({required double threshold}) => predicate<double>((value) {

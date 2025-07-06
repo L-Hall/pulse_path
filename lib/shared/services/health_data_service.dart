@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/daily_health_metrics.dart';
@@ -43,6 +44,7 @@ class HealthDataService {
       return true;
     } catch (e) {
       if (kDebugMode) print('Error initializing health data service: $e');
+
       return false;
     }
   }
@@ -121,6 +123,7 @@ class HealthDataService {
       );
     } catch (e) {
       if (kDebugMode) print('Error fetching daily health metrics: $e');
+
       return null;
     }
   }
@@ -158,6 +161,7 @@ class HealthDataService {
           .fold<int>(0, (sum, data) => sum + (data.value as num).toInt());
     } catch (e) {
       if (kDebugMode) print('Error getting step count: $e');
+
       return 0;
     }
   }
@@ -178,6 +182,7 @@ class HealthDataService {
       return totalMeters / 1000; // Convert to kilometers
     } catch (e) {
       if (kDebugMode) print('Error getting distance: $e');
+
       return 0.0;
     }
   }
@@ -199,6 +204,7 @@ class HealthDataService {
       return (totalCalories / 5).round();
     } catch (e) {
       if (kDebugMode) print('Error getting active minutes: $e');
+
       return 0;
     }
   }
@@ -217,6 +223,7 @@ class HealthDataService {
           .fold<int>(0, (sum, data) => sum + (data.value as num).toInt());
     } catch (e) {
       if (kDebugMode) print('Error getting flights climbed: $e');
+
       return 0;
     }
   }
@@ -295,6 +302,7 @@ class HealthDataService {
       );
     } catch (e) {
       if (kDebugMode) print('Error getting sleep data: $e');
+
       return null;
     }
   }
@@ -329,6 +337,7 @@ class HealthDataService {
       return workouts;
     } catch (e) {
       if (kDebugMode) print('Error getting workout sessions: $e');
+
       return [];
     }
   }
@@ -347,6 +356,7 @@ class HealthDataService {
       
     } catch (e) {
       if (kDebugMode) print('Error getting menstrual data: $e');
+
       return null;
     }
   }
@@ -413,6 +423,7 @@ class HealthDataService {
       return availableTypes;
     } catch (e) {
       if (kDebugMode) print('Error getting available types: $e');
+
       return [];
     }
   }

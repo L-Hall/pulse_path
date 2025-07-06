@@ -25,6 +25,7 @@ class HealthContextCards extends ConsumerWidget {
               ),
             ),
             if (!(healthSummary['hasData'] as bool? ?? true))
+
               TextButton.icon(
                 onPressed: () => _requestHealthPermissions(ref),
                 icon: const Icon(Icons.health_and_safety, size: 16),
@@ -49,6 +50,7 @@ class HealthContextCards extends ConsumerWidget {
 
   Widget _buildHealthCards(BuildContext context, Map<String, dynamic> healthSummary) {
     if (!(healthSummary['hasData'] as bool? ?? true)) {
+
       return _buildNoDataCards(context);
     }
 
@@ -62,6 +64,7 @@ class HealthContextCards extends ConsumerWidget {
             color: _getStepsColor((healthSummary['stepCount'] as int?) ?? 0),
             icon: Icons.directions_walk,
             subtitle: _getStepsDescription((healthSummary['stepCount'] as int?) ?? 0),
+
           ),
         ),
         const SizedBox(width: 12),
@@ -73,6 +76,7 @@ class HealthContextCards extends ConsumerWidget {
             color: _getActivityColor((healthSummary['activeMinutes'] as int?) ?? 0),
             icon: Icons.fitness_center,
             subtitle: _getActivityDescription((healthSummary['activeMinutes'] as int?) ?? 0),
+
           ),
         ),
         const SizedBox(width: 12),
@@ -84,6 +88,7 @@ class HealthContextCards extends ConsumerWidget {
             color: _getSleepColor((healthSummary['sleepHours'] as double?) ?? 0.0),
             icon: Icons.bedtime,
             subtitle: _getSleepDescription((healthSummary['sleepHours'] as double?) ?? 0.0),
+
           ),
         ),
       ],

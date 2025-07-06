@@ -18,6 +18,7 @@ class PemRiskIndicator extends ConsumerWidget {
     final consecutiveHighRiskDays = ref.watch(consecutiveHighRiskDaysProvider);
 
     if (!(pacingStatus['hasAssessment'] as bool? ?? false)) {
+
       return _buildNoAssessmentState(context);
     }
 
@@ -80,6 +81,7 @@ class PemRiskIndicator extends ConsumerWidget {
                   ),
                   child: Text(
                     '$energyEnvelope%',
+
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -122,6 +124,7 @@ class PemRiskIndicator extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Energy Envelope: $energyEnvelope%',
+
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),

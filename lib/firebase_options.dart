@@ -3,6 +3,7 @@
 
 // NOTE: All platforms configured with real Firebase project 'pulsepath-db381' credentials.
 // Web authentication should now work properly across all platforms.
+
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -85,5 +86,6 @@ class DefaultFirebaseOptions {
     projectId: 'pulsepath-db381',
     authDomain: 'pulsepath-db381.firebaseapp.com',
     storageBucket: 'pulsepath-db381.firebasestorage.app',
+
   );
 }

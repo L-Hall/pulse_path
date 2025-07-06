@@ -32,6 +32,7 @@ class AdaptivePacingRepository {
         conditionProfileJson: _encodeJson(assessment.conditionProfile.toJson()),
         personalSensitivity: Value(assessment.personalSensitivity),
         createdAt: Value(assessment.createdAt),
+
       ),
     );
   }
@@ -58,6 +59,7 @@ class AdaptivePacingRepository {
 
     final query = _database.select(_database.adaptivePacingAssessmentsTable)
       ..where((tbl) => tbl.date.isBiggerThanValue(cutoffDate))
+
       ..orderBy([(tbl) => OrderingTerm.desc(tbl.date)]);
 
     final results = await query.get();
@@ -89,6 +91,7 @@ class AdaptivePacingRepository {
         dataSourcesJson: Value(_encodeJson(metrics.dataSources)),
         createdAt: Value(metrics.createdAt),
         updatedAt: Value(metrics.updatedAt),
+
       ),
     );
   }
@@ -124,6 +127,7 @@ class AdaptivePacingRepository {
     
     await (_database.delete(_database.adaptivePacingAssessmentsTable)
       ..where((tbl) => tbl.date.isSmallerThanValue(cutoffDate))).go();
+
   }
 
   /// Delete old health metrics beyond retention period
@@ -132,6 +136,7 @@ class AdaptivePacingRepository {
     
     await (_database.delete(_database.dailyHealthMetricsTable)
       ..where((tbl) => tbl.date.isSmallerThanValue(cutoffDate))).go();
+
   }
 
   // Helper methods
