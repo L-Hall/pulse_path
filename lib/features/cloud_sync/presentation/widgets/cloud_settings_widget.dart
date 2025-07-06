@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../settings/presentation/providers/settings_providers.dart';
 import '../../../settings/domain/models/user_preferences.dart';
+import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 
 import '../providers/cloud_sync_providers.dart';
 import 'sync_status_widget.dart';
@@ -276,10 +280,182 @@ class CloudSettingsWidget extends ConsumerWidget {
     );
   }
 
-  void _exportData(BuildContext context, WidgetRef ref) {
-    // TODO: Implement data export functionality
+  void _exportData(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading dialog
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const AlertDialog(
+            title: Text('Exporting Data'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Preparing your HRV data for export...'),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Get HRV repository from dashboard providers
+      final repository = ref.read(simpleHrvRepositoryProvider);
+      
+      // Get all HRV readings
+      final readings = await repository.getTrendReadings(days: 365); // Get last year
+      final statistics = await repository.getStatistics(days: 365);
+      
+      // Create export data structure
+      final exportData = {
+        'export_info': {
+          'app_name': 'PulsePath',
+          'version': '1.0.0',
+          'export_date': DateTime.now().toIso8601String(),
+          'format_version': '1.0',
+        },
+        'user_profile': {
+          'readings_count': readings.length,
+          'date_range': {
+            'start': readings.isNotEmpty ? readings.last.timestamp.toIso8601String() : null,
+            'end': readings.isNotEmpty ? readings.first.timestamp.toIso8601String() : null,
+          },
+        },
+        'statistics': {
+          'avg_stress_score': statistics.averageStress,
+          'avg_recovery_score': statistics.averageRecovery,
+          'avg_energy_score': statistics.averageEnergy,
+          'total_readings': statistics.totalReadings,
+          'avg_rmssd': statistics.averageRmssd,
+          'avg_heart_rate': statistics.averageHeartRate,
+          'streak_days': statistics.streakDays,
+        },
+        'hrv_readings': readings.map((reading) => {
+          'id': reading.id,
+          'timestamp': reading.timestamp.toIso8601String(),
+          'duration_seconds': reading.durationSeconds,
+          'rr_intervals': reading.rrIntervals,
+          'metrics': reading.metrics.toJson(),
+          'scores': reading.scores.toJson(),
+          'notes': reading.notes,
+          'tags': reading.tags,
+          'is_synced': reading.isSynced,
+        }).toList(),
+      };
+
+      // Convert to JSON
+      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+      
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // Show export options dialog
+      if (context.mounted) {
+        _showExportOptionsDialog(context, jsonString);
+      }
+    } catch (error) {
+      // Close loading dialog if still open
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $error'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showExportOptionsDialog(BuildContext context, String jsonData) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Options'),
+        content: const Text('Choose how to export your HRV data:'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _copyToClipboard(context, jsonData);
+            },
+            child: const Text('Copy to Clipboard'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _saveToFile(context, jsonData);
+            },
+            child: const Text('Save to File'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _copyToClipboard(BuildContext context, String data) {
+    Clipboard.setData(ClipboardData(text: data));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Data export coming soon')),
+      const SnackBar(
+        content: Text('HRV data copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _saveToFile(BuildContext context, String data) {
+    // For web and mobile platforms, this would typically use a file picker
+    // For simplicity, we'll show instructions for now
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Save Export File'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Your data has been prepared for export.'),
+            const SizedBox(height: 16),
+            const Text('File name suggestion:'),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                'pulsepath_export_${DateTime.now().toIso8601String().split('T')[0]}.json',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('The data is available in your clipboard. Paste it into a text file and save with .json extension.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _copyToClipboard(context, data);
+            },
+            child: const Text('Copy & Close'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -300,15 +476,110 @@ class CloudSettingsWidget extends ConsumerWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement cloud data deletion
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cloud data deletion coming soon')),
-              );
+              _deleteCloudData(context, ref);
             },
             child: const Text('Delete'),
           ),
         ],
       ),
     );
+  }
+
+  void _deleteCloudData(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading dialog
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const AlertDialog(
+            title: Text('Deleting Cloud Data'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Removing all data from cloud storage...'),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Get the cloud sync service
+      final cloudSyncService = ref.read(cloudSyncServiceProvider);
+      if (cloudSyncService == null) {
+        throw Exception('Cloud sync not available');
+      }
+
+      // Get current user
+      final authState = ref.read(authStateChangesProvider);
+      final user = authState.value;
+      if (user == null || user.isAnonymous) {
+        throw Exception('User not authenticated');
+      }
+
+      // Delete all cloud data by clearing the user's Firestore collections
+      final firestore = FirebaseFirestore.instance;
+      
+      // Delete HRV readings collection
+      final hrvCollection = firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('hrv_readings');
+      
+      final hrvBatch = firestore.batch();
+      final hrvSnapshot = await hrvCollection.get();
+      for (final doc in hrvSnapshot.docs) {
+        hrvBatch.delete(doc.reference);
+      }
+      await hrvBatch.commit();
+
+      // Delete preferences collection
+      final prefsCollection = firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('preferences');
+          
+      final prefsBatch = firestore.batch();
+      final prefsSnapshot = await prefsCollection.get();
+      for (final doc in prefsSnapshot.docs) {
+        prefsBatch.delete(doc.reference);
+      }
+      await prefsBatch.commit();
+
+      // Delete user document
+      await firestore.collection('users').doc(user.uid).delete();
+
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cloud data deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (error) {
+      // Close loading dialog if still open
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete cloud data: $error'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../dashboard/data/repositories/hrv_repository_interface.dart';
 import '../../../dashboard/data/repositories/simple_hrv_repository.dart';
+import '../../../dashboard/data/repositories/database_hrv_repository.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../shared/models/hrv_reading.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
@@ -289,9 +290,22 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
 
   /// Gets all unsynced readings from local repository
   Future<List<HrvReading>> _getUnsyncedLocalReadings() async {
-    // This would need to be implemented in the local repository interface
-    // For now, return empty list
-    return [];
+    try {
+      // Try to cast to DatabaseHrvRepository to access getUnsyncedReadings method
+      if (_localRepository is DatabaseHrvRepository) {
+        final dbRepo = _localRepository as DatabaseHrvRepository;
+        return await dbRepo.getUnsyncedReadings();
+      }
+      
+      // Fallback: For SimpleHrvRepository, get all readings and filter
+      // (This is less efficient but ensures compatibility)
+      final allReadings = await _localRepository.getTrendReadings(days: 365);
+      return allReadings.where((reading) => !reading.isSynced).toList();
+    } catch (e) {
+      // Log error (could be enhanced with proper logging service if needed)
+      print('Failed to get unsynced readings: $e');
+      return [];
+    }
   }
 
   /// Migrates anonymous user data to authenticated cloud storage

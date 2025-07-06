@@ -41,6 +41,9 @@ class TestUtils {
   final MockDataService _mockDataService = MockDataService();
   late GetIt _testServiceLocator;
 
+  /// Get the mock data service for generating test data
+  MockDataService get mockDataService => _mockDataService;
+
   /// Initialize test environment with mock services
   Future<void> initializeTestEnvironment({
     bool useMockServices = true,

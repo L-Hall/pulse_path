@@ -52,14 +52,15 @@ void main() {
 
     group('saveReading', () {
       test('should save to local repository when user is anonymous', () async {
-        final reading = testUtils.createMockHrvReading();
+        final reading = testUtils.mockDataService.generateMockHrvReading();
         
         // Mock anonymous user
         when(() => mockAuthRepository.currentUser).thenReturn(
           const AppUser(
             uid: 'anonymous-uid',
-            email: null,
+            email: 'anonymous@example.com',
             isAnonymous: true,
+            isEmailVerified: false,
           ),
         );
 
@@ -71,7 +72,7 @@ void main() {
       });
 
       test('should save to both local and cloud when user is authenticated', () async {
-        final reading = testUtils.createMockHrvReading();
+        final reading = testUtils.mockDataService.generateMockHrvReading();
         
         // Mock authenticated user
         when(() => mockAuthRepository.currentUser).thenReturn(
@@ -79,6 +80,7 @@ void main() {
             uid: 'test-uid',
             email: 'test@example.com',
             isAnonymous: false,
+            isEmailVerified: true,
           ),
         );
 
@@ -115,14 +117,15 @@ void main() {
 
     group('getLatestReading', () {
       test('should return from local repository when user is anonymous', () async {
-        final expectedReading = testUtils.createMockHrvReading();
+        final expectedReading = testUtils.mockDataService.generateMockHrvReading();
         
         // Mock anonymous user
         when(() => mockAuthRepository.currentUser).thenReturn(
           const AppUser(
             uid: 'anonymous-uid',
-            email: null,
+            email: 'anonymous@example.com',
             isAnonymous: true,
+            isEmailVerified: false,
           ),
         );
 
@@ -137,7 +140,7 @@ void main() {
 
     group('error handling', () {
       test('should throw RepositoryException when cloud sync fails', () async {
-        final reading = testUtils.createMockHrvReading();
+        final reading = testUtils.mockDataService.generateMockHrvReading();
         
         // Mock authenticated user
         when(() => mockAuthRepository.currentUser).thenReturn(
@@ -145,6 +148,7 @@ void main() {
             uid: 'test-uid',
             email: 'test@example.com',
             isAnonymous: false,
+            isEmailVerified: true,
           ),
         );
 

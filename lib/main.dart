@@ -8,6 +8,7 @@ import 'core/theme/liquid_glass_theme.dart';
 import 'features/auth/presentation/providers/auth_providers.dart';
 import 'features/auth/presentation/pages/auth_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
+import 'features/cloud_sync/presentation/providers/cloud_sync_providers.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -65,6 +66,9 @@ class AuthGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    
+    // Initialize cloud sync manager to watch for settings changes
+    ref.watch(cloudSyncManagerProvider);
     
     return authState.when(
       initial: () => const Scaffold(

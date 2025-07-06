@@ -263,3 +263,13 @@ final adaptivePacingEnabledProvider = Provider<bool>((ref) {
     error: (_, __) => true,
   );
 });
+
+/// Provider for cloud sync enabled state
+final cloudSyncEnabledProvider = Provider<bool>((ref) {
+  final preferencesAsync = ref.watch(userPreferencesProvider);
+  return preferencesAsync.when(
+    data: (preferences) => preferences.enableCloudSync,
+    loading: () => true,
+    error: (_, __) => true,
+  );
+});

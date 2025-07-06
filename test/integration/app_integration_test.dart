@@ -32,7 +32,7 @@ void main() {
       expect(find.byType(MaterialApp), findsOneWidget);
       
       // Look for key dashboard elements
-      expect(find.text('PulsePath'), findsAtLeastOneWidget);
+      expect(find.text('PulsePath'), findsWidgets);
       
       // Wait for any async initialization to complete
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -44,7 +44,7 @@ void main() {
 
       // Look for score cards or data elements
       // Note: These depend on your actual UI implementation
-      expect(find.byType(Card), findsAtLeastOneWidget);
+      expect(find.byType(Card), findsWidgets);
       
       // Test navigation if present
       final navigationElements = find.byType(BottomNavigationBar);
@@ -115,7 +115,7 @@ void main() {
         await tester.pumpAndSettle();
         
         // Add small delay to simulate user behavior
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
       // Verify no memory leaks or crashes

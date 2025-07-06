@@ -10,6 +10,7 @@ import '../../../../core/exceptions/app_exceptions.dart';
 import '../repositories/cloud_sync_hrv_repository.dart';
 import '../../domain/models/sync_status.dart';
 import '../../domain/models/cloud_hrv_document.dart';
+import '../../../../shared/models/hrv_reading.dart' as models;
 
 /// Service for managing cloud synchronization operations
 /// 
@@ -213,22 +214,160 @@ class CloudSyncService {
 
   /// Handles create/update sync operations
   Future<void> _handleCreateUpdateOperation(SyncQueueData operation) async {
-    // Implementation depends on entity type
-    switch (operation.entityType) {
-      case 'hrv_reading':
-        // This would sync HRV readings
-        break;
-      case 'settings':
-        // This would sync user settings
-        break;
-      default:
-        throw SyncException('Unknown entity type: ${operation.entityType}');
+    try {
+      switch (operation.entityType) {
+        case 'hrv_reading':
+          await _syncHrvReading(operation);
+          break;
+        case 'settings':
+          await _syncUserSettings(operation);
+          break;
+        default:
+          throw SyncException('Unknown entity type: ${operation.entityType}');
+      }
+      
+      // Mark operation as completed by removing from queue
+      await (_database.delete(_database.syncQueue)
+          ..where((t) => t.id.equals(operation.id)))
+          .go();
+          
+    } catch (e) {
+      // Increment retry count
+      await (_database.update(_database.syncQueue)
+          ..where((t) => t.id.equals(operation.id)))
+          .write(SyncQueueCompanion(
+            retryCount: Value(operation.retryCount + 1),
+          ));
+      
+      // If max retries exceeded, remove from queue or mark as failed
+      if (operation.retryCount >= _maxRetryAttempts) {
+        await (_database.delete(_database.syncQueue)
+            ..where((t) => t.id.equals(operation.id)))
+            .go();
+        
+        if (kDebugMode) {
+          print('Sync operation failed after ${_maxRetryAttempts} attempts: ${operation.entityType}/${operation.entityId}');
+        }
+      }
+      
+      rethrow;
+    }
+  }
+
+  /// Syncs an HRV reading to cloud storage
+  Future<void> _syncHrvReading(SyncQueueData operation) async {
+    final user = _authRepository.currentUser;
+    if (user == null || user.isAnonymous) {
+      throw SyncException('Cannot sync HRV reading for anonymous user');
+    }
+
+    // Parse the HRV reading data from JSON
+    final Map<String, dynamic> readingData = 
+        jsonDecode(operation.dataJson) as Map<String, dynamic>;
+    
+    // Recreate HrvReading from the data
+    // Note: This assumes the JSON structure matches HrvReading.toJson()
+    // You may need to adjust based on your actual HrvReading serialization
+    
+    if (operation.action == 'create' || operation.action == 'update') {
+      // Use the cloud repository to save the reading
+      // The CloudSyncHrvRepository will handle encryption and cloud upload
+      await _cloudRepository.saveReading(
+        // Create HrvReading from stored JSON data
+        _parseHrvReadingFromJson(readingData)
+      );
+    }
+  }
+
+  /// Syncs user settings to cloud storage
+  Future<void> _syncUserSettings(SyncQueueData operation) async {
+    final user = _authRepository.currentUser;
+    if (user == null || user.isAnonymous) {
+      throw SyncException('Cannot sync settings for anonymous user');
+    }
+
+    // Parse the settings data from JSON
+    final Map<String, dynamic> settingsData = 
+        jsonDecode(operation.dataJson) as Map<String, dynamic>;
+    
+    // Sync to Firestore user preferences collection
+    if (operation.action == 'create' || operation.action == 'update') {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('preferences')
+          .doc(operation.entityId)
+          .set(settingsData, SetOptions(merge: true));
+    }
+  }
+
+  /// Parses HrvReading from JSON data stored in sync queue
+  models.HrvReading _parseHrvReadingFromJson(Map<String, dynamic> data) {
+    try {
+      return models.HrvReading.fromJson(data);
+    } catch (e) {
+      throw SyncException('Failed to parse HRV reading from sync queue data: $e');
     }
   }
 
   /// Handles delete sync operations
   Future<void> _handleDeleteOperation(SyncQueueData operation) async {
-    // Implementation for delete operations
+    try {
+      final user = _authRepository.currentUser;
+      if (user == null || user.isAnonymous) {
+        throw SyncException('Cannot sync delete operation for anonymous user');
+      }
+
+      switch (operation.entityType) {
+        case 'hrv_reading':
+          // Delete HRV reading from cloud
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('hrv_readings')
+              .doc(operation.entityId)
+              .delete();
+          break;
+          
+        case 'settings':
+          // Delete setting from cloud
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('preferences')
+              .doc(operation.entityId)
+              .delete();
+          break;
+          
+        default:
+          throw SyncException('Unknown entity type for delete: ${operation.entityType}');
+      }
+      
+      // Remove operation from queue after successful delete
+      await (_database.delete(_database.syncQueue)
+          ..where((t) => t.id.equals(operation.id)))
+          .go();
+          
+    } catch (e) {
+      // Handle retry logic similar to create/update operations
+      await (_database.update(_database.syncQueue)
+          ..where((t) => t.id.equals(operation.id)))
+          .write(SyncQueueCompanion(
+            retryCount: Value(operation.retryCount + 1),
+          ));
+      
+      if (operation.retryCount >= _maxRetryAttempts) {
+        await (_database.delete(_database.syncQueue)
+            ..where((t) => t.id.equals(operation.id)))
+            .go();
+        
+        if (kDebugMode) {
+          print('Delete operation failed after ${_maxRetryAttempts} attempts: ${operation.entityType}/${operation.entityId}');
+        }
+      }
+      
+      rethrow;
+    }
   }
 
   /// Handles network connectivity changes

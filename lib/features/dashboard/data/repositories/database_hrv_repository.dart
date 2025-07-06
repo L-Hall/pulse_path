@@ -293,6 +293,23 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
     }
   }
 
+  /// Get all unsynced readings for cloud synchronization
+  Future<List<models.HrvReading>> getUnsyncedReadings() async {
+    try {
+      final query = _database.select(_database.hrvReadings)
+        ..where((t) => t.isSynced.equals(false))
+        ..orderBy([(t) => OrderingTerm.desc(t.timestamp)]);
+
+      final results = await query.get();
+      return results.map(_mapToHrvReading).toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting unsynced readings from database: $e');
+      }
+      return [];
+    }
+  }
+
   /// Convert database row to HrvReading model
   models.HrvReading _mapToHrvReading(HrvReading row) {
     try {

@@ -1,9 +1,9 @@
   import 'package:flutter_test/flutter_test.dart';
-  import '../../lib/core/services/performance_monitoring_service.dart';
-  import '../../lib/core/services/error_handling_service.dart';
-  import '../../lib/core/services/logging_service.dart';
-  import '../../lib/features/hrv/domain/services/hrv_calculation_service.dart';
-  import '../../lib/features/hrv/domain/services/hrv_scoring_service.dart';
+  import 'package:pulse_path/core/services/performance_monitoring_service.dart';
+  import 'package:pulse_path/core/services/error_handling_service.dart';
+  import 'package:pulse_path/core/services/logging_service.dart';
+  import 'package:pulse_path/features/hrv/domain/services/hrv_calculation_service.dart';
+  import 'package:pulse_path/features/hrv/domain/services/hrv_scoring_service.dart';
   import '../support/test_utils.dart';
   import '../support/mock_data_service.dart';
 
@@ -335,3 +335,4 @@
       });
     });
   }
+}
