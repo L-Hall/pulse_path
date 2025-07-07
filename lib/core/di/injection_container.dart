@@ -207,16 +207,16 @@ Future<void> _initHrv() async {
   // Platform-specific repository selection (MOVED HERE to break circular dependency)
   if (kIsWeb) {
     debugPrint('📱 Web platform - registering SimpleHrvRepository');
-    // Use SimpleHrvRepository for web platform
-    sl.registerLazySingleton<HrvRepositoryInterface>(
-      () {
-        debugPrint('🔄 Creating SimpleHrvRepository with sample data...');
-        final repo = SimpleHrvRepository();
-        repo.addSampleData();
-        debugPrint('✅ SimpleHrvRepository created and sample data added');
-        return repo;
-      },
-    );
+    // Create single instance to share between registrations
+    final simpleRepo = SimpleHrvRepository();
+    simpleRepo.addSampleData();
+    debugPrint('✅ SimpleHrvRepository created and sample data added');
+    
+    // Register as HrvRepositoryInterface for general use
+    sl.registerLazySingleton<HrvRepositoryInterface>(() => simpleRepo);
+    
+    // Also register as SimpleHrvRepository for specific access (fixes clear sample data)
+    sl.registerLazySingleton<SimpleHrvRepository>(() => simpleRepo);
     
     // BLE HRV Integration service for web
     sl.registerLazySingleton<BleHrvIntegrationService>(
