@@ -71,7 +71,7 @@ dependencies:
   
   # Platform Services
   in_app_purchase: ^3.1.11
-  flutter_local_notifications: ^16.3.0
+  # flutter_local_notifications: ^16.3.0  # Temporarily disabled for Android build
   workmanager: ^0.5.1
   connectivity_plus: ^6.0.5
   path: ^1.8.3
