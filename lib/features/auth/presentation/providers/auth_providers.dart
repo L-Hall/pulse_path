@@ -28,6 +28,8 @@ class AuthNotifier extends _$AuthNotifier {
           if (user != null) {
             state = AuthState.authenticated(user);
           } else {
+            // Auto-sign in anonymously for better UX during development
+            Future.microtask(() => signInAnonymously());
             state = const AuthState.unauthenticated();
           }
         },

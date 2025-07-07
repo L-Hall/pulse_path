@@ -271,17 +271,28 @@ void showFirstLaunchDialogIfNeeded(BuildContext context, WidgetRef ref) async {
     final isFirstLaunch = await firstLaunchService.isFirstLaunch();
     
     if (isFirstLaunch && context.mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => FirstLaunchDialog(
-          onCompleted: () {
-            // Refresh dashboard data after choice is made
-            ref.invalidate(smartDashboardDataProvider);
-            ref.invalidate(dataSourceBreakdownProvider);
-          },
-        ),
-      );
+      // Auto-complete first launch with sample data for better development UX
+      debugPrint('🚀 First launch detected - auto-selecting sample data for development');
+      await firstLaunchService.saveDataChoice(UserDataChoice.sampleData);
+      await firstLaunchService.markFirstLaunchCompleted();
+      
+      // Refresh dashboard data after auto-choice
+      ref.invalidate(smartDashboardDataProvider);
+      ref.invalidate(dataSourceBreakdownProvider);
+      
+      // Optional: Show the dialog for users who want to see the welcome experience
+      // Comment out the lines below to disable the dialog entirely
+      // showDialog(
+      //   context: context,
+      //   barrierDismissible: false,
+      //   builder: (context) => FirstLaunchDialog(
+      //     onCompleted: () {
+      //       // Refresh dashboard data after choice is made
+      //       ref.invalidate(smartDashboardDataProvider);
+      //       ref.invalidate(dataSourceBreakdownProvider);
+      //     },
+      //   ),
+      // );
     }
   } catch (e) {
     debugPrint('Error checking first launch: $e');
