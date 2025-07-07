@@ -1483,6 +1483,8 @@ PODS:
   - sqlcipher_flutter_libs (0.0.1):
     - Flutter
     - SQLCipher (~> 4.9.0)
+  - watch_connectivity (0.0.1):
+    - Flutter
   - workmanager (0.0.1):
     - Flutter
 
@@ -1508,6 +1510,7 @@ DEPENDENCIES:
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - sqlcipher_flutter_libs (from `.symlinks/plugins/sqlcipher_flutter_libs/ios`)
+  - watch_connectivity (from `.symlinks/plugins/watch_connectivity/ios`)
   - workmanager (from `.symlinks/plugins/workmanager/ios`)
 
 SPEC REPOS:
@@ -1585,6 +1588,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   sqlcipher_flutter_libs:
     :path: ".symlinks/plugins/sqlcipher_flutter_libs/ios"
+  watch_connectivity:
+    :path: ".symlinks/plugins/watch_connectivity/ios"
   workmanager:
     :path: ".symlinks/plugins/workmanager/ios"
 
@@ -1639,8 +1644,9 @@ SPEC CHECKSUMS:
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SQLCipher: 31878d8ebd27e5c96db0b7cb695c96e9f8ad77da
   sqlcipher_flutter_libs: 1113000114375a0e57c0a367c586aceee78cd23b
+  watch_connectivity: 88e5bea25b473e66ef8d3f960954d154ed0356d6
   workmanager: 01be2de7f184bd15de93a1812936a2b7f42ef07e
 
-PODFILE CHECKSUM: bf5f1475457561ad2dce7a367e8b6a90a4b12d84
+PODFILE CHECKSUM: e783c1269afbb56a9c00b971b5d00bbc585c1669
 
 COCOAPODS: 1.16.2
