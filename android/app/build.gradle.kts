@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.pulse_path"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36  // Updated for Android SDK 36 compatibility
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -25,8 +25,8 @@ android {
         applicationId = "com.example.pulse_path"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 26
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 26  // Maintained for health plugin compatibility
+        targetSdk = 36  // Updated for Android SDK 36 support
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -45,5 +45,5 @@ flutter {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")  // Updated for flutter_local_notifications compatibility
 }
