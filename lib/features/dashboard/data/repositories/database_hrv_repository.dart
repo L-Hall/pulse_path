@@ -42,7 +42,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
 
   /// Get the most recent reading
   @override
-  Future<models.HrvReading?> getLatestReading() async {
+  Future<models.HrvReading?> getLatestReading({bool? realDataOnly}) async {
     try {
       final query = _database.select(_database.hrvReadings)
         ..orderBy([(t) => OrderingTerm.desc(t.timestamp)])
@@ -60,7 +60,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
 
   /// Get readings for the last N days
   @override
-  Future<List<models.HrvReading>> getTrendReadings({int days = 7}) async {
+  Future<List<models.HrvReading>> getTrendReadings({int days = 7, bool? realDataOnly}) async {
     try {
       final cutoff = DateTime.now().subtract(Duration(days: days));
       
@@ -80,7 +80,7 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
 
   /// Get basic statistics
   @override
-  Future<DashboardStatistics> getStatistics({int days = 30}) async {
+  Future<DashboardStatistics> getStatistics({int days = 30, bool? realDataOnly}) async {
     try {
       final readings = await getTrendReadings(days: days);
       
@@ -160,6 +160,87 @@ class DatabaseHrvRepository implements HrvRepositoryInterface {
     }
     
     return streak;
+  }
+
+  /// Get real data count to check if user has captured any real readings
+  @override
+  Future<int> getRealDataCount({int days = 30}) async {
+    try {
+      final cutoff = DateTime.now().subtract(Duration(days: days));
+      
+      final countQuery = _database.selectOnly(_database.hrvReadings)
+        ..addColumns([_database.hrvReadings.id.count()])
+        ..where(_database.hrvReadings.timestamp.isBiggerThanValue(cutoff) & 
+                _database.hrvReadings.id.isNotIn(List.generate(10, (i) => 'sample_$i')));
+      
+      final result = await countQuery.getSingle();
+      return result.read(_database.hrvReadings.id.count()) ?? 0;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting real data count from database: $e');
+      }
+      return 0;
+    }
+  }
+
+  /// Clear all sample data, keeping only real user data
+  @override
+  Future<void> clearSampleData() async {
+    try {
+      await (_database.delete(_database.hrvReadings)
+            ..where((t) => t.id.isIn(List.generate(10, (i) => 'sample_$i'))))
+          .go();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error clearing sample data from database: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Get data source breakdown for analytics
+  @override
+  Future<DataSourceBreakdown> getDataSourceBreakdown({int days = 30}) async {
+    try {
+      final cutoff = DateTime.now().subtract(Duration(days: days));
+      
+      // Get total count
+      final totalQuery = _database.selectOnly(_database.hrvReadings)
+        ..addColumns([_database.hrvReadings.id.count()])
+        ..where(_database.hrvReadings.timestamp.isBiggerThanValue(cutoff));
+      
+      final totalResult = await totalQuery.getSingle();
+      final totalReadings = totalResult.read(_database.hrvReadings.id.count()) ?? 0;
+      
+      // Get sample data count
+      final sampleQuery = _database.selectOnly(_database.hrvReadings)
+        ..addColumns([_database.hrvReadings.id.count()])
+        ..where(_database.hrvReadings.timestamp.isBiggerThanValue(cutoff) & 
+                _database.hrvReadings.id.isIn(List.generate(10, (i) => 'sample_$i')));
+      
+      final sampleResult = await sampleQuery.getSingle();
+      final sampleDataCount = sampleResult.read(_database.hrvReadings.id.count()) ?? 0;
+      
+      final realDataCount = totalReadings - sampleDataCount;
+      final realDataPercentage = totalReadings > 0 ? (realDataCount / totalReadings) * 100 : 0.0;
+      
+      return DataSourceBreakdown(
+        realDataCount: realDataCount,
+        sampleDataCount: sampleDataCount,
+        totalReadings: totalReadings,
+        realDataPercentage: realDataPercentage,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting data source breakdown from database: $e');
+      }
+      return const DataSourceBreakdown(
+        realDataCount: 0,
+        sampleDataCount: 0,
+        totalReadings: 0,
+        realDataPercentage: 0.0,
+      );
+    }
   }
 
   /// Add sample data for demo (only if database is empty)

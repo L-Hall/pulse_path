@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/user_preferences.dart';
 import '../providers/settings_providers.dart';
 import 'settings_section_card.dart';
+import '../../../dashboard/data/repositories/hrv_repository_interface.dart';
+import '../../../dashboard/data/repositories/simple_hrv_repository.dart';
+import '../../../dashboard/presentation/providers/dashboard_providers.dart';
+import '../../../../core/di/injection_container.dart';
 
 /// Data management section widget
 class DataManagementSection extends ConsumerWidget {
@@ -69,6 +74,14 @@ class DataManagementSection extends ConsumerWidget {
           ),
         
         const Divider(height: 1),
+        
+        // Clear sample data
+        ListTile(
+          leading: const Icon(Icons.science, color: Colors.orange),
+          title: const Text('Clear Sample Data', style: TextStyle(color: Colors.orange)),
+          subtitle: const Text('Remove demo data, keep your real readings'),
+          onTap: () => _showClearSampleDataDialog(context, ref),
+        ),
         
         // Clear all data
         ListTile(
@@ -176,6 +189,37 @@ class DataManagementSection extends ConsumerWidget {
     );
   }
 
+  void _showClearSampleDataDialog(BuildContext context, WidgetRef ref) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Sample Data'),
+        content: const Text(
+          'This will remove all demo/sample data from your dashboard, '
+          'keeping only your real HRV readings. This action cannot be undone.\n\n'
+          'Are you sure you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _clearSampleData(context, ref);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Clear Sample Data'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showClearDataDialog(BuildContext context, WidgetRef ref) {
     showDialog<void>(
       context: context,
@@ -206,6 +250,64 @@ class DataManagementSection extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _clearSampleData(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Clearing sample data...'),
+            ],
+          ),
+        ),
+      );
+
+      // Get repository and clear sample data
+      final repository = kIsWeb 
+          ? sl<SimpleHrvRepository>() 
+          : await sl.getAsync<HrvRepositoryInterface>();
+      await repository.clearSampleData();
+      
+      // Refresh dashboard providers
+      ref.invalidate(dashboardDataProvider);
+      ref.invalidate(dataSourceBreakdownProvider);
+      
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sample data cleared successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if open
+      if (context.mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to clear sample data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String _formatBackupDate(DateTime date) {

@@ -15,6 +15,7 @@ class HrvReading with _$HrvReading {
     String? notes,
     List<String>? tags,
     @Default(false) bool isSynced,
+    @Default(true) bool isRealData,
   }) = _HrvReading;
 
   factory HrvReading.fromJson(Map<String, dynamic> json) =>

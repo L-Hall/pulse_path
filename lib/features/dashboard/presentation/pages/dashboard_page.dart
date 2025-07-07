@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/dashboard_providers.dart';
 import '../widgets/score_card.dart';
 import '../widgets/hrv_trend_chart.dart';
 import '../widgets/enhanced_hrv_chart.dart';
+import '../widgets/data_source_indicator.dart';
+import '../widgets/first_launch_dialog.dart';
 import '../../../adaptive_pacing/presentation/widgets/health_context_cards.dart';
 import '../../../adaptive_pacing/presentation/widgets/pem_risk_indicator.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
@@ -20,6 +23,7 @@ import '../../../health_data/presentation/widgets/health_trend_chart.dart';
 import '../../../health_data/presentation/widgets/apple_watch_status_widget.dart';
 import '../../domain/models/dashboard_data.dart';
 import '../../data/repositories/simple_hrv_repository.dart';
+import '../../data/repositories/hrv_repository_interface.dart';
 import '../../data/services/data_export_service.dart';
 import '../../../../core/di/injection_container.dart';
 
@@ -29,7 +33,12 @@ class DashboardPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dashboardState = ref.watch(dashboardDataProvider);
+    final dashboardState = ref.watch(smartDashboardDataProvider);
+    
+    // Show first launch dialog if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showFirstLaunchDialogIfNeeded(context, ref);
+    });
     
     // Initialize BLE connection manager for auto-reconnect functionality
     ref.listen(bleConnectionManagerProvider, (previous, next) {
@@ -52,7 +61,10 @@ class DashboardPage extends ConsumerWidget {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () => ref.refresh(dashboardDataProvider),
+            onPressed: () {
+              ref.refresh(smartDashboardDataProvider);
+              ref.refresh(dataSourceBreakdownProvider);
+            },
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh data',
           ),
@@ -86,7 +98,8 @@ class DashboardPage extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.refresh(dashboardDataProvider);
+        ref.refresh(smartDashboardDataProvider);
+        ref.refresh(dataSourceBreakdownProvider);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -100,6 +113,12 @@ class DashboardPage extends ConsumerWidget {
             
             // Welcome section
             _buildWelcomeSection(context, data),
+            const SizedBox(height: 16),
+
+            // Data source indicator
+            DataSourceIndicator(
+              onTap: () => _showDataSourceDetails(context),
+            ),
             const SizedBox(height: 24),
 
             // Score cards
@@ -949,5 +968,175 @@ class DashboardPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _showDataSourceDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final dataSourceAsync = ref.watch(dataSourceBreakdownProvider);
+          
+          return AlertDialog(
+            title: const Text('Data Sources'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  dataSourceAsync.when(
+                    data: (breakdown) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DataSourceIndicator(isCompact: false),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Understanding Your Data:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDataExplanation(breakdown),
+                        const SizedBox(height: 16),
+                        if (breakdown.sampleDataCount > 0) ...[
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _showClearSampleDataDialog(context, ref);
+                            },
+                            icon: const Icon(Icons.clear_all),
+                            label: const Text('Clear Sample Data'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    loading: () => const CircularProgressIndicator(),
+                    error: (error, stack) => Text('Error loading data sources: $error'),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDataExplanation(DataSourceBreakdown breakdown) {
+    if (breakdown.hasOnlySampleData) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('• Sample Data: Pre-loaded realistic HRV readings for demonstration'),
+          Text('• Take your first reading to see real data from your body'),
+          Text('• Sample data helps you understand the app\'s features'),
+        ],
+      );
+    } else if (breakdown.hasAnyRealData && breakdown.sampleDataCount > 0) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('• Your Data: Real HRV readings captured from your device'),
+          Text('• Sample Data: Demo readings showing app capabilities'),
+          Text('• Consider clearing sample data to see only your readings'),
+        ],
+      );
+    } else {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('• Your Data: Real HRV readings captured from your device'),
+          Text('• All dashboard data reflects your actual physiological state'),
+          Text('• Great job building your HRV history!'),
+        ],
+      );
+    }
+  }
+
+  void _showClearSampleDataDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Sample Data'),
+        content: const Text(
+          'This will remove all sample/demo data from your dashboard, '
+          'showing only your real HRV readings. This action cannot be undone.\n\n'
+          'Are you sure you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _clearSampleData(context, ref);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Clear Sample Data'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _clearSampleData(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Clearing sample data...'),
+            ],
+          ),
+        ),
+      );
+
+      // Get repository and clear sample data
+      final repository = kIsWeb ? sl<SimpleHrvRepository>() : await sl.getAsync<HrvRepositoryInterface>();
+      await repository.clearSampleData();
+      
+      // Refresh providers
+      ref.invalidate(smartDashboardDataProvider);
+      ref.invalidate(dataSourceBreakdownProvider);
+      
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sample data cleared successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      // Close loading dialog if open
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to clear sample data: $e')),
+      );
+    }
   }
 }

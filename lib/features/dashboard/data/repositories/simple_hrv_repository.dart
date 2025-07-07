@@ -17,25 +17,41 @@ class SimpleHrvRepository implements HrvRepositoryInterface {
 
   /// Get the most recent reading
   @override
-  Future<HrvReading?> getLatestReading() async {
+  Future<HrvReading?> getLatestReading({bool? realDataOnly}) async {
     if (_readings.isEmpty) return null;
-    _readings.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    return _readings.first;
+    
+    var filteredReadings = _readings;
+    if (realDataOnly == true) {
+      filteredReadings = _readings.where((r) => r.isRealData).toList();
+    } else if (realDataOnly == false) {
+      filteredReadings = _readings.where((r) => !r.isRealData).toList();
+    }
+    
+    if (filteredReadings.isEmpty) return null;
+    filteredReadings.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return filteredReadings.first;
   }
 
   /// Get readings for the last N days
   @override
-  Future<List<HrvReading>> getTrendReadings({int days = 7}) async {
+  Future<List<HrvReading>> getTrendReadings({int days = 7, bool? realDataOnly}) async {
     final cutoff = DateTime.now().subtract(Duration(days: days));
-    final filtered = _readings.where((r) => r.timestamp.isAfter(cutoff)).toList();
+    var filtered = _readings.where((r) => r.timestamp.isAfter(cutoff)).toList();
+    
+    if (realDataOnly == true) {
+      filtered = filtered.where((r) => r.isRealData).toList();
+    } else if (realDataOnly == false) {
+      filtered = filtered.where((r) => !r.isRealData).toList();
+    }
+    
     filtered.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     return filtered;
   }
 
   /// Get basic statistics
   @override
-  Future<DashboardStatistics> getStatistics({int days = 30}) async {
-    final readings = await getTrendReadings(days: days);
+  Future<DashboardStatistics> getStatistics({int days = 30, bool? realDataOnly}) async {
+    final readings = await getTrendReadings(days: days, realDataOnly: realDataOnly);
     
     if (readings.isEmpty) {
       return const DashboardStatistics(
@@ -142,10 +158,44 @@ class SimpleHrvRepository implements HrvRepositoryInterface {
         ),
         notes: 'Sample reading $i',
         tags: ['demo', 'sample'],
+        isRealData: false,
       );
       
       await saveReading(reading);
     }
+  }
+
+  /// Get real data count to check if user has captured any real readings
+  @override
+  Future<int> getRealDataCount({int days = 30}) async {
+    final realReadings = await getTrendReadings(days: days, realDataOnly: true);
+    return realReadings.length;
+  }
+
+  /// Clear all sample data, keeping only real user data
+  @override
+  Future<void> clearSampleData() async {
+    _readings.removeWhere((reading) => !reading.isRealData);
+  }
+
+  /// Get data source breakdown for analytics
+  @override
+  Future<DataSourceBreakdown> getDataSourceBreakdown({int days = 30}) async {
+    final allReadings = await getTrendReadings(days: days);
+    final realReadings = allReadings.where((r) => r.isRealData).toList();
+    final sampleReadings = allReadings.where((r) => !r.isRealData).toList();
+    
+    final totalCount = allReadings.length;
+    final realCount = realReadings.length;
+    final sampleCount = sampleReadings.length;
+    final realPercentage = totalCount > 0 ? (realCount / totalCount) * 100 : 0.0;
+
+    return DataSourceBreakdown(
+      realDataCount: realCount,
+      sampleDataCount: sampleCount,
+      totalReadings: totalCount,
+      realDataPercentage: realPercentage,
+    );
   }
 }
 

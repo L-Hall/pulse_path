@@ -3,14 +3,16 @@ import '../../features/dashboard/data/repositories/hrv_repository_interface.dart
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
 import '../security/database_key_manager.dart';
+import 'first_launch_service.dart';
 
 /// Enhanced data migration service with secure key management
 /// 
 /// Handles migration between repositories with proper encryption key setup
 class EnhancedDataMigrationService {
   final DatabaseKeyManager _keyManager;
+  final FirstLaunchService? _firstLaunchService;
   
-  EnhancedDataMigrationService(this._keyManager);
+  EnhancedDataMigrationService(this._keyManager, [this._firstLaunchService]);
 
   /// Migrate data from SimpleHrvRepository to DatabaseHrvRepository with secure key setup
   Future<MigrationResult> migrateToSecureDatabase({
@@ -247,14 +249,27 @@ class EnhancedDataMigrationService {
     }
   }
 
-  /// Initialize repository with sample data if empty
+  /// Initialize repository with sample data if empty, respecting user choice
   Future<bool> initializeWithSampleDataIfEmpty(HrvRepositoryInterface repository) async {
     try {
       final stats = await repository.getStatistics(days: 1);
       if (stats.totalReadings == 0) {
+        // Check if we have a first launch service and user preference
+        if (_firstLaunchService != null) {
+          final userChoice = await _firstLaunchService!.getDataChoice();
+          if (userChoice != null) {
+            await _firstLaunchService!.initializeBasedOnChoice(userChoice, repository);
+            if (kDebugMode) {
+              print('✅ Initialized repository based on user choice: $userChoice');
+            }
+            return userChoice == UserDataChoice.sampleData;
+          }
+        }
+        
+        // Fallback: add sample data if no user choice is available
         await repository.addSampleData();
         if (kDebugMode) {
-          print('✅ Added sample data to empty repository');
+          print('✅ Added sample data to empty repository (fallback)');
         }
         return true;
       }

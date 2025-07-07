@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/apple_watch_providers.dart';
 import '../../models/apple_watch_data.dart';
+import '../../services/watch_connectivity_service.dart';
 import '../../../../core/theme/liquid_glass_theme.dart';
 
 /// Compact Apple Watch status widget for dashboard
@@ -305,7 +306,7 @@ class AppleWatchStatusWidget extends ConsumerWidget {
         Row(
           children: [
             Icon(
-              Icons.features,
+              Icons.settings,
               size: 16,
               color: theme.colorScheme.onSurfaceVariant,
             ),

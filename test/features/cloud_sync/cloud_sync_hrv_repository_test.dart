@@ -98,8 +98,8 @@ void main() {
         final mockCollection = MockCollectionReference();
         final mockDoc = MockDocumentReference();
         when(() => mockFirestore.collection('users')).thenReturn(mockCollection as CollectionReference<Map<String, dynamic>>);
-        when(() => mockCollection.doc(any())).thenReturn(mockCollection as CollectionReference<Map<String, dynamic>>);
-        when(() => mockCollection.collection('hrv_readings')).thenReturn(mockCollection);
+        when(() => mockCollection.doc(any())).thenReturn(mockDoc as DocumentReference<Map<String, dynamic>>);
+        when(() => mockDoc.collection('hrv_readings')).thenReturn(mockCollection as CollectionReference<Map<String, dynamic>>);
         when(() => mockCollection.doc(reading.id)).thenReturn(mockDoc);
         when(() => mockDoc.set(any())).thenAnswer((_) async {});
 

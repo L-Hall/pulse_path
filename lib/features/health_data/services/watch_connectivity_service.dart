@@ -79,8 +79,8 @@ class WatchConnectivityService {
       // Get initial status
       await _updateConnectivityStatus();
 
-      // Activate the session
-      await _watchConnectivity!.activateSession();
+      // Note: No explicit session activation needed in this package version
+      // Session is automatically activated when WatchConnectivity() is instantiated
 
       _isInitialized = true;
 
@@ -114,7 +114,7 @@ class WatchConnectivityService {
       );
 
       // Listen for application context updates
-      _watchConnectivity!.applicationContextStream.listen(
+      _watchConnectivity!.contextStream.listen(
         _handleApplicationContextUpdate,
         onError: (error) {
           if (kDebugMode) {
@@ -140,7 +140,8 @@ class WatchConnectivityService {
     try {
       final isSupported = await _watchConnectivity!.isSupported;
       final isPaired = await _watchConnectivity!.isPaired;
-      final isWatchAppInstalled = await _watchConnectivity!.isWatchAppInstalled;
+      // Note: isWatchAppInstalled not available in current package version
+      final isWatchAppInstalled = false; // Default to false for compatibility
       final isReachable = await _watchConnectivity!.isReachable;
 
       final newStatus = WatchConnectivityStatus(
@@ -340,13 +341,15 @@ class WatchConnectivityService {
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
 
-      final response = await _watchConnectivity!.sendMessage(request);
+      // Send message (returns void in current package version)
+      _watchConnectivity!.sendMessage(request);
       
       if (kDebugMode) {
-        debugPrint('📥 Immediate data response: $response');
+        debugPrint('📤 Immediate data request sent');
       }
 
-      return response;
+      // Note: Current package version doesn't support response from sendMessage
+      return null;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ Error requesting immediate data: $e');
@@ -370,8 +373,8 @@ class WatchConnectivityService {
         debugPrint('📁 File transfer to Watch: $fileName (${jsonData.length} bytes)');
       }
 
-      // For now, use user info transfer for small data
-      await _watchConnectivity!.transferUserInfo({
+      // Use updateApplicationContext for data transfer (transferUserInfo not available)
+      await _watchConnectivity!.updateApplicationContext({
         'fileName': fileName,
         'data': data,
         'timestamp': DateTime.now().millisecondsSinceEpoch,

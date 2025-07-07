@@ -35,6 +35,7 @@ import '../services/enhanced_data_migration_service.dart';
 import '../services/error_handling_service.dart';
 import '../services/logging_service.dart';
 import '../services/performance_monitoring_service.dart';
+import '../services/first_launch_service.dart';
 
 final sl = GetIt.instance;
 
@@ -104,6 +105,11 @@ Future<void> _initCore() async {
     () => DatabaseFactory(sl<DatabaseKeyManager>()),
   );
   
+  // First launch service for user onboarding
+  sl.registerLazySingleton<FirstLaunchService>(
+    () => FirstLaunchService(sl<FlutterSecureStorage>()),
+  );
+  
   // Database instance with proper encryption
   sl.registerLazySingletonAsync<AppDatabase>(
     () async {
@@ -152,7 +158,7 @@ Future<void> _initHrv() async {
   );
   
   sl.registerLazySingleton<EnhancedDataMigrationService>(
-    () => EnhancedDataMigrationService(sl<DatabaseKeyManager>()),
+    () => EnhancedDataMigrationService(sl<DatabaseKeyManager>(), sl<FirstLaunchService>()),
   );
   
   // HRV calculation service - singleton since it's stateless

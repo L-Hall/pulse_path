@@ -66,7 +66,7 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
   }
 
   @override
-  Future<HrvReading?> getLatestReading() async {
+  Future<HrvReading?> getLatestReading({bool? realDataOnly}) async {
     try {
       final user = _authRepository.currentUser;
       
@@ -83,14 +83,14 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
       }
       
       // Fall back to local repository
-      return await _localRepository.getLatestReading();
+      return await _localRepository.getLatestReading(realDataOnly: realDataOnly);
     } catch (e) {
       throw RepositoryException('Failed to get latest reading: $e');
     }
   }
 
   @override
-  Future<List<HrvReading>> getTrendReadings({int days = 7}) async {
+  Future<List<HrvReading>> getTrendReadings({int days = 7, bool? realDataOnly}) async {
     try {
       final user = _authRepository.currentUser;
       
@@ -104,14 +104,14 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
       }
       
       // Return from local repository (which now has synced data)
-      return await _localRepository.getTrendReadings(days: days);
+      return await _localRepository.getTrendReadings(days: days, realDataOnly: realDataOnly);
     } catch (e) {
       throw RepositoryException('Failed to get trend readings: $e');
     }
   }
 
   @override
-  Future<DashboardStatistics> getStatistics({int days = 30}) async {
+  Future<DashboardStatistics> getStatistics({int days = 30, bool? realDataOnly}) async {
     try {
       final user = _authRepository.currentUser;
       
@@ -125,7 +125,7 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
       }
       
       // Return statistics from local repository
-      return await _localRepository.getStatistics(days: days);
+      return await _localRepository.getStatistics(days: days, realDataOnly: realDataOnly);
     } catch (e) {
       throw RepositoryException('Failed to get statistics: $e');
     }
@@ -135,6 +135,36 @@ class CloudSyncHrvRepository implements HrvRepositoryInterface {
   Future<void> addSampleData() async {
     // Sample data is only added locally, not synced to cloud
     await _localRepository.addSampleData();
+  }
+
+  @override
+  Future<int> getRealDataCount({int days = 30}) async {
+    try {
+      // Delegate to local repository
+      return await _localRepository.getRealDataCount(days: days);
+    } catch (e) {
+      throw RepositoryException('Failed to get real data count: $e');
+    }
+  }
+
+  @override
+  Future<void> clearSampleData() async {
+    try {
+      // Sample data is only stored locally, so delegate to local repository
+      await _localRepository.clearSampleData();
+    } catch (e) {
+      throw RepositoryException('Failed to clear sample data: $e');
+    }
+  }
+
+  @override
+  Future<DataSourceBreakdown> getDataSourceBreakdown({int days = 30}) async {
+    try {
+      // Delegate to local repository for analytics
+      return await _localRepository.getDataSourceBreakdown(days: days);
+    } catch (e) {
+      throw RepositoryException('Failed to get data source breakdown: $e');
+    }
   }
 
   /// Syncs a single HRV reading to the cloud with encryption

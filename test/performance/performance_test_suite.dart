@@ -1,15 +1,15 @@
-  import 'package:flutter_test/flutter_test.dart';
-  import 'package:pulse_path/core/services/performance_monitoring_service.dart';
-  import 'package:pulse_path/core/services/error_handling_service.dart';
-  import 'package:pulse_path/core/services/logging_service.dart';
-  import 'package:pulse_path/features/hrv/domain/services/hrv_calculation_service.dart';
-  import 'package:pulse_path/features/hrv/domain/services/hrv_scoring_service.dart';
-  import '../support/test_utils.dart';
-  import '../support/mock_data_service.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:pulse_path/core/services/performance_monitoring_service.dart';
+import 'package:pulse_path/core/services/error_handling_service.dart';
+import 'package:pulse_path/core/services/logging_service.dart';
+import 'package:pulse_path/features/hrv/domain/services/hrv_calculation_service.dart';
+import 'package:pulse_path/features/hrv/domain/services/hrv_scoring_service.dart';
+import '../support/test_utils.dart';
+import '../support/mock_data_service.dart';
 
-  /// Comprehensive performance test suite for PulsePath core services
-  /// Ensures all critical operations meet performance benchmarks
-  void main() {
+/// Comprehensive performance test suite for PulsePath core services
+/// Ensures all critical operations meet performance benchmarks
+void main() {
     group('Performance Test Suite', () {
       late TestUtils testUtils;
       late MockDataService mockDataService;
@@ -142,6 +142,8 @@
             const Duration(milliseconds: 500),
             operationName: 'Batch scoring (${readings.length} readings)',
           );
+        });
+      });
 
       group('Service Initialization Performance', () {
         test('Error handling service initialization', () async {
@@ -334,5 +336,4 @@
         });
       });
     });
-  }
 }

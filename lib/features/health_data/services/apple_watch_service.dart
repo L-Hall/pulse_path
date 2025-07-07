@@ -13,10 +13,10 @@ import '../models/health_data_point.dart' as models;
 /// - Background health data delivery
 /// - Watch-specific HRV metrics
 /// - Device identification and metadata
-class AppleWatchService extends HealthDataService {
+class AppleWatchService {
   static final AppleWatchService _instance = AppleWatchService._internal();
   factory AppleWatchService() => _instance;
-  AppleWatchService._internal() : super();
+  AppleWatchService._internal();
 
   // Stream controllers for real-time data
   final StreamController<AppleWatchReading> _readingController = 
@@ -64,17 +64,17 @@ class AppleWatchService extends HealthDataService {
     HealthDataType.SLEEP_AWAKE,
     HealthDataType.SLEEP_IN_BED,
     
-    // Additional metrics available from Apple Watch
-    HealthDataType.ELECTRODERMAL_ACTIVITY, // Apple Watch Series 4+
-    HealthDataType.VO2_MAX, // Apple Watch Series 3+
+    // Additional metrics available from Apple Watch  
+    // Note: ELECTRODERMAL_ACTIVITY and VO2_MAX not available in health package v10.2.0
+    // These will be added when package supports them
   ];
 
-  /// Initialize Apple Watch service with enhanced permissions
-  @override
+  /// Initialize Apple Watch service with enhanced permissions  
   Future<bool> initialize() async {
     try {
-      // Call parent initialization first
-      final baseInitialized = await super.initialize();
+      // Initialize Health service instance
+      final healthService = HealthDataService();
+      final baseInitialized = await healthService.initialize();
       if (!baseInitialized) {
         return false;
       }
@@ -152,7 +152,7 @@ class AppleWatchService extends HealthDataService {
 
       // Check if any recent data comes from Apple Watch
       final watchData = recentData.where((point) => 
-        point.sourcePlatform == SourcePlatform.appleHealth &&
+        point.sourcePlatform == 'appleHealth' &&
         (point.sourceId.contains('Watch') || point.sourceId.contains('com.apple.health'))
       ).toList();
 
@@ -261,7 +261,7 @@ class AppleWatchService extends HealthDataService {
 
       // Filter for Apple Watch data only
       final watchData = healthData.where((point) => 
-        point.sourcePlatform == SourcePlatform.appleHealth &&
+        point.sourcePlatform == 'appleHealth' &&
         _isAppleWatchSource(point.sourceId)
       ).toList();
 
@@ -412,12 +412,10 @@ class AppleWatchService extends HealthDataService {
     return null;
   }
 
-  @override
   void dispose() {
     _backgroundSyncTimer?.cancel();
     _readingController.close();
     _statusController.close();
     _streamController.close();
-    super.dispose();
   }
 }
