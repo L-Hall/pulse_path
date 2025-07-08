@@ -1,37 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../data/repositories/settings_repository.dart';
 import '../../domain/models/user_preferences.dart';
 import '../../../../core/di/injection_container.dart';
 
 /// Provider for the settings repository
-final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  return sl<SettingsRepository>();
+final settingsRepositoryProvider = FutureProvider<SettingsRepository>((ref) async {
+  try {
+    return await sl.getAsync<SettingsRepository>();
+  } catch (e) {
+    // Fallback if settings repository is not available
+    final repository = SettingsRepository(sl<FlutterSecureStorage>());
+    await repository.initialize();
+    return repository;
+  }
 });
 
 /// Provider for user preferences
 final userPreferencesProvider = FutureProvider<UserPreferences>((ref) async {
-  final repository = ref.watch(settingsRepositoryProvider);
+  final repository = await ref.watch(settingsRepositoryProvider.future);
   return await repository.getUserPreferences();
 });
 
 /// Provider for updating user preferences
 final userPreferencesNotifierProvider = StateNotifierProvider<UserPreferencesNotifier, AsyncValue<UserPreferences>>((ref) {
-  final repository = ref.watch(settingsRepositoryProvider);
-  return UserPreferencesNotifier(repository);
+  // We need to handle the async repository in the notifier itself
+  return UserPreferencesNotifier(ref);
 });
 
 /// State notifier for managing user preferences
 class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>> {
-  final SettingsRepository _repository;
+  final Ref _ref;
+  SettingsRepository? _repository;
 
-  UserPreferencesNotifier(this._repository) : super(const AsyncValue.loading()) {
-    _loadPreferences();
+  UserPreferencesNotifier(this._ref) : super(const AsyncValue.loading()) {
+    _initializeAndLoad();
+  }
+
+  /// Initialize repository and load preferences
+  Future<void> _initializeAndLoad() async {
+    try {
+      _repository = await _ref.read(settingsRepositoryProvider.future);
+      await _loadPreferences();
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
   }
 
   /// Load initial preferences
   Future<void> _loadPreferences() async {
     try {
-      final preferences = await _repository.getUserPreferences();
+      if (_repository == null) return;
+      final preferences = await _repository!.getUserPreferences();
       state = AsyncValue.data(preferences);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -41,7 +61,8 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>>
   /// Update user preferences
   Future<void> updatePreferences(UserPreferences preferences) async {
     try {
-      await _repository.saveUserPreferences(preferences);
+      if (_repository == null) return;
+      await _repository!.saveUserPreferences(preferences);
       state = AsyncValue.data(preferences);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -51,7 +72,8 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>>
   /// Update a specific preference field
   Future<void> updatePreference<T>(String key, T value) async {
     try {
-      await _repository.updatePreference(key, value);
+      if (_repository == null) return;
+      await _repository!.updatePreference(key, value);
       await _loadPreferences(); // Reload to get updated state
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -61,7 +83,8 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>>
   /// Reset to default preferences
   Future<void> resetToDefaults() async {
     try {
-      await _repository.resetToDefaults();
+      if (_repository == null) return;
+      await _repository!.resetToDefaults();
       await _loadPreferences();
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -70,13 +93,15 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>>
 
   /// Export preferences as JSON
   Future<String> exportPreferences() async {
-    return await _repository.exportPreferences();
+    if (_repository == null) throw Exception('Settings repository not initialized');
+    return await _repository!.exportPreferences();
   }
 
   /// Import preferences from JSON
   Future<void> importPreferences(String jsonString) async {
     try {
-      await _repository.importPreferences(jsonString);
+      if (_repository == null) return;
+      await _repository!.importPreferences(jsonString);
       await _loadPreferences();
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -230,8 +255,13 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<UserPreferences>>
 
 /// Provider for checking if onboarding is complete
 final isOnboardingCompleteProvider = FutureProvider<bool>((ref) async {
-  final repository = ref.watch(settingsRepositoryProvider);
-  return await repository.isOnboardingComplete();
+  try {
+    final repository = await ref.watch(settingsRepositoryProvider.future);
+    return await repository.isOnboardingComplete();
+  } catch (e) {
+    // Return false if settings repository is not available
+    return false;
+  }
 });
 
 /// Provider for theme mode

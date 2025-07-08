@@ -67,9 +67,6 @@ class AuthGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
     
-    // Initialize cloud sync manager to watch for settings changes
-    ref.watch(cloudSyncManagerProvider);
-    
     return authState.when(
       initial: () => const Scaffold(
         body: Center(child: CircularProgressIndicator()),

@@ -20,6 +20,7 @@ import '../../features/health_data/services/apple_watch_service.dart';
 import '../../features/health_data/services/watch_connectivity_service.dart';
 import '../../features/subscription/domain/services/purchase_service.dart';
 import '../../features/subscription/domain/services/feature_gating_service.dart';
+import '../../features/settings/data/repositories/settings_repository.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -332,7 +333,20 @@ Future<void> _initHealthData() async {
 }
 
 Future<void> _initSettings() async {
-  // Settings feature dependencies will be registered here
+  debugPrint('🔄 Initializing settings dependencies...');
+  
+  // Settings repository - requires secure storage for preferences
+  sl.registerLazySingletonAsync<SettingsRepository>(
+    () async {
+      debugPrint('🔄 Creating SettingsRepository...');
+      final repository = SettingsRepository(sl<FlutterSecureStorage>());
+      await repository.initialize();
+      debugPrint('✅ SettingsRepository initialized');
+      return repository;
+    },
+  );
+  
+  debugPrint('✅ Settings dependencies initialized');
 }
 
 Future<void> _initSubscription() async {

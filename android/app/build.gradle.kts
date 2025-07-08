@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pulse_path"
+    namespace = "com.pulsepath.example"  // Updated to match Firebase configuration
     compileSdk = 36  // Updated for Android SDK 36 compatibility
     ndkVersion = "27.0.12077973"
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.pulse_path"
+        applicationId = "com.pulsepath.example"  // Updated to match Firebase configuration
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26  // Maintained for health plugin compatibility

@@ -1,4 +1,4 @@
-package com.example.pulse_path
+package com.pulsepath.example
 
 import io.flutter.embedding.android.FlutterActivity
 

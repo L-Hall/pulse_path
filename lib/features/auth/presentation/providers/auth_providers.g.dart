@@ -6,6 +6,27 @@ part of 'auth_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$firebaseInitializationStatusHash() =>
+    r'fc5214777eae774cc2f0346d5ec6aba921022824';
+
+/// Provider to track Firebase initialization status
+///
+/// Copied from [firebaseInitializationStatus].
+@ProviderFor(firebaseInitializationStatus)
+final firebaseInitializationStatusProvider =
+    AutoDisposeStreamProvider<bool>.internal(
+  firebaseInitializationStatus,
+  name: r'firebaseInitializationStatusProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$firebaseInitializationStatusHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FirebaseInitializationStatusRef = AutoDisposeStreamProviderRef<bool>;
 String _$authRepositoryHash() => r'22f0b4b198bb3b96967bde140f2ff7a7c7061c8a';
 
 /// See also [authRepository].
@@ -89,7 +110,7 @@ final isAnonymousProvider = AutoDisposeProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef IsAnonymousRef = AutoDisposeProviderRef<bool>;
-String _$authNotifierHash() => r'64634be0b14cc10006f22c3ed1d590ef17efe605';
+String _$authNotifierHash() => r'5cd82dbcb92afaa856c540c5fb87b2d3d2faca5f';
 
 /// See also [AuthNotifier].
 @ProviderFor(AuthNotifier)
