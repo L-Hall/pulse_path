@@ -94,8 +94,9 @@ class AuthNotifier extends _$AuthNotifier {
         }
       }
       
-      debugPrint('✅ Firebase is initialized, proceeding with auto sign-in');
-      await signInAnonymously();
+      debugPrint('✅ Firebase is initialized, user can now sign in');
+      // Removed auto sign-in to allow users to access login/signup forms
+      // await signInAnonymously();
     } catch (e) {
       debugPrint('❌ Auto sign-in check failed: $e');
       // Stay in unauthenticated state rather than error state
