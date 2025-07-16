@@ -26,6 +26,7 @@ import '../../data/repositories/simple_hrv_repository.dart';
 import '../../data/repositories/hrv_repository_interface.dart';
 import '../../data/services/data_export_service.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../analytics/presentation/widgets/insights_card.dart';
 
 /// Main dashboard page displaying HRV scores and trends
 class DashboardPage extends ConsumerWidget {
@@ -157,6 +158,10 @@ class DashboardPage extends ConsumerWidget {
 
             // Quick stats
             _buildQuickStats(context, data.statistics),
+            const SizedBox(height: 32),
+            
+            // Weekly insights
+            const InsightsCard(),
             const SizedBox(height: 100), // Extra space for FAB
           ],
         ),

@@ -21,6 +21,9 @@ import '../../features/health_data/services/watch_connectivity_service.dart';
 import '../../features/subscription/domain/services/purchase_service.dart';
 import '../../features/subscription/domain/services/feature_gating_service.dart';
 import '../../features/settings/data/repositories/settings_repository.dart';
+import '../../features/analytics/domain/services/advanced_statistics_service.dart';
+import '../../features/analytics/domain/services/pattern_recognition_service.dart';
+import '../../features/analytics/domain/services/insights_engine.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository.dart';
 import '../../features/dashboard/data/repositories/simple_hrv_repository.dart';
 import '../../features/dashboard/data/repositories/database_hrv_repository.dart';
@@ -61,6 +64,7 @@ Future<void> initializeDependencies() async {
     
     // Dashboard features (depends on HRV repository)
     await _initDashboard();
+    await _initAnalytics();
     await _initSettings();
     await _initSync();
     
@@ -303,6 +307,29 @@ Future<void> _initDashboard() async {
   debugPrint('✅ Dashboard dependencies initialized');
 }
 
+Future<void> _initAnalytics() async {
+  debugPrint('🔄 Initializing analytics dependencies...');
+  
+  // Advanced statistics service - singleton for statistical calculations
+  sl.registerLazySingleton<AdvancedStatisticsService>(
+    () => const AdvancedStatisticsService(),
+  );
+  
+  // Pattern recognition service - singleton for pattern analysis
+  sl.registerLazySingleton<PatternRecognitionService>(
+    () => const PatternRecognitionService(),
+  );
+  
+  // Insights engine - combines statistics and patterns for comprehensive insights
+  sl.registerLazySingleton<InsightsEngine>(
+    () => InsightsEngine(
+      statisticsService: sl<AdvancedStatisticsService>(),
+      patternService: sl<PatternRecognitionService>(),
+    ),
+  );
+  
+  debugPrint('✅ Analytics dependencies initialized');
+}
 
 Future<void> _initAuth() async {
   // Authentication repository
