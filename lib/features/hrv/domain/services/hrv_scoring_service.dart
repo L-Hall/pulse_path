@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../../../../shared/models/hrv_reading.dart';
+import 'hrv_baseline_service.dart';
 
 class HrvScoringService {
   HrvScoringService._();
@@ -7,12 +8,13 @@ class HrvScoringService {
   static final HrvScoringService _instance = HrvScoringService._();
   factory HrvScoringService() => _instance;
 
-  /// Calculate stress score from RMSSD
+  /// Calculate stress score from RMSSD (Welltory-style)
   /// For compatibility with performance tests
   Future<int> calculateStressScore({
     required double rmssd,
     required int age,
     String? gender,
+    HrvBaseline? baseline,
   }) async {
     // Create minimal metrics object for stress calculation
     final metrics = HrvMetrics(
@@ -32,7 +34,7 @@ class HrvScoringService {
       totalPower: 1000.0, // Default value
       dfaAlpha1: 1.0, // Default value
     );
-    return _calculateStressScore(metrics, age, gender);
+    return _calculateStressScoreWithBaseline(metrics, age, gender, baseline);
   }
 
   /// Calculate recovery score from RMSSD
@@ -92,20 +94,39 @@ class HrvScoringService {
     return _calculateEnergyScore(metrics, age, null); // Ignore fitness level for now
   }
 
-  /// Calculate comprehensive scores from HRV metrics
+  /// Calculate comprehensive scores from HRV metrics (Welltory-style)
   /// Age is optional for normalization (default: 30)
   /// Gender: 'male', 'female', or null for general population
-  HrvScores calculateScores(
+  /// Baseline: Personal baseline for accurate assessment
+  Future<HrvScores> calculateScores(
     HrvMetrics metrics, {
     int? age,
     String? gender,
-  }) {
+    HrvBaseline? baseline,
+    double? sleepScore,
+    double? ambientHeartRate,
+  }) async {
     final normalizedAge = age ?? 30;
     
-    // Calculate individual scores
-    final stress = _calculateStressScore(metrics, normalizedAge, gender);
-    final recovery = _calculateRecoveryScore(metrics, normalizedAge, gender);
-    final energy = _calculateEnergyScore(metrics, normalizedAge, gender);
+    // Get baseline if not provided
+    final personalBaseline = baseline ?? await HrvBaselineService().getSevenDayBaseline(
+      age: normalizedAge,
+      gender: gender,
+    );
+    
+    // Calculate individual scores with baseline awareness
+    final stress = _calculateStressScoreWithBaseline(metrics, normalizedAge, gender, personalBaseline);
+    final recovery = _calculateRecoveryScoreWithBaseline(metrics, normalizedAge, gender, personalBaseline);
+    final energy = await _calculateEnergyBatteryScore(
+      metrics,
+      personalBaseline,
+      sleepScore: sleepScore ?? 70.0,
+      ambientHeartRate: ambientHeartRate,
+      age: normalizedAge,
+      gender: gender,
+    );
+    final health = _calculateHealthScore(metrics, normalizedAge, gender);
+    final focus = _calculateFocusScore(metrics, stress, personalBaseline);
     final confidence = _calculateConfidenceScore(metrics);
     
     return HrvScores(
@@ -113,7 +134,53 @@ class HrvScoringService {
       recovery: recovery.clamp(0, 100),
       energy: energy.clamp(0, 100),
       confidence: confidence.clamp(0.0, 1.0),
+      health: health.clamp(0, 100),
+      focus: focus.clamp(0, 100),
     );
+  }
+
+  /// Calculate stress score with baseline comparison (Welltory-style)
+  int _calculateStressScoreWithBaseline(
+    HrvMetrics metrics,
+    int age,
+    String? gender,
+    HrvBaseline? baseline,
+  ) {
+    // If no baseline, fall back to age-adjusted calculation
+    if (baseline == null || !baseline.hasEnoughData) {
+      return _calculateStressScore(metrics, age, gender);
+    }
+    
+    // Welltory-style stress calculation
+    final stressRaw = (1 - (metrics.rmssd / baseline.rmssdMedian)).clamp(0.0, 1.0);
+    final stressScore = (stressRaw * 100).round();
+    
+    // Adjust with other factors
+    final lfHfComponent = _calculateLfHfStressComponent(metrics.lfHfRatio);
+    final baevskComponent = _calculateBaevskStressComponent(metrics.baevsky);
+    
+    // Weighted combination
+    final combinedScore = (stressScore * 0.5 + 
+                          lfHfComponent * 0.3 + 
+                          baevskComponent * 0.2).round();
+    
+    return combinedScore.clamp(0, 100);
+  }
+  
+  /// Helper method for LF/HF stress component
+  double _calculateLfHfStressComponent(double lfHfRatio) {
+    if (lfHfRatio <= 1.0) return 20;
+    if (lfHfRatio <= 2.0) return 20 + (lfHfRatio - 1.0) * 20;
+    if (lfHfRatio <= 4.0) return 40 + (lfHfRatio - 2.0) * 25;
+    return 90;
+  }
+  
+  /// Helper method for Baevsky stress component  
+  double _calculateBaevskStressComponent(double baevsky) {
+    if (baevsky <= 50) return 10;
+    if (baevsky <= 150) return 10 + (baevsky - 50) * 0.3;
+    if (baevsky <= 300) return 40 + (baevsky - 150) * 0.33;
+    return 90;
   }
 
   /// Calculate stress score (0-100, higher = more stressed)
@@ -185,6 +252,56 @@ class HrvScoringService {
     stressScore += meanRrComponent * 0.15;
     
     return stressScore.round();
+  }
+
+  /// Calculate recovery score with baseline comparison
+  int _calculateRecoveryScoreWithBaseline(
+    HrvMetrics metrics,
+    int age,
+    String? gender,
+    HrvBaseline? baseline,
+  ) {
+    // If no baseline, fall back to age-adjusted calculation
+    if (baseline == null || !baseline.hasEnoughData) {
+      return _calculateRecoveryScore(metrics, age, gender);
+    }
+    
+    // Compare to personal baseline
+    final rmssdRatio = metrics.rmssd / baseline.rmssdMedian;
+    final hfRatio = metrics.highFrequency / baseline.highFrequencyMedian;
+    final pnn50Ratio = metrics.pnn50 / baseline.pnn50Median;
+    
+    // Calculate recovery components
+    double recoveryScore = 0.0;
+    
+    // RMSSD component (50% weight)
+    if (rmssdRatio >= 1.2) {
+      recoveryScore += 45; // Excellent recovery
+    } else if (rmssdRatio >= 1.0) {
+      recoveryScore += 35 + (rmssdRatio - 1.0) * 50;
+    } else if (rmssdRatio >= 0.8) {
+      recoveryScore += 25 + (rmssdRatio - 0.8) * 50;
+    } else {
+      recoveryScore += max(5, rmssdRatio * 31.25);
+    }
+    
+    // HF component (30% weight)
+    if (hfRatio >= 1.1) {
+      recoveryScore += 27;
+    } else if (hfRatio >= 0.9) {
+      recoveryScore += 18 + (hfRatio - 0.9) * 45;
+    } else {
+      recoveryScore += max(3, hfRatio * 20);
+    }
+    
+    // pNN50 component (20% weight)
+    if (pnn50Ratio >= 1.0) {
+      recoveryScore += 16 + min(4, (pnn50Ratio - 1.0) * 8);
+    } else {
+      recoveryScore += max(2, pnn50Ratio * 16);
+    }
+    
+    return recoveryScore.round().clamp(0, 100);
   }
 
   /// Calculate recovery score (0-100, higher = better recovery)
@@ -393,5 +510,116 @@ class HrvScoringService {
     }
     
     return max(600.0, baseRr);
+  }
+  
+  /// Calculate Energy/Battery score (Welltory-style)
+  /// Combines sleep, HRV, and ambient heart rate
+  Future<int> _calculateEnergyBatteryScore(
+    HrvMetrics metrics,
+    HrvBaseline baseline,
+    {
+      required double sleepScore,
+      double? ambientHeartRate,
+      int? age,
+      String? gender,
+    }
+  ) async {
+    // Sleep factor (0-1)
+    final sleepFactor = sleepScore / 100.0;
+    
+    // HRV factor based on baseline comparison
+    double hrvFactor = 1.0;
+    if (baseline.hasEnoughData) {
+      hrvFactor = metrics.rmssd / baseline.rmssdMedian;
+    } else {
+      // Fall back to age-normalized comparison
+      final normalizedRmssd = _getAgeNormalizedRmssd(age ?? 30, gender);
+      hrvFactor = metrics.rmssd / normalizedRmssd;
+    }
+    
+    // Ambient HR factor (if available)
+    double hrFactor = 0.0;
+    if (ambientHeartRate != null) {
+      final hrBaseline = baseline.hasEnoughData 
+          ? (60000 / baseline.meanRrMedian) // Convert RR to HR
+          : _getAgeNormalizedHeartRate(age ?? 30, gender);
+      hrFactor = (hrBaseline - ambientHeartRate) / hrBaseline;
+    }
+    
+    // Welltory-style energy calculation
+    final rawEnergy = 0.5 * sleepFactor + 
+                      0.3 * hrvFactor + 
+                      0.2 * hrFactor.clamp(0, 1);
+    
+    // Apply sigmoid transformation for smoother distribution
+    final battery = _sigmoid(rawEnergy) * 100;
+    
+    return battery.round().clamp(0, 100);
+  }
+  
+  /// Calculate Health/Resilience score
+  /// Maps RMSSD to 0-100 using logistic function
+  int _calculateHealthScore(HrvMetrics metrics, int age, String? gender) {
+    // Use natural log of RMSSD for better distribution
+    final lnRmssd = log(metrics.rmssd);
+    
+    // Normal range: 20-120ms (ln: 3.0-4.8)
+    const lnLower = 3.0; // ln(20)
+    const lnUpper = 4.8; // ln(120)
+    
+    // Logistic mapping
+    final normalized = (lnRmssd - lnLower) / (lnUpper - lnLower);
+    final health = _logistic(normalized) * 100;
+    
+    return health.round().clamp(0, 100);
+  }
+  
+  /// Calculate Focus score
+  /// Combines parasympathetic activity and stress levels
+  int _calculateFocusScore(
+    HrvMetrics metrics,
+    int stressScore,
+    HrvBaseline baseline,
+  ) {
+    // Parasympathetic activity indicator
+    double parasympActivity = 0.0;
+    if (baseline.hasEnoughData) {
+      parasympActivity = (metrics.highFrequency / baseline.highFrequencyMedian).clamp(0, 2);
+    } else {
+      // Normalize HF power
+      parasympActivity = (metrics.highFrequency / 200.0).clamp(0, 2);
+    }
+    
+    // Convert stress to 0-1 scale (inverted)
+    final stressRaw = 1 - (stressScore / 100.0);
+    
+    // Focus calculation
+    final focus = (0.6 * parasympActivity + 0.4 * stressRaw).clamp(0, 1) * 100;
+    
+    return focus.round().clamp(0, 100);
+  }
+  
+  /// Sigmoid function for smooth transitions
+  double _sigmoid(double x) {
+    return 1 / (1 + exp(-12 * (x - 0.5)));
+  }
+  
+  /// Logistic function for mapping values
+  double _logistic(double x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    return 1 / (1 + exp(-6 * (x - 0.5)));
+  }
+  
+  /// Get age-normalized heart rate
+  double _getAgeNormalizedHeartRate(int age, String? gender) {
+    // Resting HR increases slightly with age
+    double baseHr = gender == 'female' ? 67.0 : 63.0;
+    
+    if (age > 25) {
+      baseHr += (age - 25) * 0.15;
+    }
+    
+    return baseHr;
   }
 }

@@ -110,7 +110,7 @@ final isAnonymousProvider = AutoDisposeProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef IsAnonymousRef = AutoDisposeProviderRef<bool>;
-String _$authNotifierHash() => r'5cd82dbcb92afaa856c540c5fb87b2d3d2faca5f';
+String _$authNotifierHash() => r'f957b0822730daf094d98de97550920bfb472e4b';
 
 /// See also [AuthNotifier].
 @ProviderFor(AuthNotifier)

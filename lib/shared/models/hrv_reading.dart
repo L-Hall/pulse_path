@@ -53,6 +53,8 @@ class HrvScores with _$HrvScores {
     required int recovery,
     required int energy,
     required double confidence,
+    @Default(0) int health,
+    @Default(0) int focus,
   }) = _HrvScores;
 
   factory HrvScores.fromJson(Map<String, dynamic> json) =>

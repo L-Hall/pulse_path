@@ -874,6 +874,8 @@ mixin _$HrvScores {
   int get recovery => throw _privateConstructorUsedError;
   int get energy => throw _privateConstructorUsedError;
   double get confidence => throw _privateConstructorUsedError;
+  int get health => throw _privateConstructorUsedError;
+  int get focus => throw _privateConstructorUsedError;
 
   /// Serializes this HrvScores to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -890,7 +892,13 @@ abstract class $HrvScoresCopyWith<$Res> {
   factory $HrvScoresCopyWith(HrvScores value, $Res Function(HrvScores) then) =
       _$HrvScoresCopyWithImpl<$Res, HrvScores>;
   @useResult
-  $Res call({int stress, int recovery, int energy, double confidence});
+  $Res call(
+      {int stress,
+      int recovery,
+      int energy,
+      double confidence,
+      int health,
+      int focus});
 }
 
 /// @nodoc
@@ -912,6 +920,8 @@ class _$HrvScoresCopyWithImpl<$Res, $Val extends HrvScores>
     Object? recovery = null,
     Object? energy = null,
     Object? confidence = null,
+    Object? health = null,
+    Object? focus = null,
   }) {
     return _then(_value.copyWith(
       stress: null == stress
@@ -930,6 +940,14 @@ class _$HrvScoresCopyWithImpl<$Res, $Val extends HrvScores>
           ? _value.confidence
           : confidence // ignore: cast_nullable_to_non_nullable
               as double,
+      health: null == health
+          ? _value.health
+          : health // ignore: cast_nullable_to_non_nullable
+              as int,
+      focus: null == focus
+          ? _value.focus
+          : focus // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -942,7 +960,13 @@ abstract class _$$HrvScoresImplCopyWith<$Res>
       __$$HrvScoresImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int stress, int recovery, int energy, double confidence});
+  $Res call(
+      {int stress,
+      int recovery,
+      int energy,
+      double confidence,
+      int health,
+      int focus});
 }
 
 /// @nodoc
@@ -962,6 +986,8 @@ class __$$HrvScoresImplCopyWithImpl<$Res>
     Object? recovery = null,
     Object? energy = null,
     Object? confidence = null,
+    Object? health = null,
+    Object? focus = null,
   }) {
     return _then(_$HrvScoresImpl(
       stress: null == stress
@@ -980,6 +1006,14 @@ class __$$HrvScoresImplCopyWithImpl<$Res>
           ? _value.confidence
           : confidence // ignore: cast_nullable_to_non_nullable
               as double,
+      health: null == health
+          ? _value.health
+          : health // ignore: cast_nullable_to_non_nullable
+              as int,
+      focus: null == focus
+          ? _value.focus
+          : focus // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -991,7 +1025,9 @@ class _$HrvScoresImpl implements _HrvScores {
       {required this.stress,
       required this.recovery,
       required this.energy,
-      required this.confidence});
+      required this.confidence,
+      this.health = 0,
+      this.focus = 0});
 
   factory _$HrvScoresImpl.fromJson(Map<String, dynamic> json) =>
       _$$HrvScoresImplFromJson(json);
@@ -1004,10 +1040,16 @@ class _$HrvScoresImpl implements _HrvScores {
   final int energy;
   @override
   final double confidence;
+  @override
+  @JsonKey()
+  final int health;
+  @override
+  @JsonKey()
+  final int focus;
 
   @override
   String toString() {
-    return 'HrvScores(stress: $stress, recovery: $recovery, energy: $energy, confidence: $confidence)';
+    return 'HrvScores(stress: $stress, recovery: $recovery, energy: $energy, confidence: $confidence, health: $health, focus: $focus)';
   }
 
   @override
@@ -1020,13 +1062,15 @@ class _$HrvScoresImpl implements _HrvScores {
                 other.recovery == recovery) &&
             (identical(other.energy, energy) || other.energy == energy) &&
             (identical(other.confidence, confidence) ||
-                other.confidence == confidence));
+                other.confidence == confidence) &&
+            (identical(other.health, health) || other.health == health) &&
+            (identical(other.focus, focus) || other.focus == focus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, stress, recovery, energy, confidence);
+  int get hashCode => Object.hash(
+      runtimeType, stress, recovery, energy, confidence, health, focus);
 
   /// Create a copy of HrvScores
   /// with the given fields replaced by the non-null parameter values.
@@ -1049,7 +1093,9 @@ abstract class _HrvScores implements HrvScores {
       {required final int stress,
       required final int recovery,
       required final int energy,
-      required final double confidence}) = _$HrvScoresImpl;
+      required final double confidence,
+      final int health,
+      final int focus}) = _$HrvScoresImpl;
 
   factory _HrvScores.fromJson(Map<String, dynamic> json) =
       _$HrvScoresImpl.fromJson;
@@ -1062,6 +1108,10 @@ abstract class _HrvScores implements HrvScores {
   int get energy;
   @override
   double get confidence;
+  @override
+  int get health;
+  @override
+  int get focus;
 
   /// Create a copy of HrvScores
   /// with the given fields replaced by the non-null parameter values.

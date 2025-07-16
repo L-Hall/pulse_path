@@ -99,6 +99,27 @@ class AppUtils {
     return (count / (rrIntervals.length - 1)) * 100;
   }
   
+  /// Calculates Coefficient of Variance (CV) - SDNN/Mean RR
+  static double calculateCoefficientOfVariance(List<double> rrIntervals) {
+    if (rrIntervals.isEmpty) return 0.0;
+    
+    final mean = calculateMeanRr(rrIntervals);
+    final sdnn = calculateSdnn(rrIntervals);
+    
+    if (mean == 0) return 0.0;
+    return (sdnn / mean) * 100;
+  }
+  
+  /// Calculates MxDMn (Maximum - Minimum RR interval difference)
+  static double calculateMxdmn(List<double> rrIntervals) {
+    if (rrIntervals.isEmpty) return 0.0;
+    
+    final max = rrIntervals.reduce((a, b) => a > b ? a : b);
+    final min = rrIntervals.reduce((a, b) => a < b ? a : b);
+    
+    return max - min;
+  }
+  
   /// Validates timestamp is within reasonable range
   static bool isValidTimestamp(DateTime timestamp) {
     final now = DateTime.now();

@@ -113,21 +113,12 @@ class HrvCalculationService {
 
   /// Calculate Coefficient of Variance
   double _calculateCoefficientOfVariance(List<double> rrIntervals) {
-    final mean = AppUtils.calculateMeanRr(rrIntervals);
-    final sdnn = AppUtils.calculateSdnn(rrIntervals);
-    
-    if (mean == 0) return 0.0;
-    return (sdnn / mean) * 100;
+    return AppUtils.calculateCoefficientOfVariance(rrIntervals);
   }
 
   /// Calculate MxDMn (Maximum - Minimum RR interval difference)
   double _calculateMxdmn(List<double> rrIntervals) {
-    if (rrIntervals.isEmpty) return 0.0;
-    
-    final max = rrIntervals.reduce((a, b) => a > b ? a : b);
-    final min = rrIntervals.reduce((a, b) => a < b ? a : b);
-    
-    return max - min;
+    return AppUtils.calculateMxdmn(rrIntervals);
   }
 
   /// Calculate Moda (Mode of RR intervals)

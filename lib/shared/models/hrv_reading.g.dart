@@ -80,6 +80,8 @@ _$HrvScoresImpl _$$HrvScoresImplFromJson(Map<String, dynamic> json) =>
       recovery: (json['recovery'] as num).toInt(),
       energy: (json['energy'] as num).toInt(),
       confidence: (json['confidence'] as num).toDouble(),
+      health: (json['health'] as num?)?.toInt() ?? 0,
+      focus: (json['focus'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$$HrvScoresImplToJson(_$HrvScoresImpl instance) =>
@@ -88,4 +90,6 @@ Map<String, dynamic> _$$HrvScoresImplToJson(_$HrvScoresImpl instance) =>
       'recovery': instance.recovery,
       'energy': instance.energy,
       'confidence': instance.confidence,
+      'health': instance.health,
+      'focus': instance.focus,
     };
