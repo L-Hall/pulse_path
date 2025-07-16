@@ -7,6 +7,7 @@ import '../widgets/hrv_trend_chart.dart';
 import '../widgets/enhanced_hrv_chart.dart';
 import '../widgets/data_source_indicator.dart';
 import '../widgets/first_launch_dialog.dart';
+import '../widgets/metric_quick_access_card.dart';
 import '../../../adaptive_pacing/presentation/widgets/health_context_cards.dart';
 import '../../../adaptive_pacing/presentation/widgets/pem_risk_indicator.dart';
 import '../../../hrv/presentation/pages/hrv_capture_page.dart';
@@ -158,6 +159,10 @@ class DashboardPage extends ConsumerWidget {
 
             // Quick stats
             _buildQuickStats(context, data.statistics),
+            const SizedBox(height: 32),
+            
+            // Metric quick access
+            const MetricQuickAccessCard(),
             const SizedBox(height: 32),
             
             // Weekly insights
